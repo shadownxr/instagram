@@ -17,6 +17,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+
 class Instagram extends Module {
     public function __construct(){
         $this->name = 'instagram';
@@ -30,7 +32,7 @@ class Instagram extends Module {
 
         parent::__construct();
 
-        $this->displayName = $this->l('Custom content blocks');
+        $this->displayName = $this->l('Instagram Feed API');
         $this->description = $this->l('Module allows to add custom blocks to every front-office hook');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
@@ -46,6 +48,9 @@ class Instagram extends Module {
         }
 
         Configuration::updateValue('INSTAGRAM_AUTHORIZATION_CODE', '1234567890');
+        Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
+        Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
+        Configuration::updateValue('INSTAGRAM_REDIRECT_URL', 'http://www.google.com/');
 
         return (
             parent::install()
@@ -56,6 +61,9 @@ class Instagram extends Module {
 
     public function uninstall(){
         Configuration::deleteByName('INSTAGRAM_AUTHORIZATION_CODE');
+        Configuration::deleteByName('INSTAGRAM_APP_ID');
+        Configuration::deleteByName('INSTAGRAM_APP_SECRET');
+        Configuration::deleteByName('INSTAGRAM_REDIRECT_URL');
 
         return parent::uninstall();
     }
@@ -111,6 +119,22 @@ class Instagram extends Module {
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-key"></i>',
+                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
+                        'name' => 'INSTAGRAM_APP_ID',
+                        'label' => $this->l('Instagram App ID'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-key"></i>',
+                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
+                        'name' => 'INSTAGRAM_APP_SECRET',
+                        'label' => $this->l('Instagram App Secret'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-key"></i>',
                         'desc' => $this->l('Enter authorization code that you have recieved by connecting your Instagram account (without #_)'),
                         'name' => 'INSTAGRAM_AUTHORIZATION_CODE',
                         'label' => $this->l('Code'),
@@ -127,6 +151,8 @@ class Instagram extends Module {
     {
         return array(
             'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+            'INSTAGRAM_APP_SECRET' => Configuration::get('INSTAGRAM_APP_SECRET'),
+            'INSTAGRAM_APP_ID' => Configuration::get('INSTAGRAM_APP_ID'),
         );
     }
 
@@ -137,10 +163,40 @@ class Instagram extends Module {
         foreach (array_keys($form_values) as $key) {
             Configuration::updateValue($key, Tools::getValue($key));
         }
+
+        $this->getAccessToken();
+
+        $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
 
     public function hookDisplayHeader(){
         echo "Test22";
-        var_dump(Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'));
+    }
+
+    public function getAccessToken(){
+        $url = 'https://api.instagram.com/oauth/access_token';
+        $data = array(
+			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
+			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
+			'grant_type' => 'authorization_code',
+			'redirect_uri' => 'https://www.google.com/',
+			'code' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+		);
+
+        $fetch_data = InstagramCurl::fetch($url, $data);
+        $short_access_token = '';
+        $user_id = '';
+
+        $this->trans('test',[], 'Admin.Notifications');
+        //var_dump($fetch_data);
+
+        if(array_key_exists('access_token', $fetch_data) && array_key_exists('user_id',$fetch_data)){
+            $short_access_token = $fetch_data['access_token'];
+            $user_id = $fetch_data['user_id'];
+        } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
+            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>'; 
+        } else {
+            var_dump('Can\'t get Accsess Token');
+        }  
     }
 }
