@@ -164,7 +164,7 @@ class Instagram extends Module {
             Configuration::updateValue($key, Tools::getValue($key));
         }
 
-        $this->getAccessToken();
+        $this->getLongAccessToken();
 
         $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
@@ -173,7 +173,7 @@ class Instagram extends Module {
         echo "Test22";
     }
 
-    public function getAccessToken(){
+    public function getLongAccessToken(){
         $url = 'https://api.instagram.com/oauth/access_token';
         $data = array(
 			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
@@ -185,18 +185,38 @@ class Instagram extends Module {
 
         $fetch_data = InstagramCurl::fetch($url, $data);
         $short_access_token = '';
+        $long_access_token = '';
         $user_id = '';
-
-        $this->trans('test',[], 'Admin.Notifications');
-        //var_dump($fetch_data);
+        $token_expire_date = '';
 
         if(array_key_exists('access_token', $fetch_data) && array_key_exists('user_id',$fetch_data)){
             $short_access_token = $fetch_data['access_token'];
             $user_id = $fetch_data['user_id'];
         } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
-            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>'; 
+            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
+            return;
         } else {
-            var_dump('Can\'t get Accsess Token');
-        }  
+            var_dump('Can\'t get Access Token');
+            return;
+        }
+
+        $url = 'https://graph.instagram.com/access_token?client_secret='.Configuration::get('INSTAGRAM_APP_SECRET')
+                .'&access_token='.$short_access_token
+                .'&grant_type=ig_exchange_token';
+
+        $fetch_data = InstagramCurl::fetch($url);
+        
+        if(array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in',$fetch_data)){
+            $long_access_token = $fetch_data['access_token'];
+            $token_expire_date = $fetch_data['expires_in'];
+        } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
+            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
+            return;
+        } else {
+            var_dump('Can\'t get Access Token');
+            return;
+        }
+
+        var_dump($fetch_data);
     }
 }

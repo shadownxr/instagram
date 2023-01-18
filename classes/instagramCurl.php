@@ -2,7 +2,7 @@
 include_once(_PS_MODULE_DIR_. 'instagram/classes/define.php');
 
 class InstagramCurl{
-    public static function fetch(string $url, $data): array {
+    public static function fetch(string $url, $data = false): array {
         $ch = curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
