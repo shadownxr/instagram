@@ -45,6 +45,8 @@ class Instagram extends Module {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
+        Configuration::updateValue('INSTAGRAM_AUTHORIZATION_CODE', '1234567890');
+
         return (
             parent::install()
             && $this->registerHook('actionFrontControllerSetMedia')
@@ -53,10 +55,92 @@ class Instagram extends Module {
     }
 
     public function uninstall(){
+        Configuration::deleteByName('INSTAGRAM_AUTHORIZATION_CODE');
+
         return parent::uninstall();
+    }
+
+    public function getContent()
+    {
+        if (((bool)Tools::isSubmit('submitCompareModule')) == true) {
+            $this->postProcess();
+        }
+
+        $this->context->smarty->assign('module_dir', $this->_path);
+
+        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+
+        return $output.$this->renderForm();
+    }
+
+    protected function renderForm()
+    {
+        $helper = new HelperForm();
+
+        $helper->show_toolbar = false;
+        $helper->table = $this->table;
+        $helper->module = $this;
+        $helper->default_form_language = $this->context->language->id;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
+
+        $helper->identifier = $this->identifier;
+        $helper->submit_action = 'submitCompareModule';
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
+            .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+
+        $helper->tpl_vars = array(
+            'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
+            'languages' => $this->context->controller->getLanguages(),
+            'id_language' => $this->context->language->id,
+        );
+
+        return $helper->generateForm(array($this->getConfigForm()));
+    }
+
+    protected function getConfigForm()
+    {
+        return array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Settings'),
+                    'icon' => 'icon-cogs',
+                ),
+                'input' => array(
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-key"></i>',
+                        'desc' => $this->l('Enter authorization code that you have recieved by connecting your Instagram account (without #_)'),
+                        'name' => 'INSTAGRAM_AUTHORIZATION_CODE',
+                        'label' => $this->l('Code'),
+                    ),
+                ),
+                'submit' => array(
+                    'title' => $this->l('Save'),
+                ),
+            ),
+        );
+    }
+
+    protected function getConfigFormValues()
+    {
+        return array(
+            'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+        );
+    }
+
+    protected function postProcess()
+    {
+        $form_values = $this->getConfigFormValues();
+
+        foreach (array_keys($form_values) as $key) {
+            Configuration::updateValue($key, Tools::getValue($key));
+        }
     }
 
     public function hookDisplayHeader(){
         echo "Test22";
+        var_dump(Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'));
     }
 }
