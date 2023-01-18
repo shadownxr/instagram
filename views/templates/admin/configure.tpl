@@ -46,3 +46,19 @@
 		</ul>
 	</p>
 </div>
+
+<div class="panel">
+	<h3><i class="icon icon-tags"></i> {l s='Connect your account with an Instagram App' mod='instagram'}</h3>
+	<p>
+		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
+		<form action="https://api.instagram.com/oauth/authorize" method="GET">
+			{l s='Copy current page url that will be used to redirect you from an Instagram authorization page. (end with /)' mod='instagram'} <br />
+			<input type="text" name="redirect_uri" placeholder="Redirect URL"></input>
+			{l s='Instagram APP ID: default value points to default App' mod='instagram'}
+			<input type="text" name="client_id" value="1788770188184590"></input>
+			<input type="hidden" name="scope" value="user_profile,user_media"></input>
+			<input type="hidden" name="response_type" value="code"></input>
+			<button type="submit">Authorize</button>
+		</form>
+	</p>
+</div>
