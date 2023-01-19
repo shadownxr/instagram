@@ -26,7 +26,7 @@
 $sql = array();
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagram` (
-    `id_instagram` enum(1) NOT NULL,
+    `id_instagram` int(1) NOT NULL,
     `user_id` varchar(255) NOT NULL,
     `access_token` varchar(255) NOT NULL,
     `token_expires` int(11) NOT NULL,

@@ -168,16 +168,31 @@ class Instagram extends Module {
             Configuration::updateValue($key, Tools::getValue($key));
         }
 
-        $this->getLongAccessToken();
+        $data = $this->fetchLongAccessToken();
+        /*$data = array(
+            'user_id'=>'17841457282774580',
+            'access_token'=>'Nowy Token',
+            'token_expires'=>'5118381'
+        );*/
+        //$res = $this->updateAccessToken($data);
+        var_dump($data);
+        $res = $this->updateAccessToken($data);
+        if($res){
+            echo "Update successfull";
+        } else {
+            echo "Update failed";
+        }
+
 
         $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
 
     public function hookDisplayHeader(){
         echo "Test22";
+        $date = $this->refreshAccessToken();
     }
 
-    private function getLongAccessToken(){
+    private function fetchLongAccessToken(){
         $url = 'https://api.instagram.com/oauth/access_token';
         $data = array(
 			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
@@ -221,28 +236,65 @@ class Instagram extends Module {
             return;
         }
 
-        var_dump($fetch_data);
-
         return array(
             'access_token' => $long_access_token,
-            'expires_in' => $token_expire_date,
+            'token_expires' => $token_expire_date,
             'user_id' => $user_id
         );
     }
 
-    private function getAccessToken(){
-
+    private function checkIfAccessTokenExists(): bool{
+        return !empty(DB::getInstance()->executeS('SELECT * FROM `'._DB_PREFIX_.'instagram`'));
     }
 
-    private function insertAccessToken(array $data){
+    private function updateAccessToken($data){
         $res = false;
-        if(array_key_exists('access_token', $data) && array_key_exists('expires_in', $data) && array_key_exists('user_id', $data)){
-            $res = DB::getInstance()->execute(
-                    'INSERT INTO `' . _DB_PREFIX_ . 
-                    'instagram` (`user_id`, `access_token`, `token_expires`, `creation_date`) 
-                    VALUES ("'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+        if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
+            if(!$this->checkIfAccessTokenExists()){
+                $id = 1;
+                $res = DB::getInstance()->execute(
+                        'INSERT INTO `' . _DB_PREFIX_ . 
+                        'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
+                        VALUES ("'.(int)$id.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+            } else {
+                $res = DB::getInstance()->update('instagram', array(
+                    'access_token' => $data['access_token'],
+                    'token_expires' => $data['token_expires'],
+                ));
+            }
         } else {
             return false;
+        }
+        return true;
+    }
+
+    private function getUserId(): string{
+        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res[0]['user_id'];
+    }
+    private function getAccessToken(): string{
+        $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res[0]['access_token'];
+    }
+
+    private function getUserIdAndAccessToken(): array{
+        $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res;
+    }
+
+    private function refreshAccessToken(){
+        $res = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+
+        $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
+        $today_time = date("U");
+
+        $access_token = $this->getAccessToken();
+
+        if(($expiration_time - $today_time) < 2629743){
+            $url = 'https://graph.instagram.com/refresh_access_token?access_token='.$access_token
+                .'&grant_type=ig_refresh_token';
+
+            InstagramCurl::fetch($url);
         }
     }
 }
