@@ -188,8 +188,8 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        echo "Test22";
-        $date = $this->refreshAccessToken();
+        $this->context->smarty->assign(array('url' => $this->getImageUrl()));
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
     private function fetchLongAccessToken(){
@@ -296,5 +296,19 @@ class Instagram extends Module {
 
             InstagramCurl::fetch($url);
         }
+    }
+
+    private function getImageUrl(): string{
+        $data = $this->getUserIdAndAccessToken();
+        
+        $fields = 'id,timestamp';
+        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
+        $images_id = InstagramCurl::fetch($url);
+
+        $fields = 'media_url,media_type';
+        $url = 'https://graph.instagram.com/'.$images_id['data'][0]['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+        $image_url = InstagramCurl::fetch($url);
+
+        return $image_url['media_url'];
     }
 }
