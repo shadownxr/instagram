@@ -20,6 +20,10 @@ if (!defined('_PS_VERSION_')) {
 include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
 
 class Instagram extends Module {
+    private string $message = '';
+    private string $message_type = '';
+    private string $instagram_code = '';
+
     public function __construct(){
         $this->name = 'instagram';
         $this->tab = 'social_media';
@@ -47,7 +51,6 @@ class Instagram extends Module {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        Configuration::updateValue('INSTAGRAM_AUTHORIZATION_CODE', '1234567890');
         Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
         Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
         Configuration::updateValue('INSTAGRAM_REDIRECT_URL', 'http://www.google.com/');
@@ -62,7 +65,6 @@ class Instagram extends Module {
     }
 
     public function uninstall(){
-        Configuration::deleteByName('INSTAGRAM_AUTHORIZATION_CODE');
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
         Configuration::deleteByName('INSTAGRAM_REDIRECT_URL');
@@ -74,86 +76,69 @@ class Instagram extends Module {
 
     public function getContent()
     {
-        if (((bool)Tools::isSubmit('submitCompareModule')) == true) {
+        /*if (((bool)Tools::isSubmit('add_account')) == true) {
             $this->postProcess();
-        }
+        }*/
+
+        $this->processConfiguration();
+        $this->processDeletion();
+
+        $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
+        $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
         $user = $this->getUserInfo();
+        $username = '';
+
+        if(is_array($user)){
+            $username = $user['username'];
+        }
 
         $this->context->smarty->assign(array(
             'module_dir' => $this->_path,
-            'username' => $user['username'],
+            'username' => $username,
+            'instagram_app_id' => $instagram_app_id,
+            'instagram_app_secret' => $instagram_app_secret,
+            'instagram_code' => $this->instagram_code,
+            'message' => $this->message,
+            'message_type' => $this->message_type,
         ));
 
-        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        $this->message = '';
+        $this->message_type = '';
 
-        return $output.$this->renderForm();
+        //$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+
+        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
     }
 
-    protected function renderForm()
-    {
-        $helper = new HelperForm();
+    private function processConfiguration(){
+        if(Tools::isSubmit('add_account')){
+            $instagram_app_id = Tools::getValue('instagram_app_id');
+            $instagram_app_secret = Tools::getValue('instagram_app_secret');
+            $this->instagram_code = Tools::getValue('instagram_code');
 
-        $helper->show_toolbar = false;
-        $helper->table = $this->table;
-        $helper->module = $this;
-        $helper->default_form_language = $this->context->language->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
-
-        $helper->identifier = $this->identifier;
-        $helper->submit_action = 'submitCompareModule';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
-            .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
-            'languages' => $this->context->controller->getLanguages(),
-            'id_language' => $this->context->language->id,
-        );
-
-        return $helper->generateForm(array($this->getConfigForm()));
+            Configuration::updateValue('INSTAGRAM_APP_ID', $instagram_app_id);
+            Configuration::updateValue('INSTAGRAM_APP_SECRET', $instagram_app_secret);
+            
+            $data = $this->fetchLongAccessToken();
+            if(is_array($data)){
+                $this->db_updateAccessToken($data);
+            }
+        }
     }
 
-    protected function getConfigForm()
-    {
-        return array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Settings'),
-                    'icon' => 'icon-cogs',
-                ),
-                'input' => array(
-                    array(
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-key"></i>',
-                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
-                        'name' => 'INSTAGRAM_APP_ID',
-                        'label' => $this->l('Instagram App ID'),
-                    ),
-                    array(
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-key"></i>',
-                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
-                        'name' => 'INSTAGRAM_APP_SECRET',
-                        'label' => $this->l('Instagram App Secret'),
-                    ),
-                    array(
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-key"></i>',
-                        'desc' => $this->l('Enter authorization code that you have recieved by connecting your Instagram account (without #_)'),
-                        'name' => 'INSTAGRAM_AUTHORIZATION_CODE',
-                        'label' => $this->l('Code'),
-                    ),
-                ),
-                'submit' => array(
-                    'title' => $this->l('Save'),
-                ),
-            ),
-        );
+    private function processDeletion(){
+        if(Tools::isSubmit('delete_account')){
+            $res = $this->db_deleteAccessToken();
+
+            if($res){
+                $this->message = "Account deleted successfully";
+                $this->message_type = "success";
+            } else {
+                $this->message = "Unable to delete account";
+                $this->message_type = "error";
+            }
+        }
     }
 
     protected function getConfigFormValues()
@@ -180,14 +165,13 @@ class Instagram extends Module {
             'token_expires'=>'5118381'
         );*/
         //$res = $this->updateAccessToken($data);
-        var_dump($data);
-        $res = $this->updateAccessToken($data);
+        
+        $res = $this->db_updateAccessToken($data);
         if($res){
             echo "Update successfull";
         } else {
             echo "Update failed";
         }
-
 
         $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
@@ -209,6 +193,7 @@ class Instagram extends Module {
 		);
 
         $fetch_data = InstagramCurl::fetch($url, $data);
+
         $short_access_token = '';
         $long_access_token = '';
         $user_id = '';
@@ -218,11 +203,13 @@ class Instagram extends Module {
             $short_access_token = $fetch_data['access_token'];
             $user_id = $fetch_data['user_id'];
         } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
-            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
-            return;
+            $this->message = $fetch_data['error_message'];
+            $this->message_type = 'error';
+            return '';
         } else {
-            var_dump('Can\'t get Access Token');
-            return;
+            $this->message = 'Can\'t get Short Access Token';
+            $this->message_type = 'error';
+            return '';
         }
 
         $url = 'https://graph.instagram.com/access_token?client_secret='.Configuration::get('INSTAGRAM_APP_SECRET')
@@ -235,12 +222,17 @@ class Instagram extends Module {
             $long_access_token = $fetch_data['access_token'];
             $token_expire_date = $fetch_data['expires_in'];
         } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
-            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
+            $this->message = $fetch_data['error_message'];
+            $this->message_type = 'error';
             return;
         } else {
-            var_dump('Can\'t get Access Token');
+            $this->message = 'Can\'t get Long Access Token';
+            $this->message_type = 'error';
             return;
         }
+
+        $this->message = 'Account successfully added';
+        $this->message_type = 'confirmation';
 
         return array(
             'access_token' => $long_access_token,
@@ -253,7 +245,7 @@ class Instagram extends Module {
         return !empty(DB::getInstance()->executeS('SELECT * FROM `'._DB_PREFIX_.'instagram`'));
     }
 
-    private function updateAccessToken($data){
+    private function db_updateAccessToken($data){
         $res = false;
         if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
             if(!$this->checkIfAccessTokenExists()){
@@ -274,17 +266,22 @@ class Instagram extends Module {
         return true;
     }
 
-    private function getUserId(): string{
+    private function db_getUserId(): string{
         $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
         return $res[0]['user_id'];
     }
-    private function getAccessToken(): string{
+    private function db_getAccessToken(): string{
         $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
         return $res[0]['access_token'];
     }
 
-    private function getUserIdAndAccessToken(): array{
+    private function db_getUserIdAndAccessToken(): array{
         $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res;
+    }
+
+    private function db_deleteAccessToken(): bool{
+        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
         return $res;
     }
 
@@ -296,7 +293,9 @@ class Instagram extends Module {
 
         $access_token = $this->getAccessToken();
 
-        if(($expiration_time - $today_time) < 2629743){
+        $month_in_seconds = 2629743;
+
+        if(($expiration_time - $today_time) < $month_in_seconds){
             $url = 'https://graph.instagram.com/refresh_access_token?access_token='.$access_token
                 .'&grant_type=ig_refresh_token';
 
@@ -304,33 +303,39 @@ class Instagram extends Module {
         }
     }
 
-    private function getImagesUrl(): array{
-        $data = $this->getUserIdAndAccessToken();
-        $images_url = [];
+    private function getImagesUrl(){
+        $data = $this->db_getUserIdAndAccessToken();
+        if(!empty($data)){
+            $images_url = [];
 
-        $fields = 'id,timestamp';
-        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
-        $images_id = InstagramCurl::fetch($url);
+            $fields = 'id,timestamp';
+            $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
+            $images_id = InstagramCurl::fetch($url);
 
-        $fields = 'media_url,media_type,caption';
+            $fields = 'media_url,media_type,caption';
 
-        foreach($images_id['data'] as $image_id){
-            $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
-            $images_url[] = InstagramCurl::fetch($url);
+            foreach($images_id['data'] as $image_id){
+                $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+                $images_url[] = InstagramCurl::fetch($url);
+            }
+
+            return $images_url;
+        } else {
+            return;
         }
-
-        return $images_url;
     }
 
-    private function getUserInfo(): array{
-        $data = $this->getUserIdAndAccessToken();
-        $fields = 'username,media_count';
-        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+    private function getUserInfo(){
+        $data = $this->db_getUserIdAndAccessToken();
+        if(!empty($data)){
+            $fields = 'username,media_count';
+            $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
 
-        $user_info = InstagramCurl::fetch($url);
+            $user_info = InstagramCurl::fetch($url);
 
-        var_dump($user_info);
-
-        return $user_info;
+            return $user_info;
+        } else {
+            return;
+        }
     }
 }

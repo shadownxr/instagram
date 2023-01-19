@@ -23,34 +23,46 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
+{if $message_type == 'error'}
+<div class="alert alert-danger" role="alert">
+	<p class="alert-text">{$message}</p>
+</div>
+{/if}
+
+{if $message_type == 'confirmation'}
+	<div class="alert alert-success" role="alert">
+		<p class="alert-text">{$message}</p>
+	</div>
+{/if}
+
 <div class="panel">
-	<h3><i class="icon icon-tags"></i> {l s='Connect your account with an Instagram App' mod='instagram'}</h3>
+	<h3><i class="icon icon-tags"></i> {l s='Connect your account to an Instagram App' mod='instagram'}</h3>
 	<p>
 		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
 		<form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
 			{l s='Copy current page url that will be used to redirect you from an Instagram authorization page. (end with /)' mod='instagram'} <br />
 			<input type="text" name="redirect_uri" placeholder="Redirect URL" value="https://www.google.com/"></input>
 			{l s='Instagram APP ID: default value points to default App' mod='instagram'}
-			<input type="text" name="client_id" value="1788770188184590"></input>
+			<input type="text" name="client_id" value={$instagram_app_id}></input>
 			<input type="hidden" name="scope" value="user_profile,user_media"></input>
 			<input type="hidden" name="response_type" value="code"></input>
-			<button type="submit">Authorize</button>
+			<button type="submit" class="btn btn-default">Authorize</button>
 		</form>
 	</p>
 </div>
 
 <div class="panel">
-	<h3><i class="icon icon-tags"></i> {l s='Add Instagram Account' mod='instagram'}</h3>
+	<h3><i class="icon icon-cogs"></i> {l s='Add Instagram Account' mod='instagram'}</h3>
 	<p>
-		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
-		<form action="" method="GET" target="_blank">
+		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <b>Code generated from authorization can be used only once. Authorize again if you didn't copy the code.</b> <br />
+		<form action="" method="POST">
 			{l s='Instagram App ID' mod='instagram'} <br />
-			<input type="text" name="redirect_uri" placeholder="Redirect URL" value=""></input>
-			{l s='Instagram APP Secret' mod='instagram'}
-			<input type="text" name="client_id" value=""></input>
-			{l s='Code' mod='instagram'}
-			<input type="text" name="response_type" value=""></input>
-			<button type="submit">Add</button>
+			<input type="text" name="instagram_app_id" value={$instagram_app_id}></input>
+			{l s='Instagram App Secret' mod='instagram'}
+			<input type="text" name="instagram_app_secret" value={$instagram_app_secret}></input>
+			{l s='Code (copied from the url without #_)' mod='instagram'}
+			<input type="text" name="instagram_code" value={$instagram_code}></input>
+			<button type="submit" name="add_account" class="btn btn-default">Add</button>
 		</form>
 	</p>
 </div>
@@ -59,7 +71,9 @@
 <div class="panel">
 	<h3><i class="icon icon-tags"></i> {l s='Current account' mod='instagram'}</h3>
 	<p>
-		{l s=$username mod='instagram'} <br />
+		<form action="" method="POST">
+			{l s=$username mod='instagram'}<br /><button type="submit" name="delete_account" class="btn btn-default">Delete</button>
+		</form>
 	</p>
 </div>
 {/if}
