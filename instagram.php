@@ -78,7 +78,12 @@ class Instagram extends Module {
             $this->postProcess();
         }
 
-        $this->context->smarty->assign('module_dir', $this->_path);
+        $user = $this->getUserInfo();
+
+        $this->context->smarty->assign(array(
+            'module_dir' => $this->_path,
+            'username' => $user['username'],
+        ));
 
         $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
 
@@ -188,8 +193,9 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        echo "Test22";
-        $date = $this->refreshAccessToken();
+        $this->getUserInfo();
+        $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
     private function fetchLongAccessToken(){
@@ -296,5 +302,35 @@ class Instagram extends Module {
 
             InstagramCurl::fetch($url);
         }
+    }
+
+    private function getImagesUrl(): array{
+        $data = $this->getUserIdAndAccessToken();
+        $images_url = [];
+
+        $fields = 'id,timestamp';
+        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
+        $images_id = InstagramCurl::fetch($url);
+
+        $fields = 'media_url,media_type,caption';
+
+        foreach($images_id['data'] as $image_id){
+            $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+            $images_url[] = InstagramCurl::fetch($url);
+        }
+
+        return $images_url;
+    }
+
+    private function getUserInfo(): array{
+        $data = $this->getUserIdAndAccessToken();
+        $fields = 'username,media_count';
+        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+
+        $user_info = InstagramCurl::fetch($url);
+
+        var_dump($user_info);
+
+        return $user_info;
     }
 }
