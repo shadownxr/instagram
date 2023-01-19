@@ -17,6 +17,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+
 class Instagram extends Module {
     public function __construct(){
         $this->name = 'instagram';
@@ -30,7 +32,7 @@ class Instagram extends Module {
 
         parent::__construct();
 
-        $this->displayName = $this->l('Custom content blocks');
+        $this->displayName = $this->l('Instagram Feed API');
         $this->description = $this->l('Module allows to add custom blocks to every front-office hook');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
@@ -46,6 +48,11 @@ class Instagram extends Module {
         }
 
         Configuration::updateValue('INSTAGRAM_AUTHORIZATION_CODE', '1234567890');
+        Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
+        Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
+        Configuration::updateValue('INSTAGRAM_REDIRECT_URL', 'http://www.google.com/');
+
+        include(dirname(__FILE__).'/sql/install.php');
 
         return (
             parent::install()
@@ -56,6 +63,11 @@ class Instagram extends Module {
 
     public function uninstall(){
         Configuration::deleteByName('INSTAGRAM_AUTHORIZATION_CODE');
+        Configuration::deleteByName('INSTAGRAM_APP_ID');
+        Configuration::deleteByName('INSTAGRAM_APP_SECRET');
+        Configuration::deleteByName('INSTAGRAM_REDIRECT_URL');
+
+        include(dirname(__FILE__).'/sql/uninstall.php');
 
         return parent::uninstall();
     }
@@ -111,6 +123,22 @@ class Instagram extends Module {
                         'col' => 3,
                         'type' => 'text',
                         'prefix' => '<i class="icon icon-key"></i>',
+                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
+                        'name' => 'INSTAGRAM_APP_ID',
+                        'label' => $this->l('Instagram App ID'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-key"></i>',
+                        'desc' => $this->l('Your App -> Instagram Basic Display -> Basic Display'),
+                        'name' => 'INSTAGRAM_APP_SECRET',
+                        'label' => $this->l('Instagram App Secret'),
+                    ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-key"></i>',
                         'desc' => $this->l('Enter authorization code that you have recieved by connecting your Instagram account (without #_)'),
                         'name' => 'INSTAGRAM_AUTHORIZATION_CODE',
                         'label' => $this->l('Code'),
@@ -127,6 +155,8 @@ class Instagram extends Module {
     {
         return array(
             'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+            'INSTAGRAM_APP_SECRET' => Configuration::get('INSTAGRAM_APP_SECRET'),
+            'INSTAGRAM_APP_ID' => Configuration::get('INSTAGRAM_APP_ID'),
         );
     }
 
@@ -137,10 +167,134 @@ class Instagram extends Module {
         foreach (array_keys($form_values) as $key) {
             Configuration::updateValue($key, Tools::getValue($key));
         }
+
+        $data = $this->fetchLongAccessToken();
+        /*$data = array(
+            'user_id'=>'17841457282774580',
+            'access_token'=>'Nowy Token',
+            'token_expires'=>'5118381'
+        );*/
+        //$res = $this->updateAccessToken($data);
+        var_dump($data);
+        $res = $this->updateAccessToken($data);
+        if($res){
+            echo "Update successfull";
+        } else {
+            echo "Update failed";
+        }
+
+
+        $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
 
     public function hookDisplayHeader(){
         echo "Test22";
-        var_dump(Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'));
+        $date = $this->refreshAccessToken();
+    }
+
+    private function fetchLongAccessToken(){
+        $url = 'https://api.instagram.com/oauth/access_token';
+        $data = array(
+			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
+			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
+			'grant_type' => 'authorization_code',
+			'redirect_uri' => 'https://www.google.com/',
+			'code' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+		);
+
+        $fetch_data = InstagramCurl::fetch($url, $data);
+        $short_access_token = '';
+        $long_access_token = '';
+        $user_id = '';
+        $token_expire_date = '';
+
+        if(array_key_exists('access_token', $fetch_data) && array_key_exists('user_id',$fetch_data)){
+            $short_access_token = $fetch_data['access_token'];
+            $user_id = $fetch_data['user_id'];
+        } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
+            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
+            return;
+        } else {
+            var_dump('Can\'t get Access Token');
+            return;
+        }
+
+        $url = 'https://graph.instagram.com/access_token?client_secret='.Configuration::get('INSTAGRAM_APP_SECRET')
+                .'&access_token='.$short_access_token
+                .'&grant_type=ig_exchange_token';
+
+        $fetch_data = InstagramCurl::fetch($url);
+        
+        if(array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in',$fetch_data)){
+            $long_access_token = $fetch_data['access_token'];
+            $token_expire_date = $fetch_data['expires_in'];
+        } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
+            echo '<div class="alert alert-danger">'.$fetch_data['error_message'].'</div>';
+            return;
+        } else {
+            var_dump('Can\'t get Access Token');
+            return;
+        }
+
+        return array(
+            'access_token' => $long_access_token,
+            'token_expires' => $token_expire_date,
+            'user_id' => $user_id
+        );
+    }
+
+    private function checkIfAccessTokenExists(): bool{
+        return !empty(DB::getInstance()->executeS('SELECT * FROM `'._DB_PREFIX_.'instagram`'));
+    }
+
+    private function updateAccessToken($data){
+        $res = false;
+        if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
+            if(!$this->checkIfAccessTokenExists()){
+                $id = 1;
+                $res = DB::getInstance()->execute(
+                        'INSERT INTO `' . _DB_PREFIX_ . 
+                        'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
+                        VALUES ("'.(int)$id.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+            } else {
+                $res = DB::getInstance()->update('instagram', array(
+                    'access_token' => $data['access_token'],
+                    'token_expires' => $data['token_expires'],
+                ));
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    private function getUserId(): string{
+        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res[0]['user_id'];
+    }
+    private function getAccessToken(): string{
+        $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res[0]['access_token'];
+    }
+
+    private function getUserIdAndAccessToken(): array{
+        $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        return $res;
+    }
+
+    private function refreshAccessToken(){
+        $res = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+
+        $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
+        $today_time = date("U");
+
+        $access_token = $this->getAccessToken();
+
+        if(($expiration_time - $today_time) < 2629743){
+            $url = 'https://graph.instagram.com/refresh_access_token?access_token='.$access_token
+                .'&grant_type=ig_refresh_token';
+
+            InstagramCurl::fetch($url);
+        }
     }
 }

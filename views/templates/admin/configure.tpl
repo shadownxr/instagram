@@ -51,9 +51,9 @@
 	<h3><i class="icon icon-tags"></i> {l s='Connect your account with an Instagram App' mod='instagram'}</h3>
 	<p>
 		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
-		<form action="https://api.instagram.com/oauth/authorize" method="GET">
+		<form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
 			{l s='Copy current page url that will be used to redirect you from an Instagram authorization page. (end with /)' mod='instagram'} <br />
-			<input type="text" name="redirect_uri" placeholder="Redirect URL"></input>
+			<input type="text" name="redirect_uri" placeholder="Redirect URL" value="https://www.google.com/"></input>
 			{l s='Instagram APP ID: default value points to default App' mod='instagram'}
 			<input type="text" name="client_id" value="1788770188184590"></input>
 			<input type="hidden" name="scope" value="user_profile,user_media"></input>
