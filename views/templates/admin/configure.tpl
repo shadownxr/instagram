@@ -24,30 +24,6 @@
 *}
 
 <div class="panel">
-	<h3><i class="icon icon-credit-card"></i> {l s='Instagram' mod='instagram'}</h3>
-	<p>
-		<strong>{l s='Here is my new generic module!' mod='instagram'}</strong><br />
-		{l s='Thanks to PrestaShop, now I have a great module.' mod='instagram'}<br />
-		{l s='I can configure it using the following configuration form.' mod='instagram'}
-	</p>
-	<br />
-	<p>
-		{l s='This module will boost your sales!' mod='instagram'}
-	</p>
-</div>
-
-<div class="panel">
-	<h3><i class="icon icon-tags"></i> {l s='Documentation' mod='instagram'}</h3>
-	<p>
-		&raquo; {l s='You can get a PDF documentation to configure this module' mod='instagram'} :
-		<ul>
-			<li><a href="#" target="_blank">{l s='English' mod='instagram'}</a></li>
-			<li><a href="#" target="_blank">{l s='French' mod='instagram'}</a></li>
-		</ul>
-	</p>
-</div>
-
-<div class="panel">
 	<h3><i class="icon icon-tags"></i> {l s='Connect your account with an Instagram App' mod='instagram'}</h3>
 	<p>
 		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
@@ -64,4 +40,26 @@
 </div>
 
 <div class="panel">
+	<h3><i class="icon icon-tags"></i> {l s='Add Instagram Account' mod='instagram'}</h3>
+	<p>
+		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
+		<form action="" method="GET" target="_blank">
+			{l s='Instagram App ID' mod='instagram'} <br />
+			<input type="text" name="redirect_uri" placeholder="Redirect URL" value=""></input>
+			{l s='Instagram APP Secret' mod='instagram'}
+			<input type="text" name="client_id" value=""></input>
+			{l s='Code' mod='instagram'}
+			<input type="text" name="response_type" value=""></input>
+			<button type="submit">Add</button>
+		</form>
+	</p>
 </div>
+
+{if !empty($username)}
+<div class="panel">
+	<h3><i class="icon icon-tags"></i> {l s='Current account' mod='instagram'}</h3>
+	<p>
+		{l s=$username mod='instagram'} <br />
+	</p>
+</div>
+{/if}

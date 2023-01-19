@@ -78,7 +78,12 @@ class Instagram extends Module {
             $this->postProcess();
         }
 
-        $this->context->smarty->assign('module_dir', $this->_path);
+        $user = $this->getUserInfo();
+
+        $this->context->smarty->assign(array(
+            'module_dir' => $this->_path,
+            'username' => $user['username'],
+        ));
 
         $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
 
@@ -188,6 +193,7 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
+        $this->getUserInfo();
         $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
@@ -314,5 +320,17 @@ class Instagram extends Module {
         }
 
         return $images_url;
+    }
+
+    private function getUserInfo(): array{
+        $data = $this->getUserIdAndAccessToken();
+        $fields = 'username,media_count';
+        $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+
+        $user_info = InstagramCurl::fetch($url);
+
+        var_dump($user_info);
+
+        return $user_info;
     }
 }
