@@ -62,3 +62,6 @@
 		</form>
 	</p>
 </div>
+
+<div class="panel">
+</div>

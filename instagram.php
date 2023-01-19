@@ -188,7 +188,7 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        $this->context->smarty->assign(array('url' => $this->getImageUrl()));
+        $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
@@ -298,17 +298,21 @@ class Instagram extends Module {
         }
     }
 
-    private function getImageUrl(): string{
+    private function getImagesUrl(): array{
         $data = $this->getUserIdAndAccessToken();
-        
+        $images_url = [];
+
         $fields = 'id,timestamp';
         $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
         $images_id = InstagramCurl::fetch($url);
 
-        $fields = 'media_url,media_type';
-        $url = 'https://graph.instagram.com/'.$images_id['data'][0]['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
-        $image_url = InstagramCurl::fetch($url);
+        $fields = 'media_url,media_type,caption';
 
-        return $image_url['media_url'];
+        foreach($images_id['data'] as $image_id){
+            $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+            $images_url[] = InstagramCurl::fetch($url);
+        }
+
+        return $images_url;
     }
 }
