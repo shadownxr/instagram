@@ -52,6 +52,8 @@ class Instagram extends Module {
         Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
         Configuration::updateValue('INSTAGRAM_REDIRECT_URL', 'http://www.google.com/');
 
+        include(dirname(__FILE__).'/sql/install.php');
+
         return (
             parent::install()
             && $this->registerHook('actionFrontControllerSetMedia')
@@ -64,6 +66,8 @@ class Instagram extends Module {
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
         Configuration::deleteByName('INSTAGRAM_REDIRECT_URL');
+
+        include(dirname(__FILE__).'/sql/uninstall.php');
 
         return parent::uninstall();
     }
@@ -173,7 +177,7 @@ class Instagram extends Module {
         echo "Test22";
     }
 
-    public function getLongAccessToken(){
+    private function getLongAccessToken(){
         $url = 'https://api.instagram.com/oauth/access_token';
         $data = array(
 			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
@@ -218,5 +222,27 @@ class Instagram extends Module {
         }
 
         var_dump($fetch_data);
+
+        return array(
+            'access_token' => $long_access_token,
+            'expires_in' => $token_expire_date,
+            'user_id' => $user_id
+        );
+    }
+
+    private function getAccessToken(){
+
+    }
+
+    private function insertAccessToken(array $data){
+        $res = false;
+        if(array_key_exists('access_token', $data) && array_key_exists('expires_in', $data) && array_key_exists('user_id', $data)){
+            $res = DB::getInstance()->execute(
+                    'INSERT INTO `' . _DB_PREFIX_ . 
+                    'instagram` (`user_id`, `access_token`, `token_expires`, `creation_date`) 
+                    VALUES ("'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+        } else {
+            return false;
+        }
     }
 }

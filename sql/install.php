@@ -26,7 +26,11 @@
 $sql = array();
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagram` (
-    `id_instagram` int(11) NOT NULL AUTO_INCREMENT,
+    `id_instagram` enum(1) NOT NULL,
+    `user_id` varchar(255) NOT NULL,
+    `access_token` varchar(255) NOT NULL,
+    `token_expires` int(11) NOT NULL,
+    `creation_date` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY  (`id_instagram`)
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
