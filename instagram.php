@@ -42,8 +42,6 @@ class Instagram extends Module {
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
 
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
-
-        //$this->admin_controller = 'AdminArkonCustomBlocksSettings';
     }
 
     public function install(){
@@ -76,10 +74,6 @@ class Instagram extends Module {
 
     public function getContent()
     {
-        /*if (((bool)Tools::isSubmit('add_account')) == true) {
-            $this->postProcess();
-        }*/
-
         $this->processConfiguration();
         $this->processDeletion();
 
@@ -105,8 +99,6 @@ class Instagram extends Module {
 
         $this->message = '';
         $this->message_type = '';
-
-        //$output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
 
         return $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
     }
@@ -159,12 +151,6 @@ class Instagram extends Module {
         }
 
         $data = $this->fetchLongAccessToken();
-        /*$data = array(
-            'user_id'=>'17841457282774580',
-            'access_token'=>'Nowy Token',
-            'token_expires'=>'5118381'
-        );*/
-        //$res = $this->updateAccessToken($data);
         
         $res = $this->db_updateAccessToken($data);
         if($res){
@@ -177,7 +163,6 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        $this->getUserInfo();
         $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
