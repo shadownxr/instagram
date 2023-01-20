@@ -92,6 +92,8 @@ class Instagram extends Module {
         ;
     }
 
+
+    
     public function getContent()
     {
         $this->processConfiguration();
@@ -251,6 +253,7 @@ class Instagram extends Module {
 
     public function hookDisplayHeader(){
         $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
+        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
@@ -261,7 +264,7 @@ class Instagram extends Module {
 			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
 			'grant_type' => 'authorization_code',
 			'redirect_uri' => 'https://www.google.com/',
-			'code' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+			'code' => $this->instagram_code,
 		);
 
         $fetch_data = InstagramCurl::fetch($url, $data);
@@ -313,14 +316,14 @@ class Instagram extends Module {
         );
     }
 
-    private function checkIfAccessTokenExists(): bool{
+    private function db_checkIfAccessTokenExists(): bool{
         return !empty(DB::getInstance()->executeS('SELECT * FROM `'._DB_PREFIX_.'instagram`'));
     }
 
     private function db_updateAccessToken($data){
         $res = false;
         if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
-            if(!$this->checkIfAccessTokenExists()){
+            if(!$this->db_checkIfAccessTokenExists()){
                 $id = 1;
                 $res = DB::getInstance()->execute(
                         'INSERT INTO `' . _DB_PREFIX_ . 
