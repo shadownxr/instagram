@@ -55,11 +55,14 @@ class Instagram extends Module {
 
         include(dirname(__FILE__).'/sql/install.php');
 
-        return (
-            parent::install()
-            && $this->registerHook('actionFrontControllerSetMedia')
-            && $this->registerHook('displayHeader')
-         );
+        if(parent::install()){
+            $this->installTab();
+            $this->registerHook('actionFrontControllerSetMedia');
+            $this->registerHook('displayHeader');
+            return true;
+        }
+
+        return false;
     }
 
     public function uninstall(){
@@ -69,7 +72,24 @@ class Instagram extends Module {
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
-        return parent::uninstall();
+        return parent::uninstall()
+            && $this->uninstallTab()
+            && $this->unregisterHook('actionFrontControllerSetMedia')
+            && $this->unregisterHook('displayHeader');
+    }
+
+    public function enable($force_all = false)
+    {
+        return parent::enable($force_all)
+            && $this->installTab()
+        ;
+    }
+
+    public function disable($force_all = false)
+    {
+        return parent::disable($force_all)
+            && $this->uninstallTab()
+        ;
     }
 
     public function getContent()
@@ -133,6 +153,73 @@ class Instagram extends Module {
         }
     }
 
+    private function installTab(){
+        $res = true;
+        $tabparent = "InstagramAdminConfig";
+        $id_parent = Tab::getIdFromClassName($tabparent);
+        if(!$id_parent){
+            $tab = new Tab();
+            $tab->active = 1;
+            $tab->class_name = "InstagramAdminConfig";
+            $tab->name = array();
+            foreach (Language::getLanguages() as $lang){
+                $tab->name[$lang["id_lang"]] = "Instagram Settings";
+            }
+            $tab->id_parent = 0;
+            $tab->module = $this->name;
+            $res &= $tab->add();
+            $id_parent = (int)$tab->id;
+        }
+        $subtabs = array(
+            array(
+                'class'=>'InstagramAdminGallery',
+                'name'=>$this->l('Gallery'),
+                'id_parent'=>$id_parent
+            ),
+            array(
+                'class'=>'InstagramAdminSettings',
+                'name'=>$this->l('Settings'),
+                'id_parent'=>$id_parent
+            ),
+        );
+        foreach($subtabs as $subtab){
+            $idtab = (int)Tab::getIdFromClassName($subtab['class']);
+            if($idtab <= 0){
+                $tab = new Tab();
+                $tab->active = 1;
+                $tab->class_name = $subtab['class'];
+                $tab->name = array();
+                foreach (Language::getLanguages() as $lang){
+                    $tab->name[(int)$lang["id_lang"]] = $subtab['name'];
+                }
+                $tab->id_parent = (int)$subtab['id_parent'];
+                $tab->module = $this->name;
+                $res &= $tab->add();
+            }
+        }
+        return $res;
+    }
+
+    private function uninstallTab() {
+        $list_tab = array('InstagramAdminGallery','InstagramAdminSettings');
+        foreach($list_tab as $id_tab){
+            $id_tab = (int)Tab::getIdFromClassName($id_tab);
+            if ($id_tab)
+            {
+                $tab = new Tab($id_tab);
+                $tab->delete();
+            }
+        }
+
+        $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
+        if ($id_tabP){
+            $tabP = new Tab($id_tabP);
+            $tabP->delete();
+        }
+
+        return true;
+    }
+    
     protected function getConfigFormValues()
     {
         return array(
@@ -276,7 +363,7 @@ class Instagram extends Module {
         $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
         $today_time = date("U");
 
-        $access_token = $this->getAccessToken();
+        $access_token = $this->db_getAccessToken();
 
         $month_in_seconds = 2629743;
 
