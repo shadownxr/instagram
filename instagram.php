@@ -18,6 +18,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
 
 class Instagram extends Module {
     private string $message = '';
@@ -252,9 +253,15 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
+        $display_style = new InstagramDisplaySettings(1);
+        //var_dump($display_style);
+
+        $this->context->smarty->assign(array(
+            'images_url' => $this->getImagesUrl(),
+            'display_style' => $display_style
+        ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
     private function fetchLongAccessToken(){

@@ -57,8 +57,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
                 } else {
                     echo False;
                 }
-            }
-            
+            }           
         }
 
         return parent::postProcess();
