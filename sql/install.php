@@ -38,6 +38,15 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
     `title` varchar(255) NOT NULL,
     `flex_direction` varchar(255) NOT NULL,
+    `image_height` int(11) unsigned NOT NULL,
+    `image_width` int(11) unsigned NOT NULL,
+    `image_border_radius` int(11) unsigned NOT NULL,
+    `show_title` BOOLEAN NOT NULL,
+    `show_description` BOOLEAN NOT NULL,
+    `image_margin` int(11) unsigned NOT NULL,
+    `max_images_fetched` int(11) unsigned NOT NULL,
+    `max_images_visible` int(11) unsigned NOT NULL,
+    `description_alignment` varchar(255) NOT NULL,
     PRIMARY KEY (`id`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 

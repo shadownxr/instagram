@@ -1,5 +1,5 @@
 <?php
-require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_. 'instagram/classes/InstagramDisplaySettings.php');
 
 class InstagramAdminSettingsController extends ModuleAdminController
 {
@@ -43,6 +43,16 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $id_settings = 1;
             $obj = new instagramDisplaySettings($id_settings);
             $obj->flex_direction = Tools::getValue('display_direction');
+            $obj->image_width = Tools::getValue('image_width');
+            $obj->image_height = Tools::getValue('image_height');
+            $obj->image_margin = Tools::getValue('image_margin');
+            $obj->image_border_radius = Tools::getValue('image_border_radius');
+            $obj->show_title = Tools::getValue('show_title');
+            $obj->show_description = Tools::getValue('show_description');
+            $obj->description_alignment = Tools::getValue('description_alignment');
+            $obj->max_images_fetched = Tools::getValue('max_images_fetched');
+            $obj->max_images_visible = Tools::getValue('max_images_visible');
+
             $obj->title = 'Next';
 
             if(!Validate::isLoadedObject($obj)){
@@ -64,7 +74,13 @@ class InstagramAdminSettingsController extends ModuleAdminController
     }
 
     public function renderList(){
-        $this->context->smarty->assign('is_connected',$this->db_checkIfAccessTokenExists());
+        $id_settings = 1;
+        $values = new instagramDisplaySettings($id_settings);
+
+        $this->context->smarty->assign(array(
+            'is_connected' => $this->db_checkIfAccessTokenExists(),
+            'set_values' => $values,
+        ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
     }
 

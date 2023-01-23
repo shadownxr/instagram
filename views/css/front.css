@@ -1,1 +1,8 @@
-.instagram_image_display{display:flex;flex-direction:column;}
+.instagram_image_display{
+    display:flex;
+    flex-direction:column;
+}
+
+.instagram_image_display img {
+
+}

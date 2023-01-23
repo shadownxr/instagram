@@ -58,6 +58,7 @@ class Instagram extends Module {
 
         if(parent::install()){
             $this->installTab();
+            $this->addDefaultDisplaySettings();
             $this->registerHook('actionFrontControllerSetMedia');
             $this->registerHook('displayHeader');
             return true;
@@ -387,8 +388,10 @@ class Instagram extends Module {
 
     private function getImagesUrl(){
         $data = $this->db_getUserIdAndAccessToken();
+        $obj = new InstagramDisplaySettings(1);
         if(!empty($data)){
             $images_url = [];
+            $image_fetch_counter = 0;
 
             $fields = 'id,timestamp';
             $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
@@ -396,9 +399,16 @@ class Instagram extends Module {
 
             $fields = 'media_url,media_type,caption';
 
+            var_dump($images_id);
+
             foreach($images_id['data'] as $image_id){
-                $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
-                $images_url[] = InstagramCurl::fetch($url);
+                if($image_fetch_counter < $obj->max_images_fetched){
+                    $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+                    $images_url[] = InstagramCurl::fetch($url);
+                    ++$image_fetch_counter;
+                } else {
+                    break;
+                }
             }
 
             return $images_url;
@@ -419,5 +429,22 @@ class Instagram extends Module {
         } else {
             return;
         }
+    }
+
+    private function addDefaultDisplaySettings(){
+        $obj = new InstagramDisplaySettings(1);
+        $obj->image_height = 300;
+        $obj->image_width = 300;
+        $obj->flex_direction = 'row';
+        $obj->title = 'Example title';
+        $obj->image_margin = 0;
+        $obj->image_border_radius = 0;
+        $obj->show_title = false;
+        $obj->show_description = false;
+        $obj->description_alignment = 'bottom';
+        $obj->max_images_fetched = 6;
+        $obj->max_images_visible = 6;
+
+        $obj->add();
     }
 }
