@@ -124,7 +124,9 @@ class Instagram extends Module {
         $this->message = '';
         $this->message_type = '';
 
-        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        $output = $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+
+        return $output.$this->renderForm();
     }
 
     private function processConfiguration(){
@@ -224,10 +226,68 @@ class Instagram extends Module {
         return true;
     }
     
+    protected function renderForm(){
+        $helper = new HelperForm();
+
+        $helper->show_toolbar = false;
+        $helper->table = $this->table;
+        $helper->module = $this;
+        $helper->default_form_language = $this->context->language->id;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
+
+        $helper->identifier = $this->identifier;
+        $helper->submit_action = 'add_account';
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
+            .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+
+        $helper->tpl_vars = array(
+            'fields_value' => array('instagram_app_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
+                                    'instagram_app_id' => Configuration::get('INSTAGRAM_APP_ID'),
+                                    'instagram_code' => ''
+                                ),
+            'languages' => $this->context->controller->getLanguages(),
+            'id_language' => $this->context->language->id,
+        );
+
+        return $helper->generateForm(array($this->getConfigForm()));
+
+    }
+
+    protected function getConfigForm() {
+        return array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Add Instagram Account'),
+                    'icon' => 'icon-cogs',
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Instagram App ID'),
+                        'name' => 'instagram_app_id',
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Instagram App Secret'),
+                        'name' => 'instagram_app_secret',
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Instagram Code'),
+                        'name' => 'instagram_code',
+                    ),
+                ),
+                'submit' => array(
+                    'title' => $this->l('Save'),
+                ),
+            ),
+        );
+    }
+
     protected function getConfigFormValues()
     {
         return array(
-            'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
             'INSTAGRAM_APP_SECRET' => Configuration::get('INSTAGRAM_APP_SECRET'),
             'INSTAGRAM_APP_ID' => Configuration::get('INSTAGRAM_APP_ID'),
         );

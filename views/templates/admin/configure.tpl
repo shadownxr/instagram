@@ -38,7 +38,7 @@
 <div class="panel">
 	<h3><i class="icon icon-tags"></i> {l s='Connect your account to an Instagram App' mod='instagram'}</h3>
 	<p>
-		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
+		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <b>Code generated from authorization can be used only once. Authorize again if you didn't copy the code.</b> <br />
 		<form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
 			{l s='Copy current page url that will be used to redirect you from an Instagram authorization page. (end with /)' mod='instagram'} <br />
 			<input type="text" name="redirect_uri" placeholder="Redirect URL" value="https://www.google.com/"></input>
@@ -54,7 +54,6 @@
 <div class="panel">
 	<h3><i class="icon icon-cogs"></i> {l s='Add Instagram Account' mod='instagram'}</h3>
 	<p>
-		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <b>Code generated from authorization can be used only once. Authorize again if you didn't copy the code.</b> <br />
 		<form action="" method="POST">
 			{l s='Instagram App ID' mod='instagram'} <br />
 			<input type="text" name="instagram_app_id" value={$instagram_app_id}></input>
