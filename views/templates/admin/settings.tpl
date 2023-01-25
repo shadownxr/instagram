@@ -119,10 +119,10 @@
                 >
             <div class="form-select">
                 <select class="form-control custom-select" name="description_alignment">
-                    <option selected value="bottom">Bottom</option>
-                    <option value="left">Left</option>
-                    <option value="top">Top</option>
-                    <option value="right">Right</option>
+                    <option selected value="column">Bottom</option>
+                    <option value="row-reverse">Left</option>
+                    <option value="column-reverse">Top</option>
+                    <option value="row">Right</option>
                 </select>
             </div>
 
