@@ -443,6 +443,7 @@ class Instagram extends Module {
         $obj->show_description = false;
         $obj->description_alignment = 'bottom';
         $obj->max_images_fetched = 6;
+        //Later if needed
         $obj->max_images_visible = 6;
 
         $obj->add();

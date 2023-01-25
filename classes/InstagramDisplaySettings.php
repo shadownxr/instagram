@@ -11,6 +11,7 @@ class InstagramDisplaySettings extends ObjectModel {
     public $show_description;
     public $description_alignment;
     public $max_images_fetched;
+    //Later if needed
     public $max_images_visible;
 
     public static $definition = array(
@@ -28,6 +29,7 @@ class InstagramDisplaySettings extends ObjectModel {
             'show_description' => array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true),
             'description_alignment' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true),
             'max_images_fetched' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
+            //Later if needed
             'max_images_visible' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
         )
     );
