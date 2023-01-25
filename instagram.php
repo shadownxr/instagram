@@ -18,6 +18,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
 
 class Instagram extends Module {
     private string $message = '';
@@ -55,11 +56,15 @@ class Instagram extends Module {
 
         include(dirname(__FILE__).'/sql/install.php');
 
-        return (
-            parent::install()
-            && $this->registerHook('actionFrontControllerSetMedia')
-            && $this->registerHook('displayHeader')
-         );
+        if(parent::install()){
+            $this->installTab();
+            $this->addDefaultDisplaySettings();
+            $this->registerHook('actionFrontControllerSetMedia');
+            $this->registerHook('displayHeader');
+            return true;
+        }
+
+        return false;
     }
 
     public function uninstall(){
@@ -69,9 +74,28 @@ class Instagram extends Module {
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
-        return parent::uninstall();
+        return parent::uninstall()
+            && $this->uninstallTab()
+            && $this->unregisterHook('actionFrontControllerSetMedia')
+            && $this->unregisterHook('displayHeader');
     }
 
+    public function enable($force_all = false)
+    {
+        return parent::enable($force_all)
+            && $this->installTab()
+        ;
+    }
+
+    public function disable($force_all = false)
+    {
+        return parent::disable($force_all)
+            && $this->uninstallTab()
+        ;
+    }
+
+
+    
     public function getContent()
     {
         $this->processConfiguration();
@@ -133,6 +157,73 @@ class Instagram extends Module {
         }
     }
 
+    private function installTab(){
+        $res = true;
+        $tabparent = "InstagramAdminConfig";
+        $id_parent = Tab::getIdFromClassName($tabparent);
+        if(!$id_parent){
+            $tab = new Tab();
+            $tab->active = 1;
+            $tab->class_name = "InstagramAdminConfig";
+            $tab->name = array();
+            foreach (Language::getLanguages() as $lang){
+                $tab->name[$lang["id_lang"]] = "Instagram Settings";
+            }
+            $tab->id_parent = 0;
+            $tab->module = $this->name;
+            $res &= $tab->add();
+            $id_parent = (int)$tab->id;
+        }
+        $subtabs = array(
+            array(
+                'class'=>'InstagramAdminGallery',
+                'name'=>$this->l('Gallery'),
+                'id_parent'=>$id_parent
+            ),
+            array(
+                'class'=>'InstagramAdminSettings',
+                'name'=>$this->l('Settings'),
+                'id_parent'=>$id_parent
+            ),
+        );
+        foreach($subtabs as $subtab){
+            $idtab = (int)Tab::getIdFromClassName($subtab['class']);
+            if($idtab <= 0){
+                $tab = new Tab();
+                $tab->active = 1;
+                $tab->class_name = $subtab['class'];
+                $tab->name = array();
+                foreach (Language::getLanguages() as $lang){
+                    $tab->name[(int)$lang["id_lang"]] = $subtab['name'];
+                }
+                $tab->id_parent = (int)$subtab['id_parent'];
+                $tab->module = $this->name;
+                $res &= $tab->add();
+            }
+        }
+        return $res;
+    }
+
+    private function uninstallTab() {
+        $list_tab = array('InstagramAdminGallery','InstagramAdminSettings');
+        foreach($list_tab as $id_tab){
+            $id_tab = (int)Tab::getIdFromClassName($id_tab);
+            if ($id_tab)
+            {
+                $tab = new Tab($id_tab);
+                $tab->delete();
+            }
+        }
+
+        $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
+        if ($id_tabP){
+            $tabP = new Tab($id_tabP);
+            $tabP->delete();
+        }
+
+        return true;
+    }
+    
     protected function getConfigFormValues()
     {
         return array(
@@ -163,8 +254,15 @@ class Instagram extends Module {
     }
 
     public function hookDisplayHeader(){
-        $this->context->smarty->assign(array('images_url' => $this->getImagesUrl()));
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+        $display_style = new InstagramDisplaySettings(1);
+        //var_dump($display_style);
+
+        $this->context->smarty->assign(array(
+            'images_url' => $this->getImagesUrl(),
+            'display_style' => $display_style
+        ));
+        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
     }
 
     private function fetchLongAccessToken(){
@@ -174,7 +272,7 @@ class Instagram extends Module {
 			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
 			'grant_type' => 'authorization_code',
 			'redirect_uri' => 'https://www.google.com/',
-			'code' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
+			'code' => $this->instagram_code,
 		);
 
         $fetch_data = InstagramCurl::fetch($url, $data);
@@ -226,14 +324,14 @@ class Instagram extends Module {
         );
     }
 
-    private function checkIfAccessTokenExists(): bool{
+    private function db_checkIfAccessTokenExists(): bool{
         return !empty(DB::getInstance()->executeS('SELECT * FROM `'._DB_PREFIX_.'instagram`'));
     }
 
     private function db_updateAccessToken($data){
         $res = false;
         if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
-            if(!$this->checkIfAccessTokenExists()){
+            if(!$this->db_checkIfAccessTokenExists()){
                 $id = 1;
                 $res = DB::getInstance()->execute(
                         'INSERT INTO `' . _DB_PREFIX_ . 
@@ -276,7 +374,7 @@ class Instagram extends Module {
         $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
         $today_time = date("U");
 
-        $access_token = $this->getAccessToken();
+        $access_token = $this->db_getAccessToken();
 
         $month_in_seconds = 2629743;
 
@@ -290,8 +388,10 @@ class Instagram extends Module {
 
     private function getImagesUrl(){
         $data = $this->db_getUserIdAndAccessToken();
+        $obj = new InstagramDisplaySettings(1);
         if(!empty($data)){
             $images_url = [];
+            $image_fetch_counter = 0;
 
             $fields = 'id,timestamp';
             $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
@@ -299,9 +399,16 @@ class Instagram extends Module {
 
             $fields = 'media_url,media_type,caption';
 
+            var_dump($images_id);
+
             foreach($images_id['data'] as $image_id){
-                $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
-                $images_url[] = InstagramCurl::fetch($url);
+                if($image_fetch_counter < $obj->max_images_fetched){
+                    $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+                    $images_url[] = InstagramCurl::fetch($url);
+                    ++$image_fetch_counter;
+                } else {
+                    break;
+                }
             }
 
             return $images_url;
@@ -322,5 +429,23 @@ class Instagram extends Module {
         } else {
             return;
         }
+    }
+
+    private function addDefaultDisplaySettings(){
+        $obj = new InstagramDisplaySettings(1);
+        $obj->image_height = 300;
+        $obj->image_width = 300;
+        $obj->flex_direction = 'row';
+        $obj->title = 'Example title';
+        $obj->image_margin = 0;
+        $obj->image_border_radius = 0;
+        $obj->show_title = false;
+        $obj->show_description = false;
+        $obj->description_alignment = 'column';
+        $obj->max_images_fetched = 6;
+        //Later if needed
+        $obj->max_images_visible = 6;
+
+        $obj->add();
     }
 }
