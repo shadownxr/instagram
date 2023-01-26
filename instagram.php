@@ -101,7 +101,6 @@ class Instagram extends Module {
     {
         $this->processConfiguration();
         $this->processDeletion();
-        $this->fetchImagesFromInstagram();
 
         $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
         $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
@@ -142,6 +141,7 @@ class Instagram extends Module {
             if(is_array($data)){
                 $this->db_updateAccessToken($data);
             }
+            $this->fetchImagesFromInstagram();
         }
     }
 
