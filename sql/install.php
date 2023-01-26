@@ -50,6 +50,13 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     PRIMARY KEY (`id`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramimages` (
+    `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
+    `image_id` varchar(255) NOT NULL,
+    `image_url` TEXT NOT NULL,
+    PRIMARY KEY (`id`)
+    ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         return false;

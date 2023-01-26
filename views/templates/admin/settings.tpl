@@ -225,5 +225,14 @@
                 </div>
             </div>
             <button type="submit" name="save_settings">Save</button>
+        </div>
+    </form>
+
+    <form action="" method="POST">
+        <div class="panel">
+            <h3><i class="icon icon-cogs"></i> {l s='Refresh images' mod='instagram'}</h3>
+
+            <button type="submit" name="refresh">Refresh</button>
+        </div>
     </form>
 {/if}

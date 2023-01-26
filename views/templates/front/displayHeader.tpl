@@ -7,7 +7,7 @@
         <div class="instagram_image_display" style="flex-direction:{$display_style->flex_direction};">
             {foreach from=$images_url item=url}
                 <div style="display:flex;flex-direction:{$display_style->description_alignment};">
-                    <img src={$url['media_url']} height="{$display_style->image_height}" width="{$display_style->image_width}" 
+                    <img src={$url['image_url']} height="{$display_style->image_height}" width="{$display_style->image_width}" 
                         style="margin:{$display_style->image_margin}px;
                         border-radius:{$display_style->image_border_radius}px;
                     "/>

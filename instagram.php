@@ -19,6 +19,7 @@ if (!defined('_PS_VERSION_')) {
 
 include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramImages.php');
 
 class Instagram extends Module {
     private string $message = '';
@@ -140,6 +141,7 @@ class Instagram extends Module {
             if(is_array($data)){
                 $this->db_updateAccessToken($data);
             }
+            $this->fetchImagesFromInstagram();
         }
     }
 
@@ -242,7 +244,7 @@ class Instagram extends Module {
         }
 
         $data = $this->fetchLongAccessToken();
-        
+
         $res = $this->db_updateAccessToken($data);
         if($res){
             echo "Update successfull";
@@ -250,15 +252,15 @@ class Instagram extends Module {
             echo "Update failed";
         }
 
-        $this->displayError($this->trans('Error', [], 'Admin.Notifications.Error'));
     }
 
     public function hookDisplayHeader(){
         $display_style = new InstagramDisplaySettings(1);
-        //var_dump($display_style);
+        
+        $img = new InstagramImages();
 
         $this->context->smarty->assign(array(
-            'images_url' => $this->getImagesUrl(),
+            'images_url' => $this->db_getImagesUrl(),
             'display_style' => $display_style
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
@@ -386,12 +388,13 @@ class Instagram extends Module {
         }
     }
 
-    private function getImagesUrl(){
+    private function fetchImagesFromInstagram(){
         $data = $this->db_getUserIdAndAccessToken();
         $obj = new InstagramDisplaySettings(1);
+
         if(!empty($data)){
             $images_url = [];
-            $image_fetch_counter = 0;
+            $image_fetch_counter = 1;
 
             $fields = 'id,timestamp';
             $url = 'https://graph.instagram.com/'.$data[0]['user_id'].'/media?access_token='.$data[0]['access_token'].'&fields='.$fields;
@@ -399,22 +402,36 @@ class Instagram extends Module {
 
             $fields = 'media_url,media_type,caption';
 
-            var_dump($images_id);
-
             foreach($images_id['data'] as $image_id){
+                $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
+                $images_url[] = InstagramCurl::fetch($url);
+            }
+
+            foreach($images_url as $image){
                 if($image_fetch_counter < $obj->max_images_fetched){
-                    $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
-                    $images_url[] = InstagramCurl::fetch($url);
+                    $img = new InstagramImages($image_fetch_counter);
+                    $img->image_id = $image['id'];
+                    $img->image_url = $image['media_url'];
+                    if(Validate::isLoadedObject($img)){
+                        $img->update();
+                    } else {
+                        $img->add();
+                    }
                     ++$image_fetch_counter;
                 } else {
                     break;
                 }
             }
 
-            return $images_url;
+            return true;
         } else {
-            return;
+            return false;
         }
+    }
+
+    private function db_getImagesUrl(){
+        $res = DB::getInstance()->executeS('SELECT image_url FROM `' . _DB_PREFIX_ .'instagramimages`');
+        return $res;
     }
 
     private function getUserInfo(){
