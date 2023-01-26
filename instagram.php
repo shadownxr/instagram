@@ -61,6 +61,7 @@ class Instagram extends Module {
             $this->addDefaultDisplaySettings();
             $this->registerHook('actionFrontControllerSetMedia');
             $this->registerHook('displayHeader');
+            $this->registerHook('displayBackOfficeHeader');
             return true;
         }
 
@@ -77,6 +78,7 @@ class Instagram extends Module {
         return parent::uninstall()
             && $this->uninstallTab()
             && $this->unregisterHook('actionFrontControllerSetMedia')
+            && $this->unregisterHook('displayBackOfficeHeader')
             && $this->unregisterHook('displayHeader');
     }
 
@@ -323,6 +325,9 @@ class Instagram extends Module {
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
         return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+    }
+
+    public function hookDisplayBackOfficeHeader(){
     }
 
     private function fetchLongAccessToken(){

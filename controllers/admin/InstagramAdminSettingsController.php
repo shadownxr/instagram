@@ -34,9 +34,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
     public function initContent()
     {
-        $this->renderForm();
         parent::initContent();
-        //$this->renderForm();
     }
 
     public function postProcess(){
@@ -91,8 +89,8 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $helper->token = Tools::getAdminTokenLite('AdminModules');
 
         $helper->tpl_vars = array(
-            'fields_value' => array('instagram_app_secret' => '',
-                                    'instagram_app_id' => '',
+            'fields_value' => array('display_direction' => 'row',
+                                    'instagram_app_secret' => 1,
                                     'instagram_code' => ''
                                 ),
             'languages' => $this->context->controller->getLanguages(),
@@ -106,20 +104,32 @@ class InstagramAdminSettingsController extends ModuleAdminController
         return array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('Add Instagram Account'),
+                    'title' => $this->l('Image settings'),
                     'icon' => 'icon-cogs',
                 ),
                 'input' => array(
                     array(
-                        'type' => 'text',
-                        'label' => $this->l('Instagram App ID'),
-                        'name' => 'instagram_app_id',
+                        'type' => 'switch',
+                        'label' => $this->l('Display direction'),
+                        'name' => 'display_direction',
+                        'values' => array(
+                            array(
+                                'id' => 'display_direction_row',
+                                'value' => 'row',
+                                'label' => $this->l('Row'),
+                            ),
+                            array(
+                                'id' => 'display_direction_column',
+                                'value' => 'column',
+                                'label' => $this->l('Column'),
+                            ),
+                        ),
                     ),
                     array(
                         'type' => 'text',
-                        'label' => $this->l('Instagram App Secret'),
-                        'name' => 'instagram_app_secret',
-                    ),
+                        'label' => $this->l('Width of image'),
+                        'name' => 'instagram_code',
+                    ), 
                     array(
                         'type' => 'text',
                         'label' => $this->l('Instagram Code'),
@@ -144,7 +154,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         
         $output = $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
 
-        return $output;
+        return $output.$this->renderForm();
     }
 
     private function db_checkIfAccessTokenExists(): bool{
