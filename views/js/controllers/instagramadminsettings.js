@@ -29,5 +29,6 @@ $(document).ready(function() {
         var description_alignment = $('select[name="description_alignment"]').val();
         $('.image').css('flex-direction',description_alignment);
     });
+
 })
 

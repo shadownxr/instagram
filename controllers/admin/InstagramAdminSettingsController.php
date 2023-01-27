@@ -119,6 +119,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             }
 
             foreach($images_url as $image){
+                //#todo clear table so only fetched amount is in the table
                 if($image_fetch_counter < $obj->max_images_fetched){
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
