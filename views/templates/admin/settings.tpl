@@ -3,20 +3,58 @@
 	<p class="alert-text">Your account is not configured, go to module configuration to set your Instagram Account</p>
 </div>
 {else}
+    <div class="panel" style="max-height:500px;overflow:scroll;">
+        <h3><i class="icon icon-cogs"></i> {l s='Preview' mod='instagram'}</h3>
+        <div class="instagram_image_display" style="display:flex;flex-direction:{$display_style->flex_direction};">
+            {foreach from=$images_data item=data}
+                <div class="image" style="display:flex;flex-direction:{$display_style->description_alignment};">
+                    <img src={$data['image_url']} class="images" height="{$display_style->image_height}" width="{$display_style->image_width}" 
+                        style="margin:{$display_style->image_margin}px;
+                        border-radius:{$display_style->image_border_radius}px;
+                    "/>
+                    {if $display_style->show_description == true}
+                        {if array_key_exists('description', $data)}
+                            <div><p>{$data['description']}</p></div>
+                        {/if}
+                    {/if}
+                </div>
+            {/foreach}
+        </div>
+    </div>
+
     <form action="" method="POST">
         <div class="panel">
             <h3><i class="icon icon-cogs"></i> {l s='Image settings' mod='instagram'}</h3>
             
             <div class="form-group">
-            
-            <span class="switch prestashop-switch fixed-width-lg" data-item="">
-                <input type="radio" name="display_direction" id="display_direction_column" value="column">
-                <label for="display_direction_column">Column</label>
-                <input type="radio" name="display_direction" id="display_direction_row" value="row" checked="checked">
-                <label for="display_direction_row">Row</label>
-                <a class="slide-button btn"></a>
-            </span>
-                            
+                        
+            <div class="form-check form-check-radio">
+                <label class="form-check-label">
+                    <input
+                    class="form-check-input"
+                    type="radio"
+                    name="display_direction"
+                    id="display_direction_column"
+                    value="column"
+                    />
+                    <i class="form-check-round">Column</i>
+                </label>
+                </div>
+
+                <div class="form-check form-check-radio">
+                <label class="form-check-label">
+                    <input
+                    class="form-check-input"
+                    type="radio"
+                    name="display_direction"
+                    id="display_direction_row"
+                    value="row"
+                    checked
+                    />
+                    <i class="form-check-round">Row</i>
+                </label>
+            </div>
+
             <p class="help-block">
                 Change display direction
             </p>

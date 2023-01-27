@@ -62,6 +62,7 @@ class Instagram extends Module {
             $this->addDefaultDisplaySettings();
             $this->registerHook('actionFrontControllerSetMedia');
             $this->registerHook('displayHeader');
+            $this->registerHook('actionAdminControllerSetMedia');
             return true;
         }
 
@@ -256,15 +257,19 @@ class Instagram extends Module {
 
     public function hookDisplayHeader(){
         $display_style = new InstagramDisplaySettings(1);
-        
+
         $img = new InstagramImages();
 
         $this->context->smarty->assign(array(
-            'images_url' => $this->db_getImagesUrl(),
+            'images_data' => $this->db_getImagesData(),
             'display_style' => $display_style
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
         return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+    }
+
+    public function hookActionAdminControllerSetMedia(){
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
     }
 
     private function fetchLongAccessToken(){
@@ -406,12 +411,18 @@ class Instagram extends Module {
                 $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
                 $images_url[] = InstagramCurl::fetch($url);
             }
-
             foreach($images_url as $image){
                 if($image_fetch_counter < $obj->max_images_fetched){
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
+                    
+                    if(array_key_exists('caption',$image)){
+                        $img->description = $image['caption'];
+                    } else {
+                        $img->description = '';
+                    }
+
                     if(Validate::isLoadedObject($img)){
                         $img->update();
                     } else {
@@ -429,8 +440,8 @@ class Instagram extends Module {
         }
     }
 
-    private function db_getImagesUrl(){
-        $res = DB::getInstance()->executeS('SELECT image_url FROM `' . _DB_PREFIX_ .'instagramimages`');
+    private function db_getImagesData(){
+        $res = DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ .'instagramimages`');
         return $res;
     }
 

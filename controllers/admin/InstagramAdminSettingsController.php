@@ -27,9 +27,9 @@ class InstagramAdminSettingsController extends ModuleAdminController
             ),
         );*/
         $this->bootstrap = true;
-        parent::__construct();
         
         $this->context = Context::getContext();
+        parent::__construct();
     }
 
     public function initContent()
@@ -58,13 +58,11 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
             if(!Validate::isLoadedObject($obj)){
                 if($obj->add()) {
-                    echo 1;
                 } else {
                     echo False;
                 }
             } else {
                 if($obj->update()){
-                    echo 2;
                 } else {
                     echo False;
                 }
@@ -81,12 +79,20 @@ class InstagramAdminSettingsController extends ModuleAdminController
     public function renderList(){
         $id_settings = 1;
         $values = new instagramDisplaySettings($id_settings);
+        $display_style = new InstagramDisplaySettings(1);
 
         $this->context->smarty->assign(array(
             'is_connected' => $this->db_checkIfAccessTokenExists(),
+            'images_data' => $this->db_getImagesData(),
+            'display_style' => $display_style,
             'set_values' => $values,
         ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
+    }
+
+    private function db_getImagesData(){
+        $res = DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ .'instagramimages`');
+        return $res;
     }
 
     private function db_checkIfAccessTokenExists(): bool{
@@ -117,6 +123,13 @@ class InstagramAdminSettingsController extends ModuleAdminController
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
+
+                    if(array_key_exists('caption',$image)){
+                        $img->description = $image['caption'];
+                    } else {
+                        $img->description = '';
+                    }
+
                     if(Validate::isLoadedObject($img)){
                         $img->update();
                     } else {
