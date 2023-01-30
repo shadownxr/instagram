@@ -42,6 +42,8 @@ class InstagramAdminSettingsController extends ModuleAdminController
         if(Tools::isSubmit('save_settings')){
             $id_settings = 1;
             $obj = new instagramDisplaySettings($id_settings);
+            $prev_hook = $obj->hook;
+            $obj->hook = Tools::getValue('display_hook');
             $obj->flex_direction = Tools::getValue('display_direction');
             $obj->image_width = Tools::getValue('image_width');
             $obj->image_height = Tools::getValue('image_height');
@@ -58,15 +60,18 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
             if(!Validate::isLoadedObject($obj)){
                 if($obj->add()) {
+                    $this->module->registerHook($obj->hook);
                 } else {
                     echo False;
                 }
             } else {
                 if($obj->update()){
+                    $this->module->unregisterHook($prev_hook);
+                    $this->module->registerHook($obj->hook);
                 } else {
                     echo False;
                 }
-            }           
+            }
         }
 
         if(Tools::isSubmit('refresh')){
@@ -80,12 +85,14 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $id_settings = 1;
         $values = new instagramDisplaySettings($id_settings);
         $display_style = new InstagramDisplaySettings(1);
+        $display_hooks = $this->db_getDisplayHooks();
 
         $this->context->smarty->assign(array(
             'is_connected' => $this->db_checkIfAccessTokenExists(),
             'images_data' => $this->db_getImagesData(),
             'display_style' => $display_style,
             'set_values' => $values,
+            'display_hooks' => $display_hooks
         ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
     }
@@ -158,5 +165,10 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagramimages`');
         $res2 = DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ .'instagramimages` AUTO_INCREMENT=1');
         return $res && $res2;
+    }
+
+    private function db_getDisplayHooks(): array{
+        $res = DB::getInstance()->executeS('SELECT id_hook, name FROM `' . _DB_PREFIX_ .'hook` WHERE name LIKE "display%" AND name NOT LIKE "displayAdmin%"');
+        return $res;
     }
 }

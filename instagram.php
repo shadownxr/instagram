@@ -61,7 +61,6 @@ class Instagram extends Module {
             $this->installTab();
             $this->addDefaultDisplaySettings();
             $this->registerHook('actionFrontControllerSetMedia');
-            $this->registerHook('displayHeader');
             $this->registerHook('actionAdminControllerSetMedia');
             return true;
         }
@@ -79,7 +78,8 @@ class Instagram extends Module {
         return parent::uninstall()
             && $this->uninstallTab()
             && $this->unregisterHook('actionFrontControllerSetMedia')
-            && $this->unregisterHook('displayHeader');
+            && $this->unregisterHook('displayHeader')
+            && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
     public function enable($force_all = false)
@@ -255,7 +255,11 @@ class Instagram extends Module {
 
     }
 
-    public function hookDisplayHeader(){
+    public function hookActionAdminControllerSetMedia(){
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
+    }
+
+    public function __call($name, $arguments){
         $display_style = new InstagramDisplaySettings(1);
 
         $img = new InstagramImages();
@@ -266,10 +270,6 @@ class Instagram extends Module {
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
         return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
-    }
-
-    public function hookActionAdminControllerSetMedia(){
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
     }
 
     private function fetchLongAccessToken(){
@@ -461,6 +461,7 @@ class Instagram extends Module {
 
     private function addDefaultDisplaySettings(){
         $obj = new InstagramDisplaySettings(1);
+        $obj->hook = 'displayHeader';
         $obj->image_height = 300;
         $obj->image_width = 300;
         $obj->flex_direction = 'row';

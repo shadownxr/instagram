@@ -36,6 +36,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagram` (
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysettings` (
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
+    `hook` varchar(255) NOT NULL,
     `title` varchar(255) NOT NULL,
     `flex_direction` varchar(255) NOT NULL,
     `image_height` int(11) unsigned NOT NULL,
