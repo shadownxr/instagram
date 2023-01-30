@@ -3,23 +3,66 @@
 	<p class="alert-text">Your account is not configured, go to module configuration to set your Instagram Account</p>
 </div>
 {else}
+    <div class="panel" style="max-height:500px;overflow:scroll;">
+        <h3><i class="icon icon-cogs"></i> {l s='Preview' mod='instagram'}</h3>
+        {if $display_style->show_title == true}
+            <div style="text-align: center;"><h1>{$display_style->title}</h1></div>
+        {/if}
+        <div class="instagram_image_display" style="display:flex;flex-direction:{$display_style->flex_direction};">
+            {foreach from=$images_data item=data}
+                <div class="image" style="display:flex;flex-direction:{$display_style->description_alignment};">
+                    <img src={$data['image_url']} class="images" height="{$display_style->image_height}" width="{$display_style->image_width}" 
+                        style="margin:{$display_style->image_margin}px;
+                        border-radius:{$display_style->image_border_radius}px;
+                    "/>
+                    {if $display_style->show_description == true}
+                        {if array_key_exists('description', $data)}
+                            <div><p>{$data['description']}</p></div>
+                        {/if}
+                    {/if}
+                </div>
+            {/foreach}
+        </div>
+    </div>
+
     <form action="" method="POST">
         <div class="panel">
             <h3><i class="icon icon-cogs"></i> {l s='Image settings' mod='instagram'}</h3>
             
             <div class="form-group">
-            
-            <span class="switch prestashop-switch fixed-width-lg" data-item="">
-                <input type="radio" name="display_direction" id="display_direction_column" value="column">
-                <label for="display_direction_column">Column</label>
-                <input type="radio" name="display_direction" id="display_direction_row" value="row" checked="checked">
-                <label for="display_direction_row">Row</label>
-                <a class="slide-button btn"></a>
-            </span>
-                            
-            <p class="help-block">
-                Change display direction
-            </p>
+                    
+            <label class="form-control-label" for="image_width">Change display direction</label>
+            <div class="form-check form-check-radio">
+                <label class="form-check-label">
+                    <input
+                    class="form-check-input"
+                    type="radio"
+                    name="display_direction"
+                    id="display_direction_column"
+                    value="column"
+                    {if $set_values->flex_direction == "column"}
+                        checked
+                    {/if}
+                    />
+                    <i class="form-check-round">Column</i>
+                </label>
+                </div>
+
+                <div class="form-check form-check-radio">
+                <label class="form-check-label">
+                    <input
+                    class="form-check-input"
+                    type="radio"
+                    name="display_direction"
+                    id="display_direction_row"
+                    value="row"
+                    {if $set_values->flex_direction  == "row"}
+                        checked
+                    {/if}
+                    />
+                    <i class="form-check-round">Row</i>
+                </label>
+            </div>
 
             <div
                 class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
@@ -96,9 +139,12 @@
                     name="show_description"
                     id="show_description_true"
                     value="1"
+                    {if $set_values->show_description == true}
+                        checked
+                    {/if}
                     />
                     <i class="form-check-round"></i>
-                    True
+                    Yes
                 </label>
                 <label class="form-check-label">
                     <input
@@ -107,10 +153,12 @@
                     name="show_description"
                     id="show_description_false"
                     value="0"
-                    checked
+                    {if $set_values->show_description == false}
+                        checked
+                    {/if}
                     />
                     <i class="form-check-round"></i>
-                    False
+                    No
                 </label>
             </div>
             
@@ -119,10 +167,10 @@
                 >
             <div class="form-select">
                 <select class="form-control custom-select" name="description_alignment">
-                    <option selected value="column">Bottom</option>
-                    <option value="row-reverse">Left</option>
-                    <option value="column-reverse">Top</option>
-                    <option value="row">Right</option>
+                <option value="column" {if $set_values->description_alignment == 'column'}selected{/if}>Bottom</option>
+                    <option value="row-reverse" {if $set_values->description_alignment == 'row-reverse'}selected{/if}>Left</option>
+                    <option value="column-reverse" {if $set_values->description_alignment == 'column-reverse'}selected{/if}>Top</option>
+                    <option value="row" {if $set_values->description_alignment == 'row'}selected{/if}>Right</option>
                 </select>
             </div>
 
@@ -143,9 +191,12 @@
                     name="show_title"
                     id="show_title_true"
                     value="1"
+                    {if $set_values->show_title == true}
+                        checked
+                    {/if}
                     />
                     <i class="form-check-round"></i>
-                    True
+                    Yes
                 </label>
                 <label class="form-check-label">
                     <input
@@ -154,10 +205,12 @@
                     name="show_title"
                     id="show_title_false"
                     value="0"
-                    checked
+                    {if $set_values->show_title == false}
+                        checked
+                    {/if}
                     />
                     <i class="form-check-round"></i>
-                    False
+                    No
                 </label>
             </div>
 
@@ -192,38 +245,6 @@
                     <input class="form-control" type="number" value="{$set_values->max_images_visible}" id="max_images_visible" name="max_images_shown"/>
                 </div>
             </div>
-
-            <div
-                class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-                data-max="1920"
-                data-min="1"
-                data-label-max="Maximum:1920"
-                data-label-min="Minimum:1"
-                data-label-nan="Not a number."
-                >
-                <label class="form-control-label" for="gallery_width"
-                    >Width of gallery</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="1" id="gallery_width" name="gallery_width"/>
-                </div>
-            </div>
-
-            <div
-                class="form-group prestasho-number-input prestasho-number-input-enable-arrows"
-                data-max="1080"
-                data-min="1"
-                data-label-max="Maximum:1080"
-                data-label-min="Minimum:1"
-                data-label-nan="Not a number."
-                >
-                <label class="form-control-label" for="gallery_height"
-                    >Height of gallery</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="1" id="gallery_height" name="gallery_height"/>
-                </div>
-            </div>
             <button type="submit" name="save_settings">Save</button>
         </div>
     </form>
@@ -231,7 +252,6 @@
     <form action="" method="POST">
         <div class="panel">
             <h3><i class="icon icon-cogs"></i> {l s='Refresh images' mod='instagram'}</h3>
-
             <button type="submit" name="refresh">Refresh</button>
         </div>
     </form>
