@@ -25,6 +25,7 @@ class Instagram extends Module {
     private string $message = '';
     private string $message_type = '';
     private string $instagram_code = '';
+    private string $redirect_uri = '';
 
     public function __construct(){
         $this->name = 'instagram';
@@ -53,7 +54,6 @@ class Instagram extends Module {
 
         Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
         Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
-        Configuration::updateValue('INSTAGRAM_REDIRECT_URL', 'http://www.google.com/');
 
         include(dirname(__FILE__).'/sql/install.php');
 
@@ -71,7 +71,6 @@ class Instagram extends Module {
     public function uninstall(){
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
-        Configuration::deleteByName('INSTAGRAM_REDIRECT_URL');
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
@@ -133,6 +132,7 @@ class Instagram extends Module {
             $instagram_app_id = Tools::getValue('instagram_app_id');
             $instagram_app_secret = Tools::getValue('instagram_app_secret');
             $this->instagram_code = Tools::getValue('instagram_code');
+            $this->redirect_uri = Tools::getValue('redirect_uri');
 
             Configuration::updateValue('INSTAGRAM_APP_ID', $instagram_app_id);
             Configuration::updateValue('INSTAGRAM_APP_SECRET', $instagram_app_secret);
@@ -273,11 +273,12 @@ class Instagram extends Module {
 
     private function fetchLongAccessToken(){
         $url = 'https://api.instagram.com/oauth/access_token';
+
         $data = array(
 			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
 			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
 			'grant_type' => 'authorization_code',
-			'redirect_uri' => 'https://www.google.com/',
+			'redirect_uri' => $this->redirect_uri,
 			'code' => $this->instagram_code,
 		);
 

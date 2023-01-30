@@ -38,15 +38,15 @@
 <div class="panel">
 	<h3><i class="icon icon-tags"></i> {l s='Connect your account to an Instagram App' mod='instagram'}</h3>
 	<p>
-		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <br />
+		{l s='This step will generate code used to generate Access Token to access your media. You need facebook account and you have to create app in developers.facebook.com. You can find details in documentation.' mod='instagram'} <br />
 		<form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
-			{l s='Copy current page url that will be used to redirect you from an Instagram authorization page. (end with /)' mod='instagram'} <br />
-			<input type="text" name="redirect_uri" placeholder="Redirect URL" value="https://www.google.com/"></input>
-			{l s='Instagram APP ID: default value points to default App' mod='instagram'}
+			{l s='Copy url of your page that will be used to redirect you from an Instagram authorization page that you have set in a Valid OAuth Redirect URIs e.g. https://test.page.pl/ (it has to be https:// page)' mod='instagram'} <br />
+			<input type="text" name="redirect_uri" placeholder="Redirect URL" value=""></input>
+			{l s='Instagram App ID, you can find it in Instagram Basic Display of your app' mod='instagram'}
 			<input type="text" name="client_id" value={$instagram_app_id}></input>
 			<input type="hidden" name="scope" value="user_profile,user_media"></input>
 			<input type="hidden" name="response_type" value="code"></input>
-			<button type="submit" class="btn btn-default">Authorize</button>
+			<button type="submit" name="authorize" class="btn btn-default">Authorize</button>
 		</form>
 	</p>
 </div>
@@ -56,6 +56,8 @@
 	<p>
 		{l s='This step will generate code used to generate Access Token to access your media.' mod='instagram'} <b>Code generated from authorization can be used only once. Authorize again if you didn't copy the code.</b> <br />
 		<form action="" method="POST">
+			{l s='Url from previous step' mod='instagram'} <br />
+			<input type="text" name="redirect_uri" value="" placeholder="Redirect URL"></input>
 			{l s='Instagram App ID' mod='instagram'} <br />
 			<input type="text" name="instagram_app_id" value={$instagram_app_id}></input>
 			{l s='Instagram App Secret' mod='instagram'}
