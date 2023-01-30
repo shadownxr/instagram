@@ -148,13 +148,16 @@ class Instagram extends Module {
     private function processDeletion(){
         if(Tools::isSubmit('delete_account')){
             $res = $this->db_deleteAccessToken();
+            $res2 = $this->db_deleteInstagramImages();
 
-            if($res){
+            if($res && $res2){
                 $this->message = "Account deleted successfully";
-                $this->message_type = "success";
+                $this->message_type = "confirmation";
+                return;
             } else {
                 $this->message = "Unable to delete account";
                 $this->message_type = "error";
+                return;
             }
         }
     }
@@ -373,6 +376,12 @@ class Instagram extends Module {
     private function db_deleteAccessToken(): bool{
         $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
         return $res;
+    }
+
+    private function db_deleteInstagramImages(): bool{
+        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagramimages`');
+        $res2 = DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ .'instagramimages` AUTO_INCREMENT=1');
+        return $res && $res2;
     }
 
     private function refreshAccessToken(){
