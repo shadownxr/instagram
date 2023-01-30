@@ -81,7 +81,7 @@
             </div>
 
             <div
-                class="form-group prestasho-number-input prestasho-number-input-enable-arrows"
+                class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
                 data-max="1080"
                 data-min="1"
                 data-label-max="Maximum:1080"
@@ -97,7 +97,7 @@
             </div>
 
             <div
-                class="form-group prestasho-number-input prestasho-number-input-enable-arrows"
+                class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
                 data-max="50"
                 data-min="0"
                 data-label-max="Maximum:50"
@@ -167,7 +167,7 @@
                 >
             <div class="form-select">
                 <select class="form-control custom-select" name="description_alignment">
-                <option value="column" {if $set_values->description_alignment == 'column'}selected{/if}>Bottom</option>
+                    <option value="column" {if $set_values->description_alignment == 'column'}selected{/if}>Bottom</option>
                     <option value="row-reverse" {if $set_values->description_alignment == 'row-reverse'}selected{/if}>Left</option>
                     <option value="column-reverse" {if $set_values->description_alignment == 'column-reverse'}selected{/if}>Top</option>
                     <option value="row" {if $set_values->description_alignment == 'row'}selected{/if}>Right</option>
@@ -180,6 +180,16 @@
 
         <div class="panel">
             <h3><i class="icon icon-cogs"></i> {l s='Gallery settings' mod='instagram'}</h3>
+
+            <label class="form-control-label">Select hook to display images: </label>
+            <div class="form-select">
+                <select class="form-control custom-select" name="display_hook">
+                    {foreach from=$display_hooks item=display_hook}
+                        <option value="{$display_hook['name']}" {if $set_values->hook == $display_hook['name']} selected {/if}>{$display_hook['name']}</option>
+                    {/foreach}
+                </select>
+            </div>
+
             <label class="form-control-label"
                     >Show title: </label
                 >
@@ -231,7 +241,7 @@
             </div>
 
             <div
-                class="form-group prestasho-number-input prestasho-number-input-enable-arrows"
+                class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
                 data-max="1080"
                 data-min="1"
                 data-label-max="Maximum:1080"
