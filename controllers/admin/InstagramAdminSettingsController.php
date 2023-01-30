@@ -118,9 +118,10 @@ class InstagramAdminSettingsController extends ModuleAdminController
                 $images_url[] = InstagramCurl::fetch($url);
             }
 
+            $this->db_deleteInstagramImages();
+
             foreach($images_url as $image){
-                //#todo clear table so only fetched amount is in the table
-                if($image_fetch_counter < $obj->max_images_fetched){
+                if($image_fetch_counter <= $obj->max_images_fetched){
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
@@ -130,7 +131,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
                     } else {
                         $img->description = '';
                     }
-
+                    
                     if(Validate::isLoadedObject($img)){
                         $img->update();
                     } else {
@@ -153,4 +154,9 @@ class InstagramAdminSettingsController extends ModuleAdminController
         return $res;
     }
     
+    private function db_deleteInstagramImages(): bool{
+        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagramimages`');
+        $res2 = DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ .'instagramimages` AUTO_INCREMENT=1');
+        return $res && $res2;
+    }
 }
