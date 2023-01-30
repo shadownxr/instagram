@@ -59,7 +59,7 @@ class Instagram extends Module {
 
         if(parent::install()){
             $this->installTab();
-            $this->addDefaultDisplaySettings();
+            $this->initDefaultDisplaySettings();
             $this->registerHook('actionFrontControllerSetMedia');
             $this->registerHook('actionAdminControllerSetMedia');
             return true;
@@ -78,7 +78,6 @@ class Instagram extends Module {
         return parent::uninstall()
             && $this->uninstallTab()
             && $this->unregisterHook('actionFrontControllerSetMedia')
-            && $this->unregisterHook('displayHeader')
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
@@ -459,7 +458,7 @@ class Instagram extends Module {
         }
     }
 
-    private function addDefaultDisplaySettings(){
+    private function initDefaultDisplaySettings(){
         $obj = new InstagramDisplaySettings(1);
         $obj->hook = 'displayHeader';
         $obj->image_height = 300;
@@ -475,6 +474,8 @@ class Instagram extends Module {
         //Later if needed
         $obj->max_images_visible = 6;
 
-        $obj->add();
+        if($obj->add()){
+            $this->registerHook($obj->hook);
+        }
     }
 }
