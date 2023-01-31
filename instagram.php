@@ -342,11 +342,6 @@ class Instagram extends Module {
         return true;
     }
 
-    private function db_getAccessToken(): string{
-        $response = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
-        return $response[0]['access_token'];
-    }
-
     private function db_getUserIdAndAccessToken(): array{
         $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $response;
@@ -370,24 +365,6 @@ class Instagram extends Module {
     private function db_getImagesData(){
         $response = DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ .'instagramimages`');
         return $response;
-    }
-
-    private function refreshAccessToken(){
-        $response = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
-
-        $expiration_time = (int)$response[0]['token_expires'] + idate('U',strtotime($response[0]['creation_date']));
-        $today_time = date("U");
-
-        $access_token = $this->db_getAccessToken();
-
-        $month_in_seconds = 2629743;
-
-        if(($expiration_time - $today_time) < $month_in_seconds){
-            $url = 'https://graph.instagram.com/refresh_access_token?access_token='.$access_token
-                .'&grant_type=ig_refresh_token';
-
-            InstagramCurl::fetch($url);
-        }
     }
 
     private function fetchImagesFromInstagram(): bool{
