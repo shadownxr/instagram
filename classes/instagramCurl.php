@@ -18,8 +18,11 @@ class InstagramCurl{
 		$response = curl_exec($ch);
 		curl_close($ch);
 
-		$response_array = json_decode($response, true);
-
-        return $response_array;
+        if(is_array($response)){
+            $response_array = json_decode($response, true);
+            return $response_array;
+        } else {
+            return [];
+        }
     }
 }
