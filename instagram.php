@@ -19,6 +19,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+include_once(_PS_MODULE_DIR_. 'instagram/defines.php');
 include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramImages.php');
@@ -258,7 +259,7 @@ class Instagram extends Module {
     }
 
     public function __call($name, $arguments){
-        $display_style = new InstagramDisplaySettings(1);
+        $display_style = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
 
         $img = new InstagramImages();
 
@@ -338,11 +339,10 @@ class Instagram extends Module {
         $res = false;
         if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
             if(!$this->db_checkIfAccessTokenExists()){
-                $id = 1;
                 $res = DB::getInstance()->execute(
                         'INSERT INTO `' . _DB_PREFIX_ . 
                         'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
-                        VALUES ("'.(int)$id.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+                        VALUES ("'.INSTAGRAM_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
             } else {
                 $res = DB::getInstance()->update('instagram', array(
                     'access_token' => $data['access_token'],
@@ -356,21 +356,21 @@ class Instagram extends Module {
     }
 
     private function db_getUserId(): string{
-        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $res[0]['user_id'];
     }
     private function db_getAccessToken(): string{
-        $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $res[0]['access_token'];
     }
 
     private function db_getUserIdAndAccessToken(): array{
-        $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $res;
     }
 
     private function db_deleteAccessToken(): bool{
-        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $res;
     }
 
@@ -381,7 +381,7 @@ class Instagram extends Module {
     }
 
     private function refreshAccessToken(){
-        $res = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $res = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
 
         $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
         $today_time = date("U");
@@ -400,7 +400,7 @@ class Instagram extends Module {
 
     private function fetchImagesFromInstagram(){
         $data = $this->db_getUserIdAndAccessToken();
-        $obj = new InstagramDisplaySettings(1);
+        $obj = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
 
         if(!empty($data)){
             $images_url = [];
@@ -465,7 +465,7 @@ class Instagram extends Module {
     }
 
     private function initDefaultDisplaySettings(){
-        $obj = new InstagramDisplaySettings(1);
+        $obj = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
         $obj->hook = 'displayHeader';
         $obj->image_height = 300;
         $obj->image_width = 300;
