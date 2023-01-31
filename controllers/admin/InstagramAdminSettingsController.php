@@ -31,8 +31,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->show_description = Tools::getValue('show_description');
             $settings->description_alignment = Tools::getValue('description_alignment');
             $settings->max_images_fetched = Tools::getValue('max_images_fetched');
-            //Later if needed
-            $settings->max_images_visible = Tools::getValue('max_images_visible');
 
             $settings->title = 'Next';
 

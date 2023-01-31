@@ -240,21 +240,6 @@
             </div>
         </div>
 
-        <div
-            class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-            data-max="1080"
-            data-min="1"
-            data-label-max="Maximum:1080"
-            data-label-min="Minimum:1"
-            data-label-nan="Not a number."
-            >
-            <label class="form-control-label" for="max_images_visible"
-                >Maximum number of images visible in gallery</label
-            >
-            <div class="prestashop-number-input-inputs">
-                <input class="form-control" type="number" value="{$settings->max_images_visible}" id="max_images_visible" name="max_images_shown"/>
-            </div>
-        </div>
         <button type="submit" name="save_settings">Save</button>
     </div>
 </form>

@@ -464,8 +464,6 @@ class Instagram extends Module {
         $settings->show_description = false;
         $settings->description_alignment = 'column';
         $settings->max_images_fetched = 6;
-        //Later if needed
-        $settings->max_images_visible = 6;
 
         if($settings->add()){
             $this->registerHook($settings->hook);
