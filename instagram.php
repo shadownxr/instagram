@@ -149,10 +149,10 @@ class Instagram extends Module {
 
     private function processDeletion(){
         if(Tools::isSubmit('delete_account')){
-            $res = $this->db_deleteAccessToken();
-            $res2 = $this->db_deleteInstagramImages();
+            $response = $this->db_deleteAccessToken();
+            $response_2 = $this->db_deleteInstagramImages();
 
-            if($res && $res2){
+            if($response && $response_2){
                 $this->message = "Account deleted successfully";
                 $this->message_type = "confirmation";
                 return;
@@ -183,11 +183,6 @@ class Instagram extends Module {
         }
         $subtabs = array(
             array(
-                'class'=>'InstagramAdminGallery',
-                'name'=>$this->l('Gallery'),
-                'id_parent'=>$id_parent
-            ),
-            array(
                 'class'=>'InstagramAdminSettings',
                 'name'=>$this->l('Settings'),
                 'id_parent'=>$id_parent
@@ -212,7 +207,7 @@ class Instagram extends Module {
     }
 
     private function uninstallTab() {
-        $list_tab = array('InstagramAdminGallery','InstagramAdminSettings');
+        $list_tab = array('InstagramAdminSettings');
         foreach($list_tab as $id_tab){
             $id_tab = (int)Tab::getIdFromClassName($id_tab);
             if ($id_tab)
