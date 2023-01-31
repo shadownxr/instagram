@@ -13,13 +13,12 @@
 * @copyright 2017-2023 Arkonsoft
 */
 
-use PrestaShop\PrestaShop\Core\Crypto\Hashing;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+include_once(_PS_MODULE_DIR_. 'instagram/defines.php');
+include_once(_PS_MODULE_DIR_. 'instagram/instagramCurl.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramImages.php');
 
@@ -42,7 +41,7 @@ class Instagram extends Module {
         parent::__construct();
 
         $this->displayName = $this->l('Instagram Feed API');
-        $this->description = $this->l('Module allows to add custom blocks to every front-office hook');
+        $this->description = $this->l('Module allows to display feed from Instagram on the front page');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
 
@@ -109,7 +108,7 @@ class Instagram extends Module {
         $user = $this->getUserInfo();
         $username = '';
 
-        if(is_array(!empty($user))){
+        if(!empty($user)){
             $username = $user['username'];
         }
 
@@ -149,25 +148,28 @@ class Instagram extends Module {
 
     private function processDeletion(){
         if(Tools::isSubmit('delete_account')){
-            $res = $this->db_deleteAccessToken();
-            $res2 = $this->db_deleteInstagramImages();
-
-            if($res && $res2){
-                $this->message = "Account deleted successfully";
-                $this->message_type = "confirmation";
-                return;
-            } else {
-                $this->message = "Unable to delete account";
-                $this->message_type = "error";
-                return;
+            $response = $this->db_deleteAccessToken();
+            if($response){
+                $response = $this->db_deleteInstagramImages();
+            
+                if($response){
+                    $this->message = "Account deleted successfully";
+                    $this->message_type = CONFIRMATION_MESSAGE;
+                    return;
+                } else {
+                    $this->message = "Unable to delete account";
+                    $this->message_type = ERROR_MESSAGE;
+                    return;
+                }
             }
         }
     }
 
     private function installTab(){
-        $res = true;
+        $response = true;
         $tabparent = "InstagramAdminConfig";
         $id_parent = Tab::getIdFromClassName($tabparent);
+
         if(!$id_parent){
             $tab = new Tab();
             $tab->active = 1;
@@ -178,21 +180,18 @@ class Instagram extends Module {
             }
             $tab->id_parent = 0;
             $tab->module = $this->name;
-            $res &= $tab->add();
+            $response &= $tab->add();
             $id_parent = (int)$tab->id;
         }
+
         $subtabs = array(
-            array(
-                'class'=>'InstagramAdminGallery',
-                'name'=>$this->l('Gallery'),
-                'id_parent'=>$id_parent
-            ),
             array(
                 'class'=>'InstagramAdminSettings',
                 'name'=>$this->l('Settings'),
                 'id_parent'=>$id_parent
             ),
         );
+
         foreach($subtabs as $subtab){
             $idtab = (int)Tab::getIdFromClassName($subtab['class']);
             if($idtab <= 0){
@@ -205,14 +204,15 @@ class Instagram extends Module {
                 }
                 $tab->id_parent = (int)$subtab['id_parent'];
                 $tab->module = $this->name;
-                $res &= $tab->add();
+                $response &= $tab->add();
             }
         }
-        return $res;
+        return $response;
     }
 
     private function uninstallTab() {
-        $list_tab = array('InstagramAdminGallery','InstagramAdminSettings');
+        $list_tab = array('InstagramAdminSettings');
+
         foreach($list_tab as $id_tab){
             $id_tab = (int)Tab::getIdFromClassName($id_tab);
             if ($id_tab)
@@ -223,6 +223,7 @@ class Instagram extends Module {
         }
 
         $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
+
         if ($id_tabP){
             $tabP = new Tab($id_tabP);
             $tabP->delete();
@@ -234,29 +235,9 @@ class Instagram extends Module {
     protected function getConfigFormValues()
     {
         return array(
-            'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
             'INSTAGRAM_APP_SECRET' => Configuration::get('INSTAGRAM_APP_SECRET'),
             'INSTAGRAM_APP_ID' => Configuration::get('INSTAGRAM_APP_ID'),
         );
-    }
-
-    protected function postProcess()
-    {
-        $form_values = $this->getConfigFormValues();
-
-        foreach (array_keys($form_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
-        }
-
-        $data = $this->fetchLongAccessToken();
-
-        $res = $this->db_updateAccessToken($data);
-        if($res){
-            echo "Update successfull";
-        } else {
-            echo "Update failed";
-        }
-
     }
 
     public function hookActionAdminControllerSetMedia(){
@@ -264,16 +245,14 @@ class Instagram extends Module {
     }
 
     public function __call($name, $arguments){
-        $display_style = new InstagramDisplaySettings(1);
-
-        $img = new InstagramImages();
+        $display_style = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
 
         $this->context->smarty->assign(array(
             'images_data' => $this->db_getImagesData(),
             'display_style' => $display_style
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
     }
 
     private function fetchLongAccessToken(){
@@ -299,11 +278,11 @@ class Instagram extends Module {
             $user_id = $fetch_data['user_id'];
         } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
             $this->message = $fetch_data['error_message'];
-            $this->message_type = 'error';
+            $this->message_type = ERROR_MESSAGE;
             return '';
         } else {
             $this->message = 'Can\'t get Short Access Token';
-            $this->message_type = 'error';
+            $this->message_type = ERROR_MESSAGE;
             return '';
         }
 
@@ -318,16 +297,16 @@ class Instagram extends Module {
             $token_expire_date = $fetch_data['expires_in'];
         } else if(array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)){
             $this->message = $fetch_data['error_message'];
-            $this->message_type = 'error';
+            $this->message_type = ERROR_MESSAGE;
             return;
         } else {
             $this->message = 'Can\'t get Long Access Token';
-            $this->message_type = 'error';
+            $this->message_type = ERROR_MESSAGE;
             return;
         }
 
         $this->message = 'Account successfully added';
-        $this->message_type = 'confirmation';
+        $this->message_type = CONFIRMATION_MESSAGE;
 
         return array(
             'access_token' => $long_access_token,
@@ -341,19 +320,21 @@ class Instagram extends Module {
     }
 
     private function db_updateAccessToken($data){
-        $res = false;
+        $response = false;
         if(array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)){
             if(!$this->db_checkIfAccessTokenExists()){
-                $id = 1;
-                $res = DB::getInstance()->execute(
-                        'INSERT INTO `' . _DB_PREFIX_ . 
-                        'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
-                        VALUES ("'.(int)$id.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")');
+                $response = DB::getInstance()->execute(
+                    'INSERT INTO `' . _DB_PREFIX_ . 
+                    'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
+                    VALUES ("'.INSTAGRAM_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")'
+                );
+                return $response;
             } else {
-                $res = DB::getInstance()->update('instagram', array(
+                $response = DB::getInstance()->update('instagram', array(
                     'access_token' => $data['access_token'],
                     'token_expires' => $data['token_expires'],
                 ));
+                return $response;
             }
         } else {
             return false;
@@ -361,35 +342,40 @@ class Instagram extends Module {
         return true;
     }
 
-    private function db_getUserId(): string{
-        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
-        return $res[0]['user_id'];
-    }
     private function db_getAccessToken(): string{
-        $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
-        return $res[0]['access_token'];
+        $response = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        return $response[0]['access_token'];
     }
 
     private function db_getUserIdAndAccessToken(): array{
-        $res = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
-        return $res;
+        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        return $response;
     }
 
     private function db_deleteAccessToken(): bool{
-        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
-        return $res;
+        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        return $response;
     }
 
     private function db_deleteInstagramImages(): bool{
-        $res = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagramimages`');
-        $res2 = DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ .'instagramimages` AUTO_INCREMENT=1');
-        return $res && $res2;
+        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagramimages`');
+        if($response){
+            $response = DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ .'instagramimages` AUTO_INCREMENT=1');
+            return $response;
+        } else {
+            return $response;
+        }
+    }
+
+    private function db_getImagesData(){
+        $response = DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ .'instagramimages`');
+        return $response;
     }
 
     private function refreshAccessToken(){
-        $res = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram=1');
+        $response = DB::getInstance()->executeS('SELECT token_expires, creation_date FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
 
-        $expiration_time = (int)$res[0]['token_expires'] + idate('U',strtotime($res[0]['creation_date']));
+        $expiration_time = (int)$response[0]['token_expires'] + idate('U',strtotime($response[0]['creation_date']));
         $today_time = date("U");
 
         $access_token = $this->db_getAccessToken();
@@ -404,9 +390,9 @@ class Instagram extends Module {
         }
     }
 
-    private function fetchImagesFromInstagram(){
+    private function fetchImagesFromInstagram(): bool{
         $data = $this->db_getUserIdAndAccessToken();
-        $obj = new InstagramDisplaySettings(1);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
 
         if(!empty($data)){
             $images_url = [];
@@ -422,8 +408,9 @@ class Instagram extends Module {
                 $url = 'https://graph.instagram.com/'.$image_id['id'].'?access_token='.$data[0]['access_token'].'&fields='.$fields;
                 $images_url[] = InstagramCurl::fetch($url);
             }
+
             foreach($images_url as $image){
-                if($image_fetch_counter < $obj->max_images_fetched){
+                if($image_fetch_counter < $settings->max_images_fetched){
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
@@ -444,16 +431,10 @@ class Instagram extends Module {
                     break;
                 }
             }
-
             return true;
         } else {
             return false;
         }
-    }
-
-    private function db_getImagesData(){
-        $res = DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ .'instagramimages`');
-        return $res;
     }
 
     private function getUserInfo(){
@@ -471,23 +452,21 @@ class Instagram extends Module {
     }
 
     private function initDefaultDisplaySettings(){
-        $obj = new InstagramDisplaySettings(1);
-        $obj->hook = 'displayHeader';
-        $obj->image_height = 300;
-        $obj->image_width = 300;
-        $obj->flex_direction = 'row';
-        $obj->title = 'Example title';
-        $obj->image_margin = 0;
-        $obj->image_border_radius = 0;
-        $obj->show_title = false;
-        $obj->show_description = false;
-        $obj->description_alignment = 'column';
-        $obj->max_images_fetched = 6;
-        //Later if needed
-        $obj->max_images_visible = 6;
+        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings->hook = 'displayHeader';
+        $settings->image_height = 300;
+        $settings->image_width = 300;
+        $settings->flex_direction = 'row';
+        $settings->title = 'Example title';
+        $settings->image_margin = 0;
+        $settings->image_border_radius = 0;
+        $settings->show_title = false;
+        $settings->show_description = false;
+        $settings->description_alignment = 'column';
+        $settings->max_images_fetched = 6;
 
-        if($obj->add()){
-            $this->registerHook($obj->hook);
+        if($settings->add()){
+            $this->registerHook($settings->hook);
         }
     }
 }

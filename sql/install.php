@@ -46,7 +46,6 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     `show_description` BOOLEAN NOT NULL,
     `image_margin` int(11) unsigned NOT NULL,
     `max_images_fetched` int(11) unsigned NOT NULL,
-    `max_images_visible` int(11) unsigned NOT NULL,
     `description_alignment` varchar(255) NOT NULL,
     PRIMARY KEY (`id`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';

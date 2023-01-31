@@ -1,5 +1,4 @@
-<div class="display_header">
-    <div><p>{$display_style->flex_direction}</p></div>
+<div class="display">
     {if !empty($images_data)}
         {if $display_style->show_title == true}
             <div style="text-align: center;"><h1>{$display_style->title}</h1></div>

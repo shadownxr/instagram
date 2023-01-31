@@ -1,8 +1,6 @@
 <?php
-include_once(_PS_MODULE_DIR_. 'instagram/classes/define.php');
-
 class InstagramCurl{
-    public static function fetch(string $url, $data = false): array {
+    public static function fetch(string $url, $data = false){
         $ch = curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -18,11 +16,7 @@ class InstagramCurl{
 		$response = curl_exec($ch);
 		curl_close($ch);
 
-        if(is_array($response)){
-            $response_array = json_decode($response, true);
-            return $response_array;
-        } else {
-            return [];
-        }
+        $response_array = json_decode($response, true);
+        return $response_array;
     }
 }
