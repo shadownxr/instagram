@@ -62,8 +62,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $this->context->smarty->assign(array(
             'is_connected' => $this->db_checkIfAccessTokenExists(),
             'images_data' => $this->db_getImagesData(),
-            'display_style' => $settings,
-            'set_values' => $settings,
+            'settings' => $settings,
             'display_hooks' => $display_hooks
         ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
