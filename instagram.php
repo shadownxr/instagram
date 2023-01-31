@@ -42,7 +42,7 @@ class Instagram extends Module {
         parent::__construct();
 
         $this->displayName = $this->l('Instagram Feed API');
-        $this->description = $this->l('Module allows to add custom blocks to every front-office hook');
+        $this->description = $this->l('Module allows to display feed from Instagram on the front page');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
 
@@ -109,7 +109,7 @@ class Instagram extends Module {
         $user = $this->getUserInfo();
         $username = '';
 
-        if(is_array(!empty($user))){
+        if(!empty($user)){
             $username = $user['username'];
         }
 
