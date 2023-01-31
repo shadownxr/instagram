@@ -245,13 +245,7 @@ class Instagram extends Module {
 
         $data = $this->fetchLongAccessToken();
 
-        $res = $this->db_updateAccessToken($data);
-        if($res){
-            echo "Update successfull";
-        } else {
-            echo "Update failed";
-        }
-
+        $this->db_updateAccessToken($data);
     }
 
     public function hookActionAdminControllerSetMedia(){
@@ -260,8 +254,6 @@ class Instagram extends Module {
 
     public function __call($name, $arguments){
         $display_style = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
-
-        $img = new InstagramImages();
 
         $this->context->smarty->assign(array(
             'images_data' => $this->db_getImagesData(),
@@ -354,11 +346,7 @@ class Instagram extends Module {
         }
         return true;
     }
-
-    private function db_getUserId(): string{
-        $res = DB::getInstance()->executeS('SELECT user_id FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
-        return $res[0]['user_id'];
-    }
+    
     private function db_getAccessToken(): string{
         $res = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
         return $res[0]['access_token'];
