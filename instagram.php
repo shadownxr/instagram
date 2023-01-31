@@ -20,7 +20,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 include_once(_PS_MODULE_DIR_. 'instagram/defines.php');
-include_once(_PS_MODULE_DIR_. 'instagram/classes/instagramCurl.php');
+include_once(_PS_MODULE_DIR_. 'instagram/instagramCurl.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_. 'instagram/classes/instagramImages.php');
 
@@ -225,7 +225,7 @@ class Instagram extends Module {
         }
 
         $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
-        
+
         if ($id_tabP){
             $tabP = new Tab($id_tabP);
             $tabP->delete();
