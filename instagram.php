@@ -13,6 +13,8 @@
 * @copyright 2017-2023 Arkonsoft
 */
 
+use PrestaShop\PrestaShop\Core\Crypto\Hashing;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -107,7 +109,7 @@ class Instagram extends Module {
         $user = $this->getUserInfo();
         $username = '';
 
-        if(is_array($user)){
+        if(is_array(!empty($user))){
             $username = $user['username'];
         }
 
@@ -464,7 +466,7 @@ class Instagram extends Module {
 
             return $user_info;
         } else {
-            return;
+            return false;
         }
     }
 
