@@ -229,7 +229,6 @@ class Instagram extends Module {
     protected function getConfigFormValues()
     {
         return array(
-            'INSTAGRAM_AUTHORIZATION_CODE' => Configuration::get('INSTAGRAM_AUTHORIZATION_CODE'),
             'INSTAGRAM_APP_SECRET' => Configuration::get('INSTAGRAM_APP_SECRET'),
             'INSTAGRAM_APP_ID' => Configuration::get('INSTAGRAM_APP_ID'),
         );
