@@ -13,8 +13,6 @@
 * @copyright 2017-2023 Arkonsoft
 */
 
-use PrestaShop\PrestaShop\Core\Crypto\Hashing;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -254,7 +252,7 @@ class Instagram extends Module {
             'display_style' => $display_style
         ));
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/displayHeader.tpl');
+        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
     }
 
     private function fetchLongAccessToken(){
