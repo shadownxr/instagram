@@ -39,11 +39,17 @@
 	<h3><i class="icon icon-tags"></i> {l s='Connect your account to an Instagram App' mod='instagram'}</h3>
 	<p>
 		{l s='This step will generate code used to generate Access Token to access your media. You need facebook account and you have to create app in developers.facebook.com. You can find details in documentation.' mod='instagram'} <br />
+		{$redirect_uri}
+		<form action="" method="POST">
+			{l s='Url that will be used to come back to the admin page. Copy whole url that is currently in your search bar.' mod='instagram'} <br />
+			<input type="text" name="admin_redirect_url" placeholder="Admin Redirect URL" value=""></input>
+			<button type="submit" name="add_admin_redirect_url" class="btn btn-default">Save</button>
+		</form>
+
 		<form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
-			{l s='Copy url of your page that will be used to redirect you from an Instagram authorization page that you have set in a Valid OAuth Redirect URIs e.g. https://test.page.pl/ (it has to be https:// page)' mod='instagram'} <br />
-			<input type="text" name="redirect_uri" placeholder="Redirect URL" value=""></input>
 			{l s='Instagram App ID, you can find it in Instagram Basic Display of your app' mod='instagram'}
 			<input type="text" name="client_id" value={$instagram_app_id}></input>
+			<input type="hidden" name="redirect_uri" value={$redirect_uri}></input>
 			<input type="hidden" name="scope" value="user_profile,user_media"></input>
 			<input type="hidden" name="response_type" value="code"></input>
 			<button type="submit" name="authorize" class="btn btn-default">Authorize</button>
