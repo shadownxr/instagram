@@ -26,7 +26,6 @@ class Instagram extends Module {
     private string $message = '';
     private string $message_type = '';
     private string $instagram_code = '';
-    private string $redirect_uri = '';
 
     public function __construct(){
         $this->name = 'instagram';
@@ -55,6 +54,7 @@ class Instagram extends Module {
 
         Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
         Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
+        Configuration::updateValue('ADMIN_LINK', '');
 
         include(dirname(__FILE__).'/sql/install.php');
 
@@ -72,13 +72,15 @@ class Instagram extends Module {
     public function uninstall(){
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
+        Configuration::deleteByName('ADMIN_LINK');
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
         return parent::uninstall()
             && $this->uninstallTab()
             && $this->unregisterHook('actionFrontControllerSetMedia')
-            && $this->unregisterHook('actionAdminControllerSetMedia');
+            && $this->unregisterHook('actionAdminControllerSetMedia')
+            && $this->unregisterHook('moduleRoutes');
     }
 
     public function enable($force_all = false)
@@ -100,10 +102,8 @@ class Instagram extends Module {
     public function getContent()
     {
         $this->processConfiguration();
+        $this->processAuthorization();
         $this->processDeletion();
-
-        $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
-        $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
         $user = $this->getUserInfo();
         $username = '';
@@ -112,14 +112,18 @@ class Instagram extends Module {
             $username = $user['username'];
         }
 
+        $redirect_uri = $this->context->link->getModuleLink('instagram','auth');
+        $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
+        $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
+
         $this->context->smarty->assign(array(
             'module_dir' => $this->_path,
             'username' => $username,
             'instagram_app_id' => $instagram_app_id,
             'instagram_app_secret' => $instagram_app_secret,
-            'instagram_code' => $this->instagram_code,
             'message' => $this->message,
             'message_type' => $this->message_type,
+            'redirect_uri' => $redirect_uri
         ));
 
         $this->message = '';
@@ -128,22 +132,35 @@ class Instagram extends Module {
         return $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
     }
 
-    private function processConfiguration(){
-        if(Tools::isSubmit('add_account')){
-            $instagram_app_id = Tools::getValue('instagram_app_id');
-            $instagram_app_secret = Tools::getValue('instagram_app_secret');
-            $this->instagram_code = Tools::getValue('instagram_code');
-            $this->redirect_uri = Tools::getValue('redirect_uri');
-
-            Configuration::updateValue('INSTAGRAM_APP_ID', $instagram_app_id);
-            Configuration::updateValue('INSTAGRAM_APP_SECRET', $instagram_app_secret);
+    private function processAuthorization(){
+        $code = Tools::getValue('code');
+        if($code){
+            substr_replace($code, '', -2, 2);
             
-            $data = $this->fetchLongAccessToken();
+            $data = $this->fetchLongAccessToken($code);
             if(is_array($data)){
                 $this->db_updateAccessToken($data);
             }
             $this->fetchImagesFromInstagram();
         }
+    }
+
+    private function processConfiguration(){
+        if(Tools::isSubmit('add_config')){
+            $instagram_app_id = Tools::getValue('instagram_app_id');
+            $instagram_app_secret = Tools::getValue('instagram_app_secret');
+            $this->setAdminRedirectLink();
+
+            Configuration::updateValue('INSTAGRAM_APP_ID', $instagram_app_id);
+            Configuration::updateValue('INSTAGRAM_APP_SECRET', $instagram_app_secret);
+        }
+    }
+
+    private function setAdminRedirectLink(){
+        $token = Tools::getAdminTokenLite('AdminModules');
+        $link = $this->context->link->getAdminLink('AdminModules&token='.$token.'&configure=instagram&tab_module=administration&module_name=instagram',false);
+
+        Configuration::updateValue('ADMIN_LINK', $link);
     }
 
     private function processDeletion(){
@@ -255,15 +272,17 @@ class Instagram extends Module {
         return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
     }
 
-    private function fetchLongAccessToken(){
+    private function fetchLongAccessToken(string $code){
         $url = 'https://api.instagram.com/oauth/access_token';
+
+        $redirect_uri = $this->context->link->getModuleLink('instagram','auth');
 
         $data = array(
 			'client_id' => Configuration::get('INSTAGRAM_APP_ID'),
 			'client_secret' => Configuration::get('INSTAGRAM_APP_SECRET'),
 			'grant_type' => 'authorization_code',
-			'redirect_uri' => $this->redirect_uri,
-			'code' => $this->instagram_code,
+			'redirect_uri' => $redirect_uri,
+			'code' => $code,
 		);
 
         $fetch_data = InstagramCurl::fetch($url, $data);
