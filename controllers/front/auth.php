@@ -1,12 +1,12 @@
 <?php
 class InstagramAuthModuleFrontController extends ModuleFrontController {
     public function init(){        
-        $data = Tools::getValue('data');
+        $code = Tools::getValue('code');
 
-        $admin_redirect_url = Configuration::get('ADMIN_REDIRECT_URL');
+        $admin_redirect_url = Configuration::get('ADMIN_LINK');
 
-        if($data){
-		    Tools::redirect($admin_redirect_url.'&data='.$data);
+        if($code){
+		    Tools::redirectLink($admin_redirect_url.'&code='.$code);
         }
     }
 }
