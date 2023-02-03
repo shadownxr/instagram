@@ -123,7 +123,7 @@ class Instagram extends Module {
             'instagram_app_secret' => $instagram_app_secret,
             'message' => $this->message,
             'message_type' => $this->message_type,
-            'redirect_uri' => $redirect_uri
+            'redirect_uri' => $redirect_uri,
         ));
 
         $this->message = '';
@@ -259,6 +259,13 @@ class Instagram extends Module {
 
     public function hookActionAdminControllerSetMedia(){
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+    }
+
+    public function hookActionFrontControllerSetMedia(){
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
     }
 
     public function __call($name, $arguments){
@@ -268,7 +275,8 @@ class Instagram extends Module {
             'images_data' => $this->db_getImagesData(),
             'display_style' => $display_style
         ));
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+        
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
         return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
     }
 
@@ -460,6 +468,8 @@ class Instagram extends Module {
         $settings->show_description = false;
         $settings->description_alignment = 'column';
         $settings->max_images_fetched = 6;
+        $settings->images_per_gallery = 2;
+        $settings->gap = 15;
 
         if($settings->add()){
             $this->registerHook($settings->hook);

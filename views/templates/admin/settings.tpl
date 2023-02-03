@@ -5,23 +5,33 @@
 {else}
 <div class="panel" style="max-height:500px;overflow:scroll;">
     <h3><i class="icon icon-cogs"></i> {l s='Preview' mod='instagram'}</h3>
-    {if $settings->show_title == true}
-        <div style="text-align: center;"><h1>{$settings->title}</h1></div>
-    {/if}
-    <div class="instagram_image_display" style="display:flex;flex-direction:{$settings->flex_direction};">
-        {foreach from=$images_data item=data}
-            <div class="image" style="display:flex;flex-direction:{$settings->description_alignment};">
-                <img src={$data['image_url']} class="images" height="{$settings->image_height}" width="{$settings->image_width}" 
-                    style="margin:{$settings->image_margin}px;
-                    border-radius:{$settings->image_border_radius}px;
-                "/>
-                {if $settings->show_description == true}
-                    {if array_key_exists('description', $data)}
-                        <div><p>{$data['description']}</p></div>
-                    {/if}
+    
+    <div class="display">
+        {if !empty($images_data)}
+            <div class="instagram_image_display">
+                <div class="section">
+                {if $settings->show_title == true}
+                    <div class="title"><h1>{$settings->title}</h1></div>
                 {/if}
+                    <div class="images">
+                        <section class="splide" aria-label="Splide Basic HTML Example">
+                            <div class="splide__track">
+                                <ul class="splide__list">
+                                    {foreach from=$images_data item=data}
+                                        <li class="splide__slide">
+                                            <img src={$data['image_url']} height="{$settings->image_height}" width="{$settings->image_width}" 
+                                                style="margin:{$settings->image_margin}px;
+                                                border-radius:{$settings->image_border_radius}px;
+                                            "/>
+                                        </li>
+                                    {/foreach}
+                                </ul>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
-        {/foreach}
+        {/if}
     </div>
 </div>
 
@@ -237,6 +247,38 @@
             >
             <div class="prestashop-number-input-inputs">
                 <input class="form-control" type="number" value="{$settings->max_images_fetched}" id="max_images_fetched" name="max_images_fetched"/>
+            </div>
+        </div>
+
+        <div
+            class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
+            data-max="10"
+            data-min="1"
+            data-label-max="Maximum:10"
+            data-label-min="Minimum:1"
+            data-label-nan="Not a number."
+            >
+            <label class="form-control-label" for="max_images_fetched"
+                >Number of images display at one time</label
+            >
+            <div class="prestashop-number-input-inputs">
+                <input class="form-control" type="number" value="{$settings->images_per_gallery}" id="images_per_gallery" name="images_per_gallery"/>
+            </div>
+        </div>
+
+        <div
+            class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
+            data-max="50"
+            data-min="1"
+            data-label-max="Maximum:50"
+            data-label-min="Minimum:1"
+            data-label-nan="Not a number."
+            >
+            <label class="form-control-label" for="gap"
+                >Gap between images</label
+            >
+            <div class="prestashop-number-input-inputs">
+                <input class="form-control" type="number" value="{$settings->gap}" id="gap" name="gap"/>
             </div>
         </div>
 
