@@ -41,12 +41,9 @@ $.when(fetchSettings()).done(function(response){
     let parser = new UAParser();
     let device = parser.getResult()['device'];
 
-    if(device['type'] !== 'mobile' && device['type'] !== 'tablet'){
-        let options = getOptions(response, DESKTOP);
-        new Splide( '#desktop_slider', options).mount();
-    } else {
-        let options = getOptions(response, MOBILE);
-        new Splide( '#mobile_slider', options).mount();
-    }
+    let options = getOptions(response, DESKTOP);
+    new Splide( '#desktop_slider', options).mount();
 
+    let mobile_options = getOptions(response, MOBILE);
+    new Splide( '#mobile_slider', mobile_options).mount();
 });
