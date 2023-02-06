@@ -25,7 +25,7 @@ $.when(fetchSettings()).done(function(response){
         type: 'slide',
         perPage: response.images_per_gallery,
         perMove: 1,
-        width: (response.images_per_gallery * response.image_width) + Number(response.gap),
+        width: (response.images_per_gallery * response.image_size) + Number(response.gap),
         gap: Number(response.gap),
     } ).mount();
 });

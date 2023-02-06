@@ -11,7 +11,7 @@
                             <ul class="splide__list">
                                 {foreach from=$images_data item=data}
                                     <li class="splide__slide">
-                                        <img src={$data['image_url']} height="{$display_style->image_height}" width="{$display_style->image_width}" 
+                                        <img src={$data['image_url']} height="{$display_style->image_size}" width="{$display_style->image_size}" 
                                             style="margin:{$display_style->image_margin}px;
                                             border-radius:{$display_style->image_border_radius}px;
                                         "/>

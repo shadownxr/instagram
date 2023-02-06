@@ -19,7 +19,7 @@
                                 <ul class="splide__list">
                                     {foreach from=$images_data item=data}
                                         <li class="splide__slide">
-                                            <img src={$data['image_url']} height="{$settings->image_height}" width="{$settings->image_width}" 
+                                            <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" 
                                                 style="margin:{$settings->image_margin}px;
                                                 border-radius:{$settings->image_border_radius}px;
                                             "/>
@@ -41,7 +41,7 @@
         
         <div class="form-group">
                 
-        <label class="form-control-label" for="image_width">Change display direction</label>
+        <label class="form-control-label" for="display_direction">Change display direction</label>
         <div class="form-check form-check-radio">
             <label class="form-check-label">
                 <input
@@ -82,27 +82,11 @@
             data-label-min="Minimum:1"
             data-label-nan="Not a number."
             >
-            <label class="form-control-label" for="image_width"
-                >Width of image</label
+            <label class="form-control-label" for="image_size"
+                >Size of image</label
             >
             <div class="prestashop-number-input-inputs">
-                <input class="form-control" type="number" value="{$settings->image_width}" id="image_width" name="image_width"/>
-            </div>
-        </div>
-
-        <div
-            class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-            data-max="1080"
-            data-min="1"
-            data-label-max="Maximum:1080"
-            data-label-min="Minimum:1"
-            data-label-nan="Not a number."
-            >
-            <label class="form-control-label" for="image_height"
-                >Height of image</label
-            >
-            <div class="prestashop-number-input-inputs">
-                <input class="form-control" type="number" value="{$settings->image_height}" id="image_height" name="image_height"/>
+                <input class="form-control" type="number" value="{$settings->image_size}" id="image_size" name="image_size"/>
             </div>
         </div>
 

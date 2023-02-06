@@ -458,8 +458,7 @@ class Instagram extends Module {
     private function initDefaultDisplaySettings(){
         $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
         $settings->hook = 'displayHeader';
-        $settings->image_height = 300;
-        $settings->image_width = 300;
+        $settings->image_size = 300;
         $settings->flex_direction = 'row';
         $settings->title = 'Example title';
         $settings->image_margin = 0;

@@ -4,8 +4,7 @@ class InstagramDisplaySettings extends ObjectModel {
     public $hook;
     public $title;
     public $flex_direction;
-    public $image_height;
-    public $image_width;
+    public $image_size;
     public $image_margin;
     public $image_border_radius;
     public $show_title;
@@ -23,8 +22,7 @@ class InstagramDisplaySettings extends ObjectModel {
             'hook' => array('type' => self::TYPE_STRING,  'validate' => 'isGenericName', 'required' => true, 'size' => 255),
             'title' => array('type' => self::TYPE_STRING,  'validate' => 'isGenericName', 'required' => true, 'size' => 255),
             'flex_direction' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 255),
-            'image_height' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
-            'image_width' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
+            'image_size' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'image_margin' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'image_border_radius' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'show_title' => array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true),

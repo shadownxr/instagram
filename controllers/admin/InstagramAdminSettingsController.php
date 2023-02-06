@@ -23,8 +23,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $prev_hook = $settings->hook;
             $settings->hook = Tools::getValue('display_hook');
             $settings->flex_direction = Tools::getValue('display_direction');
-            $settings->image_width = Tools::getValue('image_width');
-            $settings->image_height = Tools::getValue('image_height');
+            $settings->image_size = Tools::getValue('image_size');
             $settings->image_margin = Tools::getValue('image_margin');
             $settings->image_border_radius = Tools::getValue('image_border_radius');
             $settings->show_title = Tools::getValue('show_title');

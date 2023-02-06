@@ -5,14 +5,9 @@ $(document).ready(function() {
         $('.instagram_image_display').css('flex-direction',radioValue);
     });
 
-    $('input[name="image_width"]').on('input',function(){
-        var width = $('input[name="image_width"]').val();
+    $('input[name="image_size"]').on('input',function(){
+        var width = $('input[name="image_size"]').val();
         $('.images').width(width);
-    });
-
-    $('input[name="image_height"]').on('input',function(){
-        var height = $('input[name="image_height"]').val();
-        $('.images').height(height);
     });
 
     $('input[name="image_margin"]').on('input',function(){
