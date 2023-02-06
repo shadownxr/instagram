@@ -1,7 +1,6 @@
 import '@splidejs/splide/css';
 
 import Splide from '@splidejs/splide';
-import UAParser from 'ua-parser-js';
 
 const DESKTOP = 0;
 const MOBILE = 1;
@@ -35,11 +34,6 @@ function getOptions(response: any, type: number) {
 
 $.when(fetchSettings()).done(function(response){
     response = JSON.parse(response);
-
-    console.log(response);
-
-    let parser = new UAParser();
-    let device = parser.getResult()['device'];
 
     let options = getOptions(response, DESKTOP);
     new Splide( '#desktop_slider', options).mount();
