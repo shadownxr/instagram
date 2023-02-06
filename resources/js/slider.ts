@@ -41,7 +41,7 @@ $.when(fetchSettings()).done(function(response){
         let m_gap = 15;
         let m_image_size = 150;
 
-        new Splide( '.splide, #mobile_slider', {
+        new Splide( '#mobile_slider', {
             type: 'slide',
             perPage: m_images_per_gallery,
             perMove: 1,

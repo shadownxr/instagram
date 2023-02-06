@@ -17,7 +17,7 @@ class InstagramDisplaySettings extends ObjectModel {
     public static $definition = array(
         'table' => 'instagramdisplaysettings',
         'primary' => 'id',
-        'multishop' => 'false',
+        'multishop' => false,
         'fields' => array(
             'hook' => array('type' => self::TYPE_STRING,  'validate' => 'isGenericName', 'required' => true, 'size' => 255),
             'title' => array('type' => self::TYPE_STRING,  'validate' => 'isGenericName', 'required' => true, 'size' => 255),

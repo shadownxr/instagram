@@ -269,15 +269,27 @@ class Instagram extends Module {
     }
 
     public function __call($name, $arguments){
-        $display_style = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
-
-        $this->context->smarty->assign(array(
-            'images_data' => $this->db_getImagesData(),
-            'display_style' => $display_style
-        ));
-        
         $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
-        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
+
+        if(!$this->context->isMobile()){
+            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+
+            $this->context->smarty->assign(array(
+                'images_data' => $this->db_getImagesData(),
+                'settings' => $settings
+            ));
+
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop.tpl');
+        } else {
+            $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+
+            $this->context->smarty->assign(array(
+                'images_data' => $this->db_getImagesData(),
+                'settings' => $settings
+            ));
+            
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/mobile.tpl');
+        }
     }
 
     private function fetchLongAccessToken(string $code){
