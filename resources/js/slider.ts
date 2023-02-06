@@ -24,41 +24,20 @@ $.when(fetchSettings()).done(function(response){
     response = JSON.parse(response);
 
     let parser = new UAParser();
-    let device = parser.getResult();
+    let device = parser.getResult()['device'];
 
-    //#todo make it work nicely
+    let options = {
+        type: 'slide',
+        perPage: response.images_per_gallery,
+        perMove: 1,
+        width: (response.images_per_gallery * response.image_size) + Number(response.gap),
+        gap: Number(response.gap),
+    };
 
-    if(device['device']['type'] !== 'mobile'){
-        new Splide( '#desktop_slider', {
-            type: 'slide',
-            perPage: response.images_per_gallery,
-            perMove: 1,
-            width: (response.images_per_gallery * response.image_size) + Number(response.gap),
-            gap: Number(response.gap),
-        } ).mount();
+    if(device['type'] !== 'mobile' && device['type'] !== 'tablet'){
+        new Splide( '#desktop_slider', options).mount();
     } else {
-        let m_images_per_gallery = 2;
-        let m_gap = 15;
-        let m_image_size = 150;
-
-        new Splide( '#mobile_slider', {
-            type: 'slide',
-            perPage: m_images_per_gallery,
-            perMove: 1,
-            width: (m_images_per_gallery * m_image_size) + Number(m_gap),
-            gap: Number(m_gap),
-        } ).mount();
+        new Splide( '#mobile_slider', options).mount();
     }
 
-    let m_images_per_gallery = 2;
-    let m_gap = 15;
-    let m_image_size = 150;
-
-    new Splide( '#mobile_slider', {
-        type: 'slide',
-        perPage: m_images_per_gallery,
-        perMove: 1,
-        width: (m_images_per_gallery * m_image_size) + Number(m_gap),
-        gap: Number(m_gap),
-    } ).mount();
 });
