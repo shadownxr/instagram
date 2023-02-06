@@ -1,21 +1,46 @@
-.instagram_image_display{
+@mixin tab_button(){
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+    
+    &.active {
+        opacity: 1;
+        pointer-events: all;
+        display: block;
+    }
+}
+
+#desktop_settings {
+    @include tab_button();
+}
+
+#mobile_settings {
+    @include tab_button();
+}
+
+.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.instagram_image_display {
     padding: 10px;
     display: flex;
     justify-content: center;
 
-    .section{
+    .section {
         display:flex;
         flex-direction: column;
 
-        .title{
+        .title {
             text-align: center;
         }
 
-        .images{
+        .images {
             display: flex;
             flex-direction: row;
 
-            .description{
+            .description {
                 z-index: -1;
             }
 

@@ -269,7 +269,7 @@ class Instagram extends Module {
     }
 
     public function __call($name, $arguments){
-        $display_style = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $display_style = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
         $this->context->smarty->assign(array(
             'images_data' => $this->db_getImagesData(),
@@ -353,7 +353,7 @@ class Instagram extends Module {
                 $response = DB::getInstance()->execute(
                     'INSERT INTO `' . _DB_PREFIX_ . 
                     'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
-                    VALUES ("'.INSTAGRAM_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")'
+                    VALUES ("'.INSTAGRAM_DESKTOP_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")'
                 );
                 return $response;
             } else {
@@ -370,12 +370,12 @@ class Instagram extends Module {
     }
 
     private function db_getUserIdAndAccessToken(): array{
-        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_DESKTOP_CONFIG_ID);
         return $response;
     }
 
     private function db_deleteAccessToken(): bool{
-        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_DESKTOP_CONFIG_ID);
         return $response;
     }
 
@@ -396,7 +396,7 @@ class Instagram extends Module {
 
     private function fetchImagesFromInstagram(): bool{
         $data = $this->db_getUserIdAndAccessToken();
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
         if(!empty($data)){
             $images_url = [];
@@ -456,7 +456,7 @@ class Instagram extends Module {
     }
 
     private function initDefaultDisplaySettings(){
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
         $settings->hook = 'displayHeader';
         $settings->image_size = 300;
         $settings->flex_direction = 'row';
@@ -470,7 +470,10 @@ class Instagram extends Module {
         $settings->images_per_gallery = 2;
         $settings->gap = 15;
 
-        if($settings->add()){
+        $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+        $m_settings = $settings;
+
+        if($settings->add() && $m_settings->add()){
             $this->registerHook($settings->hook);
         }
     }

@@ -13,7 +13,9 @@
     "@glidejs/glide": "^3.6.0",
     "@splidejs/splide": "^4.1.4",
     "@types/glidejs": "^1.0.31",
-    "lodash.debounce": "^4.0.8"
+    "@types/ua-parser-js": "^0.7.36",
+    "lodash.debounce": "^4.0.8",
+    "ua-parser-js": "^1.0.33"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",

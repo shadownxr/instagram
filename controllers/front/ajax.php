@@ -7,7 +7,7 @@ class InstagramAjaxModuleFrontController extends ModuleFrontController {
     }
 
     public function displayAjax(){
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
         $image_size = $settings->image_size;
         $images_per_gallery = $settings->images_per_gallery;
         $gap = $settings->gap;
