@@ -10,18 +10,18 @@
                         <div class="title"><h1>{$settings->title}</h1></div>
                     {/if}
                         <div class="images">
-                            <section class="splide" id="desktop_slider" aria-label="Splide Basic HTML Example">
+                            <section class="splide" id="preview_desktop_slider" aria-label="Splide Basic HTML Example">
                                 <div class="splide__track">
                                     <ul class="splide__list">
                                         {foreach from=$images_data item=data}
                                             <li class="splide__slide">
                                             {if !Context::getContext()->isMobile()}
-                                                <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" 
+                                                <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" class="preview_images"
                                                     style="margin:{$settings->image_margin}px;
                                                     border-radius:{$settings->image_border_radius}px;
                                                 "/>
                                             {else}
-                                                <img src={$data['image_url']} height="150px" width="150px" 
+                                                <img src={$data['image_url']} height="150px" width="150px" class="preview_images"
                                                     style="margin:{$settings->image_margin}px;
                                                     border-radius:{$settings->image_border_radius}px;
                                                 "/>

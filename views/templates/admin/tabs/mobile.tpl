@@ -10,7 +10,7 @@
                         <div class="title"><h1>{$settings->title}</h1></div>
                     {/if}
                         <div class="images">
-                            <section class="splide" id="mobile_slider" aria-label="Splide Basic HTML Example">
+                            <section class="splide" id="preview_mobile_slider" aria-label="Splide Basic HTML Example">
                                 <div class="splide__track">
                                     <ul class="splide__list">
                                         {foreach from=$images_data item=data}
