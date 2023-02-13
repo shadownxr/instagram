@@ -37,6 +37,8 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->max_images_fetched = Tools::getValue('max_images_fetched');
             $settings->images_per_gallery = Tools::getValue('images_per_gallery');
             $settings->gap = Tools::getValue('gap');
+            $settings->grid_row = Tools::getValue('grid_row');
+            $settings->grid_column = Tools::getValue('grid_column');
 
             $settings->title = 'Next';
 
@@ -74,6 +76,8 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->max_images_fetched = Tools::getValue('m_max_images_fetched');
             $settings->images_per_gallery = Tools::getValue('m_images_per_gallery');
             $settings->gap = Tools::getValue('m_gap');
+            $settings->grid_row = Tools::getValue('m_grid_row');
+            $settings->grid_column = Tools::getValue('m_grid_column');
 
             $settings->title = 'Next';
 

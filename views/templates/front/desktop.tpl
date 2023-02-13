@@ -5,7 +5,6 @@
             {if $settings->show_title == true}
                 <div class="title"><h1>{$settings->title}</h1></div>
             {/if}
-            {* #todo settings->display_style *}
             {if $settings->display_style == 'slider'}
                 {include file='./desktop/desktop_slider.tpl' images_data=$images_data settings=$settings}
             {elseif $settings->display_style == 'grid'}

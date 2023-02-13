@@ -14,6 +14,9 @@ class InstagramDisplaySettings extends ObjectModel {
     public $images_per_gallery;
     public $gap;
 
+    public $grid_row;
+    public $grid_column;
+
     public static $definition = array(
         'table' => 'instagramdisplaysettings',
         'primary' => 'id',
@@ -31,6 +34,8 @@ class InstagramDisplaySettings extends ObjectModel {
             'max_images_fetched' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'images_per_gallery' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'gap' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
+            'grid_row' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
+            'grid_column' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
         )
     );
 }

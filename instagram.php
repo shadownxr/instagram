@@ -279,7 +279,7 @@ class Instagram extends Module {
                 'settings' => $settings,
             ));
 
-            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop_slider.tpl');
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop.tpl');
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
@@ -481,6 +481,8 @@ class Instagram extends Module {
         $settings->max_images_fetched = 6;
         $settings->images_per_gallery = 2;
         $settings->gap = 15;
+        $settings->grid_column = 4;
+        $settings->grid_row = 4;
 
         $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
         $m_settings = $settings;

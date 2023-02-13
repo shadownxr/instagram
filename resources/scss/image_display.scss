@@ -1,0 +1,31 @@
+.instagram_image_display {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+
+  .section {
+    display:flex;
+    flex-direction: column;
+
+    .title {
+      text-align: center;
+    }
+
+    .images {
+      display: flex;
+      flex-direction: row;
+
+      .description {
+        z-index: -1;
+      }
+
+      img:hover{
+
+      }
+
+      .grid_display {
+        display: grid;
+      }
+    }
+  }
+}

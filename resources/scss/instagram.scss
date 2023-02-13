@@ -1,3 +1,5 @@
+@import "image_display.scss";
+
 @mixin tab_button(){
     opacity: 0;
     pointer-events: none;
@@ -21,34 +23,4 @@
 .active {
     opacity: 1;
     pointer-events: all;
-}
-
-.instagram_image_display {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-
-    .section {
-        display:flex;
-        flex-direction: column;
-
-        .title {
-            text-align: center;
-        }
-
-        .images {
-            display: flex;
-            flex-direction: row;
-
-            .description {
-                z-index: -1;
-            }
-
-            img:hover{
-
-            }
-        }
-    }
-
-    
 }

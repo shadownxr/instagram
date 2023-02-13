@@ -48,6 +48,8 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     `description_alignment` varchar(255) NOT NULL,
     `images_per_gallery` int(11) unsigned NOT NULL,
     `gap` int(11) unsigned NOT NULL,
+    `grid_row` int(11) unsigned NOT NULL,
+    `grid_column` int(11) unsigned NOT NULL,
     PRIMARY KEY (`id`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
