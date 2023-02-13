@@ -27,7 +27,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings = new instagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
             $prev_hook = $settings->hook;
             $settings->hook = Tools::getValue('display_hook');
-            $settings->flex_direction = Tools::getValue('display_direction');
+            $settings->display_style = Tools::getValue('display_style');
             $settings->image_size = Tools::getValue('image_size');
             $settings->image_margin = Tools::getValue('image_margin');
             $settings->image_border_radius = Tools::getValue('image_border_radius');
@@ -64,7 +64,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings = new instagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
             $prev_hook = $settings->hook;
             $settings->hook = Tools::getValue('m_display_hook');
-            $settings->flex_direction = Tools::getValue('m_display_direction');
+            $settings->display_style = Tools::getValue('m_display_style');
             $settings->image_size = Tools::getValue('m_image_size');
             $settings->image_margin = Tools::getValue('m_image_margin');
             $settings->image_border_radius = Tools::getValue('m_image_border_radius');

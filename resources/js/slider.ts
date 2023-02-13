@@ -60,6 +60,7 @@ jQuery(() => {
         gap: gap,
     };
 
+    //#todo mobile slider
     let desktop_slider = new Splide( '#preview_desktop_slider', options);
     desktop_slider.mount();
 

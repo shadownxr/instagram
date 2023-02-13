@@ -276,10 +276,10 @@ class Instagram extends Module {
 
             $this->context->smarty->assign(array(
                 'images_data' => $this->db_getImagesData(),
-                'settings' => $settings
+                'settings' => $settings,
             ));
 
-            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop.tpl');
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop_slider.tpl');
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
@@ -471,7 +471,7 @@ class Instagram extends Module {
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
         $settings->hook = 'displayHeader';
         $settings->image_size = 300;
-        $settings->flex_direction = 'row';
+        $settings->display_style = 'slider';
         $settings->title = 'Example title';
         $settings->image_margin = 0;
         $settings->image_border_radius = 0;

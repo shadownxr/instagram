@@ -8,7 +8,7 @@
     <button name="mobile_switch">Mobile</button>
 </div>
 
-{include file='./tabs/desktop.tpl' settings=$settings images_data=$images_data}
-{include file='./tabs/mobile.tpl' settings=$m_settings images_data=$images_data}
+{include file='./tabs/settings_desktop.tpl' settings=$settings images_data=$images_data}
+{include file='./tabs/settings_mobile.tpl' settings=$m_settings images_data=$images_data}
 
 {/if}

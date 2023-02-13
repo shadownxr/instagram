@@ -1,4 +1,4 @@
-<div id="desktop_settings" class="active">
+
     <div class="panel" style="max-height:500px;overflow:scroll;">
         <h3><i class="icon icon-cogs"></i> {l s='Desktop Preview' mod='instagram'}</h3>
         
@@ -51,14 +51,14 @@
                     <input
                     class="form-check-input"
                     type="radio"
-                    name="display_direction"
-                    id="display_direction_column"
-                    value="column"
-                    {if $settings->flex_direction == "column"}
+                    name="display_style"
+                    id="display_style_slider"
+                    value="slider"
+                    {if $settings->display_style == "slider"}
                         checked
                     {/if}
                     />
-                    <i class="form-check-round">Column</i>
+                    <i class="form-check-round">Slider</i>
                 </label>
                 </div>
 
@@ -67,14 +67,14 @@
                     <input
                     class="form-check-input"
                     type="radio"
-                    name="display_direction"
-                    id="display_direction_row"
-                    value="row"
-                    {if $settings->flex_direction  == "row"}
+                    name="display_style"
+                    id="display_style_grid"
+                    value="grid"
+                    {if $settings->display_style  == "grid"}
                         checked
                     {/if}
                     />
-                    <i class="form-check-round">Row</i>
+                    <i class="form-check-round">Grid</i>
                 </label>
             </div>
 
@@ -280,4 +280,3 @@
             <button type="submit" name="refresh">Refresh</button>
         </div>
     </form>
-</div>

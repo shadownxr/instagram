@@ -38,7 +38,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
     `hook` varchar(255) NOT NULL,
     `title` varchar(255) NOT NULL,
-    `flex_direction` varchar(255) NOT NULL,
+    `display_style` varchar(255) NOT NULL,
     `image_size` int(11) unsigned NOT NULL,
     `image_border_radius` int(11) unsigned NOT NULL,
     `show_title` BOOLEAN NOT NULL,
