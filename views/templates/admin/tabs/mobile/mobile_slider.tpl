@@ -15,18 +15,10 @@
                                     <ul class="splide__list">
                                         {foreach from=$images_data item=data}
                                             <li class="splide__slide">
-                                            {if !Context::getContext()->isMobile()}
-                                                <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" 
+                                                <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" class="mobile_preview_images"
                                                     style="margin:{$settings->image_margin}px;
                                                     border-radius:{$settings->image_border_radius}px;
                                                 "/>
-                                            {else}
-                                                <img src={$data['image_url']} height="150px" width="150px" 
-                                                    style="margin:{$settings->image_margin}px;
-                                                    border-radius:{$settings->image_border_radius}px;
-                                                "/>
-                                            {/if}
-
                                             </li>
                                         {/foreach}
                                     </ul>
@@ -230,7 +222,7 @@
                 data-label-min="Minimum:1"
                 data-label-nan="Not a number."
                 >
-                <label class="form-control-label" for="max_images_fetched"
+                <label class="form-control-label" for="m_max_images_fetched"
                     >Maximum number of images fetched from your Instagram gallery</label
                 >
                 <div class="prestashop-number-input-inputs">
@@ -246,7 +238,7 @@
                 data-label-min="Minimum:1"
                 data-label-nan="Not a number."
                 >
-                <label class="form-control-label" for="max_images_fetched"
+                <label class="form-control-label" for="m_images_per_gallery"
                     >Number of images display at one time</label
                 >
                 <div class="prestashop-number-input-inputs">
@@ -262,7 +254,7 @@
                 data-label-min="Minimum:1"
                 data-label-nan="Not a number."
                 >
-                <label class="form-control-label" for="gap"
+                <label class="form-control-label" for="m_gap"
                     >Gap between images</label
                 >
                 <div class="prestashop-number-input-inputs">

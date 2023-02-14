@@ -279,7 +279,7 @@
                 data-label-min="Minimum:1"
                 data-label-nan="Not a number."
         >
-            <label class="form-control-label" for="grid_column"
+            <label class="form-control-label" for="m_grid_column"
             >Number of columns</label
             >
             <div class="prestashop-number-input-inputs">

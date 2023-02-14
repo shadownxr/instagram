@@ -15,17 +15,10 @@
                                     <ul class="splide__list">
                                         {foreach from=$images_data item=data}
                                             <li class="splide__slide">
-                                                {if !Context::getContext()->isMobile()}
-                                                    <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" class="preview_images"
-                                                        style="margin:{$settings->image_margin}px;
+                                                <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}" class="desktop_preview_images"
+                                                    style="margin:{$settings->image_margin}px;
                                                         border-radius:{$settings->image_border_radius}px;
                                                     "/>
-                                                {else}
-                                                    <img src={$data['image_url']} height="150px" width="150px" class="preview_images"
-                                                        style="margin:{$settings->image_margin}px;
-                                                        border-radius:{$settings->image_border_radius}px;
-                                                    "/>
-                                                {/if}
                                             </li>
                                         {/foreach}
                                     </ul>

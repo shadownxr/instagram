@@ -1,6 +1,7 @@
 import '@splidejs/splide/css';
 
 import Splide from '@splidejs/splide';
+import UAParser from "ua-parser-js";
 
 const DESKTOP = 0;
 const MOBILE = 1;
@@ -35,11 +36,16 @@ function getOptions(response: any, type: number) {
 $.when(fetchSettings()).done(function(response){
     response = JSON.parse(response);
 
-    let options = getOptions(response, DESKTOP);
-    new Splide( '#desktop_slider', options).mount();
+    let parser = new UAParser();
+    let device_type = parser.getDevice().type as string;
 
-    let mobile_options = getOptions(response, MOBILE);
-    new Splide( '#mobile_slider', mobile_options).mount();
+    if(!(device_type === 'mobile')) {
+        let options = getOptions(response, DESKTOP);
+        new Splide('#desktop_slider', options).mount();
+    } else {
+        let mobile_options = getOptions(response, MOBILE);
+        new Splide('#mobile_slider', mobile_options).mount();
+    }
 });
 
 jQuery(() => {
@@ -51,20 +57,46 @@ jQuery(() => {
     let grid_row_input = $('input[name="grid_row"]');
     let grid_column_input = $('input[name="grid_column"]');
 
-    let perPage: number = 2;
+    let perPage: number = images_per_gallery.val() as number;
     let size: number = image_size.val() as number;
-    let gap: number = 15;
+    let gap: number = gap_input.val() as number;
 
-    let grid_row = 2;
-    let grid_column = 2;
+    let grid_row = grid_row_input.val() as number;
+    let grid_column = grid_column_input.val() as number;
+
+    let m_image_size = $('input[name="m_image_size"]');
+    let m_images_per_gallery = $('input[name="m_images_per_gallery"]');
+    let m_gap_input = $('input[name="m_gap"]');
+
+    let m_perPage: number = m_images_per_gallery.val() as number;
+    let m_size: number = m_image_size.val() as number;
+    let m_gap: number = m_gap_input.val() as number;
+
+    let m_grid_display = $('.m_grid_display');
+    let m_grid_row_input = $('input[name="m_grid_row"]');
+    let m_grid_column_input = $('input[name="m_grid_column"]');
+
+    console.log(m_grid_row_input.length);
+
+    let m_grid_row = m_grid_row_input.val() as number;
+    let m_grid_column = m_grid_column_input.val() as number;
 
     let options = {
         type: 'slide',
         perPage: perPage,
         perMove: 1,
-        width: (perPage * size) + Number(gap),
+        width: (perPage * size) + (Number(gap) * perPage) - gap,
         autoWidth: true,
-        gap: gap,
+        gap: Number(gap),
+    };
+
+    let m_options = {
+        type: 'slide',
+        perPage: m_perPage,
+        perMove: 1,
+        width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
+        autoWidth: true,
+        gap: Number(m_gap),
     };
 
     //#todo mobile slider
@@ -76,7 +108,7 @@ jQuery(() => {
             size = image_size.val() as number;
             $('.preview_images').width(size).height(size);
             desktop_slider.options = {
-                width: (2 * size) + Number(gap),
+                width: (perPage * size) + (Number(gap) * perPage)- gap,
             }
         });
 
@@ -84,21 +116,21 @@ jQuery(() => {
             perPage = images_per_gallery.val() as number;
             desktop_slider.options = {
                 perPage: perPage,
-                width: (perPage * size) + Number(gap),
+                width: (perPage * size) + (Number(gap) * perPage)- gap,
             }
         });
 
         gap_input.on('input', () => {
             gap = gap_input.val() as number;
             desktop_slider.options = {
-                width: (perPage * size) + Number(gap),
+                width: (perPage * size) + (Number(gap) * perPage)- gap,
                 gap: Number(gap),
             }
         });
     } else {
         image_size.on('input', () => {
             size = image_size.val() as number;
-            $('.preview_images').width(size).height(size);
+            $('.desktop_preview_images').width(size).height(size);
         });
 
         gap_input.on('input', () => {
@@ -114,6 +146,56 @@ jQuery(() => {
         grid_column_input.on('input', ()=> {
             grid_column = grid_column_input.val() as number;
             grid_display.css('grid-template-columns', 'repeat(' + grid_column + ', 1fr)');
+        });
+    }
+
+    if($('#preview_mobile_slider').length){
+        let mobile_slider = new Splide('#preview_mobile_slider', m_options);
+        mobile_slider.mount();
+
+        m_image_size.on('input', () => {
+            m_size = m_image_size.val() as number;
+            $('.mobile_preview_images').width(m_size).height(m_size);
+            mobile_slider.options = {
+                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
+            }
+        });
+
+        m_images_per_gallery.on('input', () => {
+            m_perPage = m_images_per_gallery.val() as number;
+            mobile_slider.options = {
+                perPage: m_perPage,
+                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
+            }
+
+        });
+
+        m_gap_input.on('input', () => {
+            m_gap = m_gap_input.val() as number;
+            mobile_slider.options = {
+                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
+                gap: Number(m_gap),
+            }
+        });
+    } else {
+        m_image_size.on('input', () => {
+            m_size = m_image_size.val() as number;
+            $('.mobile_preview_images').width(m_size).height(m_size);
+        });
+
+        m_gap_input.on('input', () => {
+            m_gap = m_gap_input.val() as number;
+            m_grid_display.css('grid-gap', Number(m_gap) + 'px');
+        });
+
+        m_grid_row_input.on('input', () => {
+            m_grid_row = m_grid_row_input.val() as number;
+            m_grid_display.css('grid-template-rows', 'repeat(' + m_grid_row + ', 1fr)');
+        });
+
+        m_grid_column_input.on('input', ()=> {
+            m_grid_column = m_grid_column_input.val() as number;
+            m_grid_display.css('grid-template-columns', 'repeat(' + m_grid_column + ', 1fr)');
         });
     }
 });
