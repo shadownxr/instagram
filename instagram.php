@@ -123,7 +123,7 @@ class Instagram extends Module {
             'instagram_app_secret' => $instagram_app_secret,
             'message' => $this->message,
             'message_type' => $this->message_type,
-            'redirect_uri' => $redirect_uri
+            'redirect_uri' => $redirect_uri,
         ));
 
         $this->message = '';
@@ -259,17 +259,37 @@ class Instagram extends Module {
 
     public function hookActionAdminControllerSetMedia(){
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+    }
+
+    public function hookActionFrontControllerSetMedia(){
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
     }
 
     public function __call($name, $arguments){
-        $display_style = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $this->context->controller->addCSS($this->_path.'/views/css/instagram.css');
 
-        $this->context->smarty->assign(array(
-            'images_data' => $this->db_getImagesData(),
-            'display_style' => $display_style
-        ));
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
-        return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/display.tpl');
+        if(!$this->context->isMobile()){
+            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+
+            $this->context->smarty->assign(array(
+                'images_data' => $this->db_getImagesData(),
+                'settings' => $settings,
+            ));
+
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/desktop.tpl');
+        } else {
+            $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+
+            $this->context->smarty->assign(array(
+                'images_data' => $this->db_getImagesData(),
+                'settings' => $settings
+            ));
+            
+            return $this->fetch(_PS_MODULE_DIR_.'instagram/views/templates/front/mobile.tpl');
+        }
     }
 
     private function fetchLongAccessToken(string $code){
@@ -345,7 +365,7 @@ class Instagram extends Module {
                 $response = DB::getInstance()->execute(
                     'INSERT INTO `' . _DB_PREFIX_ . 
                     'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
-                    VALUES ("'.INSTAGRAM_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")'
+                    VALUES ("'.INSTAGRAM_DESKTOP_CONFIG_ID.'", "'.pSQL($data['user_id']).'", "'.pSQL($data['access_token']).'", "'.pSQL($data['token_expires']).'")'
                 );
                 return $response;
             } else {
@@ -362,12 +382,12 @@ class Instagram extends Module {
     }
 
     private function db_getUserIdAndAccessToken(): array{
-        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_DESKTOP_CONFIG_ID);
         return $response;
     }
 
     private function db_deleteAccessToken(): bool{
-        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_DESKTOP_CONFIG_ID);
         return $response;
     }
 
@@ -388,7 +408,7 @@ class Instagram extends Module {
 
     private function fetchImagesFromInstagram(): bool{
         $data = $this->db_getUserIdAndAccessToken();
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
         if(!empty($data)){
             $images_url = [];
@@ -448,11 +468,10 @@ class Instagram extends Module {
     }
 
     private function initDefaultDisplaySettings(){
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
         $settings->hook = 'displayHeader';
-        $settings->image_height = 300;
-        $settings->image_width = 300;
-        $settings->flex_direction = 'row';
+        $settings->image_size = 300;
+        $settings->display_style = 'slider';
         $settings->title = 'Example title';
         $settings->image_margin = 0;
         $settings->image_border_radius = 0;
@@ -460,8 +479,15 @@ class Instagram extends Module {
         $settings->show_description = false;
         $settings->description_alignment = 'column';
         $settings->max_images_fetched = 6;
+        $settings->images_per_gallery = 2;
+        $settings->gap = 15;
+        $settings->grid_column = 4;
+        $settings->grid_row = 4;
 
-        if($settings->add()){
+        $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+        $m_settings = $settings;
+
+        if($settings->add() && $m_settings->add()){
             $this->registerHook($settings->hook);
         }
     }

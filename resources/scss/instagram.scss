@@ -1,0 +1,26 @@
+@import "image_display.scss";
+
+@mixin tab_button(){
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+    
+    &.active {
+        opacity: 1;
+        pointer-events: all;
+        display: block;
+    }
+}
+
+#desktop_settings {
+    @include tab_button();
+}
+
+#mobile_settings {
+    @include tab_button();
+}
+
+.active {
+    opacity: 1;
+    pointer-events: all;
+}

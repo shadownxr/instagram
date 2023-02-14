@@ -18,19 +18,66 @@ class InstagramAdminSettingsController extends ModuleAdminController
     }
 
     public function postProcess(){
-        if(Tools::isSubmit('save_settings')){
-            $settings = new instagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $this->processDesktopSettings();
+        $this->processMobileSettings();
+    }
+
+    private function processDesktopSettings(){
+        if(Tools::isSubmit('save_desktop_settings')){
+            $settings = new instagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
             $prev_hook = $settings->hook;
             $settings->hook = Tools::getValue('display_hook');
-            $settings->flex_direction = Tools::getValue('display_direction');
-            $settings->image_width = Tools::getValue('image_width');
-            $settings->image_height = Tools::getValue('image_height');
+            $settings->display_style = Tools::getValue('display_style');
+            $settings->image_size = Tools::getValue('image_size');
             $settings->image_margin = Tools::getValue('image_margin');
             $settings->image_border_radius = Tools::getValue('image_border_radius');
             $settings->show_title = Tools::getValue('show_title');
             $settings->show_description = Tools::getValue('show_description');
             $settings->description_alignment = Tools::getValue('description_alignment');
             $settings->max_images_fetched = Tools::getValue('max_images_fetched');
+            $settings->images_per_gallery = Tools::getValue('images_per_gallery');
+            $settings->gap = Tools::getValue('gap');
+            $settings->grid_row = Tools::getValue('grid_row');
+            $settings->grid_column = Tools::getValue('grid_column');
+
+            $settings->title = 'Next';
+
+            if(!Validate::isLoadedObject($settings)){
+                if($settings->add()) {
+                    $this->module->registerHook($settings->hook);
+                }
+            } else {
+                if($settings->update()){
+                    $this->module->unregisterHook($prev_hook);
+                    $this->module->registerHook($settings->hook);
+                }
+            }
+        }
+
+        if(Tools::isSubmit('refresh')){
+            $this->fetchImagesFromInstagram();
+        }
+
+        return parent::postProcess();
+    }
+
+    private function processMobileSettings(){
+        if(Tools::isSubmit('save_mobile_settings')){
+            $settings = new instagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+            $prev_hook = $settings->hook;
+            $settings->hook = Tools::getValue('m_display_hook');
+            $settings->display_style = Tools::getValue('m_display_style');
+            $settings->image_size = Tools::getValue('m_image_size');
+            $settings->image_margin = Tools::getValue('m_image_margin');
+            $settings->image_border_radius = Tools::getValue('m_image_border_radius');
+            $settings->show_title = Tools::getValue('m_show_title');
+            $settings->show_description = Tools::getValue('m_show_description');
+            $settings->description_alignment = Tools::getValue('m_description_alignment');
+            $settings->max_images_fetched = Tools::getValue('m_max_images_fetched');
+            $settings->images_per_gallery = Tools::getValue('m_images_per_gallery');
+            $settings->gap = Tools::getValue('m_gap');
+            $settings->grid_row = Tools::getValue('m_grid_row');
+            $settings->grid_column = Tools::getValue('m_grid_column');
 
             $settings->title = 'Next';
 
@@ -54,13 +101,15 @@ class InstagramAdminSettingsController extends ModuleAdminController
     }
 
     public function renderList(){
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+        $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
         $display_hooks = $this->db_getDisplayHooks();
 
         $this->context->smarty->assign(array(
             'is_connected' => $this->db_checkIfAccessTokenExists(),
             'images_data' => $this->db_getImagesData(),
             'settings' => $settings,
+            'm_settings' => $m_settings,
             'display_hooks' => $display_hooks
         ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_.'instagram/views/templates/admin/settings.tpl');
@@ -77,7 +126,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
     private function fetchImagesFromInstagram(){
         $data = $this->db_getUserIdAndAccessToken();
-        $settings = new InstagramDisplaySettings(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
         if(!empty($data)){
             $images_url = [];
@@ -126,7 +175,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
     }
 
     private function db_getUserIdAndAccessToken(): array{
-        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+        $response = DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ .'instagram` WHERE id_instagram='.INSTAGRAM_DESKTOP_CONFIG_ID);
         return $response;
     }
     
