@@ -46,11 +46,11 @@
         <div class="form-wrapper">
             <div class="form-group">
                 {l s='Instagram App ID' mod='instagram'} <br/>
-                <input type="text" name="instagram_app_id" value={$instagram_app_id}/>
+                <input type="text" name="instagram_app_id" value={$instagram_app_id} />
             </div>
             <div class="form-group">
                 {l s='Instagram App Secret' mod='instagram'}
-                <input type="text" name="instagram_app_secret" value={$instagram_app_secret}/>
+                <input type="text" name="instagram_app_secret" value={$instagram_app_secret} />
             </div>
             <div class="panel-footer">
                 <button type="submit" name="add_config" class="btn btn-default">Add</button>
@@ -66,10 +66,10 @@
         <br/>
     </p>
     <form action="https://api.instagram.com/oauth/authorize" method="GET" target="_blank">
-        <input type="hidden" name="client_id" value={$instagram_app_id}/>
-        <input type="hidden" name="redirect_uri" value={$redirect_uri}/>
-        <input type="hidden" name="scope" value="user_profile,user_media"/>
-        <input type="hidden" name="response_type" value="code"/>
+        <input type="hidden" name="client_id" value={$instagram_app_id} />
+        <input type="hidden" name="redirect_uri" value={$redirect_uri} />
+        <input type="hidden" name="scope" value="user_profile,user_media" />
+        <input type="hidden" name="response_type" value="code" />
         <div class="panel-footer">
             <button type="submit" name="authorize" class="btn btn-default">Authorize</button>
         </div>
