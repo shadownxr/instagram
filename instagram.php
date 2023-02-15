@@ -203,6 +203,11 @@ class Instagram extends Module {
 
         $subtabs = array(
             array(
+                'class'=>'InstagramAdminConfigShortcut',
+                'name'=>$this->l('Config'),
+                'id_parent'=>$id_parent
+            ),
+            array(
                 'class'=>'InstagramAdminSettings',
                 'name'=>$this->l('Settings'),
                 'id_parent'=>$id_parent
