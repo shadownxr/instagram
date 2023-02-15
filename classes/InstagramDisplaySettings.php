@@ -25,8 +25,6 @@ class InstagramDisplaySettings extends ObjectModel {
             'display_style' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 255),
             'image_size' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'show_title' => array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true),
-            'show_description' => array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true),
-            'description_alignment' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true),
             'max_images_fetched' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'images_per_gallery' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'gap' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),

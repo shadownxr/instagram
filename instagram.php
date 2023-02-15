@@ -479,8 +479,6 @@ class Instagram extends Module {
         $settings->display_style = 'slider';
         $settings->title = 'Example title';
         $settings->show_title = false;
-        $settings->show_description = false;
-        $settings->description_alignment = 'column';
         $settings->max_images_fetched = 6;
         $settings->images_per_gallery = 2;
         $settings->gap = 15;

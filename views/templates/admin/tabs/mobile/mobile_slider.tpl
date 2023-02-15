@@ -95,64 +95,6 @@
                            name="m_image_size"/>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label class="form-control-label"
-                >Show description: </label
-                >
-                <div class="form-check form-check-radio">
-                    <label class="form-check-label">
-                        <input
-                                class="form-check-input"
-                                type="radio"
-                                name="m_show_description"
-                                id="m_show_description_true"
-                                value="1"
-                                {if $settings->show_description == true}
-                                    checked
-                                {/if}
-                        />
-                        <i class="form-check-round"></i>
-                        Yes
-                    </label>
-                </div>
-                <div class="form-check form-check-radio">
-                    <label class="form-check-label">
-                        <input
-                                class="form-check-input"
-                                type="radio"
-                                name="m_show_description"
-                                id="m_show_description_false"
-                                value="0"
-                                {if $settings->show_description == false}
-                                    checked
-                                {/if}
-                        />
-                        <i class="form-check-round"></i>
-                        No
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-
-                <label class="form-control-label"
-                >Description alignment: </label
-                >
-                <div class="form-select">
-                    <select class="form-control custom-select" name="m_description_alignment">
-                        <option value="column" {if $settings->description_alignment == 'column'}selected{/if}>Bottom
-                        </option>
-                        <option value="row-reverse" {if $settings->description_alignment == 'row-reverse'}selected{/if}>
-                            Left
-                        </option>
-                        <option value="column-reverse"
-                                {if $settings->description_alignment == 'column-reverse'}selected{/if}>Top
-                        </option>
-                        <option value="row" {if $settings->description_alignment == 'row'}selected{/if}>Right</option>
-                    </select>
-                </div>
-            </div>
-
         </div>
         <div class="panel-footer">
             <button type="submit" name="save_mobile_settings" class="btn btn-default pull-right">Save</button>
