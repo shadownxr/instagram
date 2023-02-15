@@ -478,8 +478,6 @@ class Instagram extends Module {
         $settings->image_size = 300;
         $settings->display_style = 'slider';
         $settings->title = 'Example title';
-        $settings->image_margin = 0;
-        $settings->image_border_radius = 0;
         $settings->show_title = false;
         $settings->show_description = false;
         $settings->description_alignment = 'column';

@@ -22,9 +22,7 @@
                                         <li class="splide__slide">
                                             <img src={$data['image_url']} height="{$settings->image_size}"
                                                  width="{$settings->image_size}" class="mobile_preview_images"
-                                                 style="margin:{$settings->image_margin}px;
-                                                         border-radius:{$settings->image_border_radius}px;
-                                                         "/>
+                                            />
                                         </li>
                                     {/foreach}
                                 </ul>
@@ -95,40 +93,6 @@
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="number" value="{$settings->image_size}" id="m_image_size"
                            name="m_image_size"/>
-                </div>
-            </div>
-
-            <div
-                    class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-                    data-max="50"
-                    data-min="0"
-                    data-label-max="Maximum:50"
-                    data-label-min="Minimum:0"
-                    data-label-nan="Not a number."
-            >
-                <label class="form-control-label" for="image_margin"
-                >Margin of image</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="{$settings->image_margin}" id="m_image_margin"
-                           name="m_image_margin"/>
-                </div>
-            </div>
-
-            <div
-                    class="form-group prestasho-number-input prestasho-number-input-enable-arrows"
-                    data-max="50"
-                    data-min="0"
-                    data-label-max="Maximum:50"
-                    data-label-min="Minimum:0"
-                    data-label-nan="Not a number."
-            >
-                <label class="form-control-label" for="image_border_radius"
-                >Border radius of image</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="{$settings->image_border_radius}"
-                           id="m_image_border_radius" name="m_image_border_radius"/>
                 </div>
             </div>
 

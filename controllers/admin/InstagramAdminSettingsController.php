@@ -29,8 +29,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->hook = Tools::getValue('display_hook');
             $settings->display_style = Tools::getValue('display_style');
             $settings->image_size = Tools::getValue('image_size');
-            $settings->image_margin = Tools::getValue('image_margin');
-            $settings->image_border_radius = Tools::getValue('image_border_radius');
             $settings->show_title = Tools::getValue('show_title');
             $settings->show_description = Tools::getValue('show_description');
             $settings->description_alignment = Tools::getValue('description_alignment');
@@ -68,8 +66,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->hook = Tools::getValue('m_display_hook');
             $settings->display_style = Tools::getValue('m_display_style');
             $settings->image_size = Tools::getValue('m_image_size');
-            $settings->image_margin = Tools::getValue('m_image_margin');
-            $settings->image_border_radius = Tools::getValue('m_image_border_radius');
             $settings->show_title = Tools::getValue('m_show_title');
             $settings->show_description = Tools::getValue('m_show_description');
             $settings->description_alignment = Tools::getValue('m_description_alignment');
