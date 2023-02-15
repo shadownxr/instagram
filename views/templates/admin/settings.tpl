@@ -3,9 +3,10 @@
 	<p class="alert-text">Your account is not configured, go to module configuration to set your Instagram Account</p>
 </div>
 {else}
+
 <div class="switch_tabs">
-    <button name="desktop_switch">Desktop</button>
-    <button name="mobile_switch">Mobile</button>
+    <button name="desktop_switch" class="btn btn-primary" style="border-bottom: none; border-radius: unset;">Desktop</button>
+    <button name="mobile_switch" class="btn btn-secondary" style="border-bottom: none; border-radius: unset;">Mobile</button>
 </div>
 
 {include file='./tabs/settings_desktop.tpl' settings=$settings images_data=$images_data}
