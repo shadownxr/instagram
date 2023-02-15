@@ -6,8 +6,7 @@ class InstagramDisplaySettings extends ObjectModel {
     public $display_style;
     public $image_size;
     public $show_title;
-    public $show_description;
-    public $description_alignment;
+
     public $max_images_fetched;
     public $images_per_gallery;
     public $gap;

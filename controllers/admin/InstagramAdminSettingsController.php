@@ -30,8 +30,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->display_style = Tools::getValue('display_style');
             $settings->image_size = Tools::getValue('image_size');
             $settings->show_title = Tools::getValue('show_title');
-            $settings->show_description = Tools::getValue('show_description');
-            $settings->description_alignment = Tools::getValue('description_alignment');
             $settings->max_images_fetched = Tools::getValue('max_images_fetched');
             $settings->images_per_gallery = Tools::getValue('images_per_gallery');
             $settings->gap = Tools::getValue('gap');
@@ -67,8 +65,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->display_style = Tools::getValue('m_display_style');
             $settings->image_size = Tools::getValue('m_image_size');
             $settings->show_title = Tools::getValue('m_show_title');
-            $settings->show_description = Tools::getValue('m_show_description');
-            $settings->description_alignment = Tools::getValue('m_description_alignment');
             $settings->max_images_fetched = Tools::getValue('m_max_images_fetched');
             $settings->images_per_gallery = Tools::getValue('m_images_per_gallery');
             $settings->gap = Tools::getValue('m_gap');
