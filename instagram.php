@@ -293,12 +293,7 @@ class Instagram extends Module
         }
     }
 
-    /**
-     * @param string $code
-     * @return array|false
-     */
-    private function fetchLongAccessToken(string $code)
-    {
+    private function fetchShortAccessToken(string $code){
         $url = 'https://api.instagram.com/oauth/access_token';
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
@@ -326,33 +321,52 @@ class Instagram extends Module
             return false;
         }
 
-        $url = 'https://graph.instagram.com/access_token?client_secret=' . Configuration::get('INSTAGRAM_APP_SECRET')
-            . '&access_token=' . $short_access_token
-            . '&grant_type=ig_exchange_token';
+        return array(
+          'short_access_token' => $short_access_token,
+          'user_id' => $user_id,
+        );
+    }
 
-        $fetch_data = InstagramCurl::fetch($url);
+    /**
+     * @param string $code
+     * @return array|false
+     */
+    private function fetchLongAccessToken(string $code)
+    {
+        if($data = $this->fetchShortAccessToken($code)) {
+            $short_access_token = $data['short_access_token'];
+            $user_id = $data['user_id'];
 
-        if (array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in', $fetch_data)) {
-            $long_access_token = $fetch_data['access_token'];
-            $token_expire_date = $fetch_data['expires_in'];
-        } else if (array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)) {
-            $this->message = $fetch_data['error_message'];
-            $this->message_type = ERROR_MESSAGE;
-            return false;
+            $url = 'https://graph.instagram.com/access_token?client_secret=' . Configuration::get('INSTAGRAM_APP_SECRET')
+                . '&access_token=' . $short_access_token
+                . '&grant_type=ig_exchange_token';
+
+            $fetch_data = InstagramCurl::fetch($url);
+
+            if (array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in', $fetch_data)) {
+                $long_access_token = $fetch_data['access_token'];
+                $token_expire_date = $fetch_data['expires_in'];
+            } else if (array_key_exists('error_type', $fetch_data) && array_key_exists('error_message', $fetch_data)) {
+                $this->message = $fetch_data['error_message'];
+                $this->message_type = ERROR_MESSAGE;
+                return false;
+            } else {
+                $this->message = 'Can\'t get Long Access Token';
+                $this->message_type = ERROR_MESSAGE;
+                return false;
+            }
+
+            $this->message = 'Account successfully added';
+            $this->message_type = CONFIRMATION_MESSAGE;
+
+            return array(
+                'access_token' => $long_access_token,
+                'token_expires' => $token_expire_date,
+                'user_id' => $user_id
+            );
         } else {
-            $this->message = 'Can\'t get Long Access Token';
-            $this->message_type = ERROR_MESSAGE;
             return false;
         }
-
-        $this->message = 'Account successfully added';
-        $this->message_type = CONFIRMATION_MESSAGE;
-
-        return array(
-            'access_token' => $long_access_token,
-            'token_expires' => $token_expire_date,
-            'user_id' => $user_id
-        );
     }
 
     public function db_checkIfAccessTokenExists(): bool
