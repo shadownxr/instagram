@@ -11,12 +11,6 @@ class InstagramAdminSettingsController extends ModuleAdminController
         parent::__construct();
     }
 
-    public function initContent()
-    {
-        parent::initContent();
-
-    }
-
     public function postProcess()
     {
         $this->processDesktopSettings();
