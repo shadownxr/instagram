@@ -26,7 +26,6 @@ class Instagram extends Module
 {
     private string $message = '';
     private string $message_type = '';
-    private string $instagram_code = '';
 
     public function __construct()
     {
@@ -462,9 +461,7 @@ class Instagram extends Module
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . $data[0]['user_id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
 
-            $user_info = InstagramCurl::fetch($url);
-
-            return $user_info;
+            return InstagramCurl::fetch($url);
         } else {
             return false;
         }
@@ -484,7 +481,6 @@ class Instagram extends Module
         $settings->grid_column = 4;
         $settings->grid_row = 4;
 
-        $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
         $m_settings = $settings;
 
         if ($settings->add() && $m_settings->add()) {
