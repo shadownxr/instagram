@@ -2,9 +2,9 @@
 
 class InstagramImages extends ObjectModel {
     public $id;
-    public $image_id;
-    public $image_url;
-    public $description;
+    public string $image_id;
+    public string $image_url;
+    public string $description;
 
     public static $definition = array(
         'table' => 'instagramimages',

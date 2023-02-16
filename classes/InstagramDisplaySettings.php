@@ -1,18 +1,16 @@
 <?php
 class InstagramDisplaySettings extends ObjectModel {
     public $id;
-    public $hook;
-    public $title;
-    public $display_style;
-    public $image_size;
-    public $show_title;
-
-    public $max_images_fetched;
-    public $images_per_gallery;
-    public $gap;
-
-    public $grid_row;
-    public $grid_column;
+    public string $hook;
+    public string $title;
+    public string $display_style;
+    public int $image_size;
+    public bool $show_title;
+    public int $max_images_fetched;
+    public int $images_per_gallery;
+    public int $gap;
+    public int $grid_row;
+    public int $grid_column;
 
     public static $definition = array(
         'table' => 'instagramdisplaysettings',
