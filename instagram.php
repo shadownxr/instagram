@@ -115,7 +115,6 @@ class Instagram extends Module
         $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
         $this->context->smarty->assign(array(
-            'module_dir' => $this->_path,
             'username' => $username,
             'instagram_app_id' => $instagram_app_id,
             'instagram_app_secret' => $instagram_app_secret,
@@ -434,7 +433,6 @@ class Instagram extends Module
             $images_id = InstagramCurl::fetch($url);
 
             $fields = 'media_url,media_type,caption';
-
             foreach ($images_id['data'] as $image_id) {
                 $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
                 $images_url[] = InstagramCurl::fetch($url);
