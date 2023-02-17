@@ -21,7 +21,7 @@
                             {foreach from=$images_data item=data}
                                 <div class="item">
                                     <img src={$data['image_url']} height="{$settings->image_size}"
-                                         width="{$settings->image_size}" class="preview_images">
+                                         width="{$settings->image_size}" class="desktop_preview_images">
                                 </div>
                             {/foreach}
                         </div>
@@ -178,7 +178,7 @@
                     data-label-min="Minimum:1"
                     data-label-nan="Not a number."
             >
-                <label class="form-control-label" for="max_images_fetched"
+                <label class="form-control-label" for="images_per_gallery"
                 >Number of images display at one time</label
                 >
                 <div class="prestashop-number-input-inputs">

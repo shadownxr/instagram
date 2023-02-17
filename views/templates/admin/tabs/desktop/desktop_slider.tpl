@@ -181,7 +181,7 @@
                     data-label-min="Minimum:1"
                     data-label-nan="Not a number."
             >
-                <label class="form-control-label" for="max_images_fetched"
+                <label class="form-control-label" for="images_per_gallery"
                 >Number of images display at one time</label
                 >
                 <div class="prestashop-number-input-inputs">
