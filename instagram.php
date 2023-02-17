@@ -74,7 +74,6 @@ class Instagram extends Module
     {
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
-        Configuration::deleteByName('ADMIN_LINK');
 
         include(dirname(__FILE__) . '/sql/uninstall.php');
 
