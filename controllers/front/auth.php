@@ -2,8 +2,9 @@
 class InstagramAuthModuleFrontController extends ModuleFrontController {
     public function init(){        
         $code = Tools::getValue('code');
-
-        $admin_redirect_url = Configuration::get('ADMIN_LINK');
+        $cookie = new Cookie('ADMIN_LINK');
+        $admin_redirect_url = $cookie->admin_link;
+        $cookie->deleteSession();
 
         if($code){
 		    Tools::redirectLink($admin_redirect_url.'&code='.$code);

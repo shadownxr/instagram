@@ -56,7 +56,6 @@ class Instagram extends Module
 
         Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
         Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
-        Configuration::updateValue('ADMIN_LINK', '');
 
         include(dirname(__FILE__) . '/sql/install.php');
 
@@ -161,7 +160,9 @@ class Instagram extends Module
         $token = Tools::getAdminTokenLite('AdminModules');
         $link = $this->context->link->getAdminLink('AdminModules&token=' . $token . '&configure=instagram&tab_module=administration&module_name=instagram', false);
 
-        Configuration::updateValue('ADMIN_LINK', $link);
+        $cookie = new Cookie('ADMIN_LINK');
+        $cookie->admin_link = $link;
+        $cookie->write();
     }
 
     private function processDeletion()
