@@ -43,7 +43,7 @@
         </div>
         <div class="form-wrapper">
             <div class="form-group">
-                <label class="form-control-label" for="display_direction">Change display direction</label>
+                <label class="form-control-label" for="display_style">Change display direction</label>
                 <div class="form-check form-check-radio">
                     <label class="form-check-label">
                         <input

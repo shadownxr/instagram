@@ -52,33 +52,30 @@ export function frontSliders() {
         }
     });
 }
-export function backSliders() {
-    let display_style = document.querySelector('input[name="display_style"]') as HTMLInputElement;
-    let m_display_style = document.querySelector('input[name=' + 'm_' + 'display_style]') as HTMLInputElement;
 
-    if(display_style.value == 'slider') {
+export function backSliders() {
+    let display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
+    let m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
+
+    if (display_style.value == 'slider') {
         new Slider(Version.desktop);
-        // let desktop_slider = createSlider(Version.desktop);
-        // updateSlider(Version.desktop, desktop_slider);
     } else {
-        // updateGrid(Version.desktop);
+        updateGrid(Version.desktop);
     }
 
-    if(m_display_style.value == 'slider') {
+    if (m_display_style.value == 'slider') {
         new Slider(Version.mobile);
-        // let mobile_slider = createSlider(Version.mobile);
-        // updateSlider(Version.mobile, mobile_slider);
     } else {
-        // updateGrid(Version.mobile);
+        updateGrid(Version.mobile);
     }
 }
 
 class Slider {
     version: Version;
     slider: Splide;
-    image_size : HTMLInputElement;
-    images_per_gallery : HTMLInputElement;
-    gap_input : HTMLInputElement;
+    image_size_input: HTMLInputElement;
+    images_per_gallery: HTMLInputElement;
+    gap_input: HTMLInputElement;
 
     perPage: number;
     size: number;
@@ -86,12 +83,12 @@ class Slider {
 
     constructor(version: Version) {
         this.version = version;
-        this.image_size = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
+        this.image_size_input = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
         this.images_per_gallery = document.querySelector('input[name=' + this.version + 'images_per_gallery]') as HTMLInputElement;
         this.gap_input = document.querySelector('input[name=' + this.version + 'gap]') as HTMLInputElement;
 
         this.perPage = parseInt(this.images_per_gallery.value);
-        this.size = parseInt(this.image_size.value);
+        this.size = parseInt(this.image_size_input.value);
         this.gap = parseInt(this.gap_input.value);
 
         let options = {
@@ -102,14 +99,14 @@ class Slider {
             gap: this.gap,
         };
 
-        this.slider = new Splide((this.version == Version.desktop) ? '#preview_desktop_slider': '#preview_mobile_slider', options);
+        this.slider = new Splide((this.version == Version.desktop) ? '#preview_desktop_slider' : '#preview_mobile_slider', options);
         this.slider.mount();
         this.inputEvents();
     }
 
-    public inputEvents(){
-        this.image_size.addEventListener("input", () => {
-            this.size = parseInt(this.image_size.value);
+    public inputEvents() {
+        this.image_size_input.addEventListener("input", () => {
+            this.size = parseInt(this.image_size_input.value);
             let images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
             images.forEach(image => {
                 image.width = this.size;
@@ -138,17 +135,15 @@ class Slider {
     }
 }
 
-
-
-function updateGrid(version: Version){
-    const image_size = document.querySelector('input[name=' + version + 'image_size]') as HTMLInputElement;
+function updateGrid(version: Version) {
+    const image_size_input = document.querySelector('input[name=' + version + 'image_size]') as HTMLInputElement;
     const gap_input = document.querySelector('input[name=' + version + 'gap]') as HTMLInputElement;
+    const grid_row_input = document.querySelector('input[name=' + version + 'grid_row]') as HTMLInputElement;
+    const grid_column_input = document.querySelector('input[name=' + version + 'grid_column]') as HTMLInputElement;
 
-    const grid_display = document.querySelector('.'+version+'grid_display') as HTMLDivElement;
-    const grid_row_input = document.querySelector('input[name=' + version +'grid_row]') as HTMLInputElement;
-    const grid_column_input = document.querySelector('input[name=' + version +'grid_column]') as HTMLInputElement;
+    const grid_display = document.querySelector('.' + version + 'grid_display') as HTMLDivElement;
 
-    let size: number = parseInt(image_size.value);
+    let size: number = parseInt(image_size_input.value);
     let gap: number = parseInt(gap_input.value);
 
     let grid_row: number;
@@ -161,8 +156,8 @@ function updateGrid(version: Version){
         grid_column = parseInt(grid_column_input.value);
     }
 
-    image_size.addEventListener("input", () => {
-        size = parseInt(image_size.value);
+    image_size_input.addEventListener("input", () => {
+        size = parseInt(image_size_input.value);
         let images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
         images.forEach(image => {
             image.width = size;
