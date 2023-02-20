@@ -7,6 +7,11 @@ const DESKTOP = 0;
 const MOBILE = 1;
 let url = 'https://prestashop1788.local/pl/module/instagram/ajax';
 
+enum Version {
+    desktop = '',
+    mobile = 'm_'
+}
+
 function fetchSettings() {
     return $.ajax({
         type: 'POST',
@@ -22,15 +27,13 @@ function fetchSettings() {
 }
 
 function getOptions(response: any, type: number) {
-    let options = {
+    return {
         type: 'slide',
         perPage: response[type].images_per_gallery,
         perMove: 1,
         width: (response[type].images_per_gallery * response[type].image_size) + parseInt(response[type].gap),
         gap: parseInt(response[type].gap),
     };
-
-    return options;
 }
 
 export function frontSliders() {
@@ -49,17 +52,102 @@ export function frontSliders() {
         }
     });
 }
-
 export function backSliders() {
-    let image_size = document.querySelector('input[name="image_size"]') as HTMLInputElement;
-    let images_per_gallery = document.querySelector('input[name="images_per_gallery"]') as HTMLInputElement;
-    let gap_input = document.querySelector('input[name="gap"]') as HTMLInputElement;
+    let display_style = document.querySelector('input[name="display_style"]') as HTMLInputElement;
+    let m_display_style = document.querySelector('input[name=' + 'm_' + 'display_style]') as HTMLInputElement;
 
-    let grid_display = document.querySelector('.grid_display') as HTMLDivElement;
-    let grid_row_input = document.querySelector('input[name="grid_row"]') as HTMLInputElement;
-    let grid_column_input = document.querySelector('input[name="grid_column"]') as HTMLInputElement;
+    if(display_style.value == 'slider') {
+        new Slider(Version.desktop);
+        // let desktop_slider = createSlider(Version.desktop);
+        // updateSlider(Version.desktop, desktop_slider);
+    } else {
+        // updateGrid(Version.desktop);
+    }
 
-    let perPage: number = parseInt(images_per_gallery.value);
+    if(m_display_style.value == 'slider') {
+        new Slider(Version.mobile);
+        // let mobile_slider = createSlider(Version.mobile);
+        // updateSlider(Version.mobile, mobile_slider);
+    } else {
+        // updateGrid(Version.mobile);
+    }
+}
+
+class Slider {
+    version: Version;
+    slider: Splide;
+    image_size : HTMLInputElement;
+    images_per_gallery : HTMLInputElement;
+    gap_input : HTMLInputElement;
+
+    perPage: number;
+    size: number;
+    gap: number;
+
+    constructor(version: Version) {
+        this.version = version;
+        this.image_size = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
+        this.images_per_gallery = document.querySelector('input[name=' + this.version + 'images_per_gallery]') as HTMLInputElement;
+        this.gap_input = document.querySelector('input[name=' + this.version + 'gap]') as HTMLInputElement;
+
+        this.perPage = parseInt(this.images_per_gallery.value);
+        this.size = parseInt(this.image_size.value);
+        this.gap = parseInt(this.gap_input.value);
+
+        let options = {
+            type: 'slide',
+            perPage: this.perPage,
+            perMove: 1,
+            width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+            gap: this.gap,
+        };
+
+        this.slider = new Splide((this.version == Version.desktop) ? '#preview_desktop_slider': '#preview_mobile_slider', options);
+        this.slider.mount();
+        this.inputEvents();
+    }
+
+    public inputEvents(){
+        this.image_size.addEventListener("input", () => {
+            this.size = parseInt(this.image_size.value);
+            let images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach(image => {
+                image.width = this.size;
+                image.height = this.size;
+            });
+            this.slider.options = {
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+            }
+        });
+
+        this.images_per_gallery.addEventListener("input", () => {
+            this.perPage = parseInt(this.images_per_gallery.value);
+            this.slider.options = {
+                perPage: this.perPage,
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+            }
+        });
+
+        this.gap_input.addEventListener("input", () => {
+            this.gap = parseInt(this.gap_input.value);
+            this.slider.options = {
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+                gap: this.gap,
+            }
+        });
+    }
+}
+
+
+
+function updateGrid(version: Version){
+    const image_size = document.querySelector('input[name=' + version + 'image_size]') as HTMLInputElement;
+    const gap_input = document.querySelector('input[name=' + version + 'gap]') as HTMLInputElement;
+
+    const grid_display = document.querySelector('.'+version+'grid_display') as HTMLDivElement;
+    const grid_row_input = document.querySelector('input[name=' + version +'grid_row]') as HTMLInputElement;
+    const grid_column_input = document.querySelector('input[name=' + version +'grid_column]') as HTMLInputElement;
+
     let size: number = parseInt(image_size.value);
     let gap: number = parseInt(gap_input.value);
 
@@ -73,158 +161,27 @@ export function backSliders() {
         grid_column = parseInt(grid_column_input.value);
     }
 
-    let m_image_size = document.querySelector('input[name="m_image_size"]') as HTMLInputElement;
-    let m_images_per_gallery = document.querySelector('input[name="m_images_per_gallery"]') as HTMLInputElement;
-    let m_gap_input = document.querySelector('input[name="m_gap"]') as HTMLInputElement;
-
-    let m_perPage: number = parseInt(m_images_per_gallery.value);
-    let m_size: number = parseInt(m_image_size.value);
-    let m_gap: number = parseInt(m_gap_input.value);
-
-    let m_grid_display = document.querySelector('.mobile_grid_display') as HTMLDivElement;
-    let m_grid_row_input = document.querySelector('input[name="m_grid_row"]') as HTMLInputElement;
-    let m_grid_column_input = document.querySelector('input[name="m_grid_column"]') as HTMLInputElement;
-
-    let m_grid_row: number;
-    if (m_grid_row_input) {
-        m_grid_row = parseInt(m_grid_row_input.value);
-    }
-
-    let m_grid_column: number;
-    if (m_grid_column_input) {
-        m_grid_column = parseInt(m_grid_column_input.value);
-    }
-
-    let options = {
-        type: 'slide',
-        perPage: perPage,
-        perMove: 1,
-        width: (perPage * size) + (gap * perPage) - gap,
-        autoWidth: true,
-        gap: gap,
-    };
-
-    let m_options = {
-        type: 'slide',
-        perPage: m_perPage,
-        perMove: 1,
-        width: (m_perPage * m_size) + (m_gap * m_perPage) - m_gap,
-        autoWidth: true,
-        gap: m_gap,
-    };
-
-    if (document.querySelector('#preview_desktop_slider')) {
-        let desktop_slider = new Splide('#preview_desktop_slider', options);
-        desktop_slider.mount();
-
-        image_size.addEventListener("input", () => {
-            size = parseInt(image_size.value);
-            let images = document.querySelectorAll('.desktop_preview_images') as NodeListOf<HTMLImageElement>;
-            images.forEach(image => {
-                image.width = size;
-                image.height = size;
-            });
-            desktop_slider.options = {
-                width: (perPage * size) + (gap * perPage) - gap,
-            }
+    image_size.addEventListener("input", () => {
+        size = parseInt(image_size.value);
+        let images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+        images.forEach(image => {
+            image.width = size;
+            image.height = size;
         });
+    });
 
-        images_per_gallery.addEventListener("input", () => {
-            perPage = parseInt(images_per_gallery.value);
-            desktop_slider.options = {
-                perPage: perPage,
-                width: (perPage * size) + (gap * perPage) - gap,
-            }
-        });
+    gap_input.addEventListener("input", () => {
+        gap = parseInt(gap_input.value);
+        grid_display.style.gap = gap + 'px';
+    });
 
-        gap_input.addEventListener("input", () => {
-            gap = parseInt(gap_input.value);
-            desktop_slider.options = {
-                width: (perPage * size) + (gap * perPage) - gap,
-                gap: gap,
-            }
-        });
-    } else {
-        image_size.addEventListener("input", () => {
-            size = parseInt(image_size.value);
-            let images = document.querySelectorAll('.desktop_preview_images') as NodeListOf<HTMLImageElement>;
-            images.forEach(image => {
-               image.width = size;
-               image.height = size;
-            });
-        });
+    grid_row_input.addEventListener("input", () => {
+        grid_row = parseInt(grid_row_input.value);
+        grid_display.style.gridTemplateRows = 'repeat(' + grid_row + ', 1fr)';
+    });
 
-        gap_input.addEventListener("input", () => {
-            gap = parseInt(gap_input.value);
-            grid_display.style.gap = gap + 'px'
-        });
-
-        grid_row_input.addEventListener("input", () => {
-            grid_row = parseInt(grid_row_input.value);
-            grid_display.style.gridTemplateRows = 'repeat(' + grid_row + ', 1fr)';
-        });
-
-        grid_column_input.addEventListener("input", () => {
-            grid_column = parseInt(grid_column_input.value);
-            grid_display.style.gridTemplateColumns = 'repeat(' + grid_column + ', 1fr)';
-        });
-    }
-
-    if (document.querySelector('#preview_mobile_slider')) {
-        let mobile_slider = new Splide('#preview_mobile_slider', m_options);
-        mobile_slider.mount();
-
-        m_image_size.addEventListener("input", () => {
-            m_size = parseInt(m_image_size.value);
-            let images = document.querySelectorAll('.mobile_preview_images') as NodeListOf<HTMLImageElement>;
-            images.forEach(image => {
-               image.width = m_size;
-               image.height = m_size;
-            });
-            mobile_slider.options = {
-                width: (m_perPage * m_size) + (m_gap * m_perPage) - m_gap,
-            }
-        });
-
-        m_images_per_gallery.addEventListener("input", () => {
-            m_perPage = parseInt(m_images_per_gallery.value);
-            mobile_slider.options = {
-                perPage: m_perPage,
-                width: (m_perPage * m_size) + (m_gap * m_perPage) - m_gap,
-            }
-        });
-
-        m_gap_input.addEventListener("input", () => {
-            m_gap = parseInt(m_gap_input.value);
-            mobile_slider.options = {
-                width: (m_perPage * m_size) + (m_gap * m_perPage) - m_gap,
-                gap: m_gap,
-            }
-        });
-
-    } else {
-        m_image_size.addEventListener("input", () => {
-            m_size = parseInt(m_image_size.value);
-            let images = document.querySelectorAll('.mobile_preview_images') as NodeListOf<HTMLImageElement>;
-            images.forEach( image => {
-                image.width = m_size;
-                image.height = m_size;
-            });
-        });
-
-        m_gap_input.addEventListener("input", () => {
-            m_gap = parseInt(m_gap_input.value);
-            m_grid_display.style.gap = m_gap + 'px';
-        });
-
-        m_grid_row_input.addEventListener("input", () => {
-            m_grid_row = parseInt(m_grid_row_input.value);
-            m_grid_display.style.gridTemplateRows = 'repeat(' + m_grid_row + ', 1fr)';
-        });
-
-        m_grid_column_input.addEventListener("input", () => {
-            m_grid_column = parseInt(m_grid_column_input.value);
-            m_grid_display.style.gridTemplateColumns = 'repeat(' + m_grid_column + ', 1fr)';
-        });
-    }
+    grid_column_input.addEventListener("input", () => {
+        grid_column = parseInt(grid_column_input.value);
+        grid_display.style.gridTemplateColumns = 'repeat(' + grid_column + ', 1fr)';
+    });
 }

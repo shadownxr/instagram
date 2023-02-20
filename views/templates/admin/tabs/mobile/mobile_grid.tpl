@@ -16,7 +16,7 @@
                     {/if}
 
                     <div class="images">
-                        <div class="mobile_grid_display"
+                        <div class="m_grid_display"
                              style="grid-template-columns: repeat({$settings->grid_column}, 1fr); grid-template-rows: repeat({$settings->grid_row}, 1fr); grid-gap: {$settings->gap}px;">
                             {foreach from=$images_data item=data}
                                 <div class="item">
