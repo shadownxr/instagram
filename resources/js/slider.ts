@@ -13,7 +13,7 @@ function fetchSettings() {
         url: url,
         cache: false,
         data: {
-            method : 'test',
+            method: 'test',
             ajax: true
         },
         success: function () {
@@ -33,7 +33,7 @@ function getOptions(response: any, type: number) {
     return options;
 }
 
-export default function frontSlider() {
+export function frontSliders() {
     $.when(fetchSettings()).done(function (response) {
         response = JSON.parse(response);
 
@@ -50,8 +50,7 @@ export default function frontSlider() {
     });
 }
 
-
-jQuery(() => {
+export function backSliders() {
     let image_size = document.querySelector('input[name="image_size"]') as HTMLInputElement;
     let images_per_gallery = document.querySelector('input[name="images_per_gallery"]') as HTMLInputElement;
     let gap_input = document.querySelector('input[name="gap"]') as HTMLInputElement;
@@ -60,28 +59,41 @@ jQuery(() => {
     let grid_row_input = document.querySelector('input[name="grid_row"]') as HTMLInputElement;
     let grid_column_input = document.querySelector('input[name="grid_column"]') as HTMLInputElement;
 
-    let perPage : number = parseInt(images_per_gallery.value);
-    let size : number = parseInt(image_size.value);
-    let gap : number = parseInt(gap_input.value);
+    let perPage: number = parseInt(images_per_gallery.value);
+    let size: number = parseInt(image_size.value);
+    let gap: number = parseInt(gap_input.value);
 
-    let grid_row : number = parseInt(grid_row_input.value);
-    let grid_column : number = parseInt(grid_column_input.value);
+    let grid_row: number;
+    if (grid_row_input) {
+        grid_row = parseInt(grid_row_input.value);
+    }
 
+    let grid_column: number;
+    if (grid_column_input) {
+        grid_column = parseInt(grid_column_input.value);
+    }
 
     let m_image_size = document.querySelector('input[name="m_image_size"]') as HTMLInputElement;
     let m_images_per_gallery = document.querySelector('input[name="m_images_per_gallery"]') as HTMLInputElement;
     let m_gap_input = document.querySelector('input[name="m_gap"]') as HTMLInputElement;
 
-    let m_perPage : number = parseInt(m_images_per_gallery.value);
-    let m_size : number = parseInt(m_image_size.value);
-    let m_gap : number = parseInt(m_gap_input.value);
+    let m_perPage: number = parseInt(m_images_per_gallery.value);
+    let m_size: number = parseInt(m_image_size.value);
+    let m_gap: number = parseInt(m_gap_input.value);
 
     let m_grid_display = document.querySelector('.mobile_grid_display') as HTMLDivElement;
     let m_grid_row_input = document.querySelector('input[name="m_grid_row"]') as HTMLInputElement;
     let m_grid_column_input = document.querySelector('input[name="m_grid_column"]') as HTMLInputElement;
 
-    let m_grid_row : number = parseInt(m_grid_row_input.value);
-    let m_grid_column : number = parseInt(m_grid_column_input.value);
+    let m_grid_row: number;
+    if (m_grid_row_input) {
+        m_grid_row = parseInt(m_grid_row_input.value);
+    }
+
+    let m_grid_column: number;
+    if (m_grid_column_input) {
+        m_grid_column = parseInt(m_grid_column_input.value);
+    }
 
     let options = {
         type: 'slide',
@@ -101,13 +113,17 @@ jQuery(() => {
         gap: m_gap,
     };
 
-    if($('#preview_desktop_slider').length) {
+    if (document.querySelector('#preview_desktop_slider')) {
         let desktop_slider = new Splide('#preview_desktop_slider', options);
         desktop_slider.mount();
 
         image_size.addEventListener("input", () => {
             size = parseInt(image_size.value);
-            $('.desktop_preview_images').width(size).height(size);
+            let images = document.querySelectorAll('.desktop_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach(image => {
+                image.width = size;
+                image.height = size;
+            });
             desktop_slider.options = {
                 width: (perPage * size) + (gap * perPage) - gap,
             }
@@ -131,7 +147,11 @@ jQuery(() => {
     } else {
         image_size.addEventListener("input", () => {
             size = parseInt(image_size.value);
-            $('.desktop_preview_images').width(size).height(size);
+            let images = document.querySelectorAll('.desktop_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach(image => {
+               image.width = size;
+               image.height = size;
+            });
         });
 
         gap_input.addEventListener("input", () => {
@@ -140,8 +160,8 @@ jQuery(() => {
         });
 
         grid_row_input.addEventListener("input", () => {
-           grid_row = parseInt(grid_row_input.value);
-           grid_display.style.gridTemplateRows = 'repeat(' + grid_row + ', 1fr)';
+            grid_row = parseInt(grid_row_input.value);
+            grid_display.style.gridTemplateRows = 'repeat(' + grid_row + ', 1fr)';
         });
 
         grid_column_input.addEventListener("input", () => {
@@ -150,13 +170,17 @@ jQuery(() => {
         });
     }
 
-    if($('#preview_mobile_slider').length){
+    if (document.querySelector('#preview_mobile_slider')) {
         let mobile_slider = new Splide('#preview_mobile_slider', m_options);
         mobile_slider.mount();
 
         m_image_size.addEventListener("input", () => {
             m_size = parseInt(m_image_size.value);
-            $('.mobile_preview_images').width(m_size).height(m_size);
+            let images = document.querySelectorAll('.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach(image => {
+               image.width = m_size;
+               image.height = m_size;
+            });
             mobile_slider.options = {
                 width: (m_perPage * m_size) + (m_gap * m_perPage) - m_gap,
             }
@@ -181,7 +205,11 @@ jQuery(() => {
     } else {
         m_image_size.addEventListener("input", () => {
             m_size = parseInt(m_image_size.value);
-            $('.mobile_preview_images').width(m_size).height(m_size);
+            let images = document.querySelectorAll('.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach( image => {
+                image.width = m_size;
+                image.height = m_size;
+            });
         });
 
         m_gap_input.addEventListener("input", () => {
@@ -194,9 +222,9 @@ jQuery(() => {
             m_grid_display.style.gridTemplateRows = 'repeat(' + m_grid_row + ', 1fr)';
         });
 
-        m_grid_column_input.addEventListener("input", ()=> {
+        m_grid_column_input.addEventListener("input", () => {
             m_grid_column = parseInt(m_grid_column_input.value);
             m_grid_display.style.gridTemplateColumns = 'repeat(' + m_grid_column + ', 1fr)';
         });
     }
-});
+}

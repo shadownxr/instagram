@@ -1,5 +1,8 @@
 import './slider';
 import './settings/tabs.ts';
-import frontSliders from "./slider";
+import {frontSliders, backSliders} from "./slider";
 
-frontSliders();
+document.addEventListener("DOMContentLoaded", () => {
+    frontSliders();
+    backSliders();
+});
