@@ -54,8 +54,8 @@ export function frontSliders() {
 }
 
 export function backSliders() {
-    let display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
-    let m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
+    const display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
+    const m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
 
     if (display_style.value == 'slider') {
         new Slider(Version.desktop);
@@ -107,7 +107,7 @@ class Slider {
     public inputEvents() {
         this.image_size_input.addEventListener("input", () => {
             this.size = parseInt(this.image_size_input.value);
-            let images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            const images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
             images.forEach(image => {
                 image.width = this.size;
                 image.height = this.size;
@@ -158,7 +158,7 @@ function updateGrid(version: Version) {
 
     image_size_input.addEventListener("input", () => {
         size = parseInt(image_size_input.value);
-        let images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+        const images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
         images.forEach(image => {
             image.width = size;
             image.height = size;
