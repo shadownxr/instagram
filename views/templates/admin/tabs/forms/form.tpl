@@ -5,37 +5,79 @@
             {l s='Display settings' mod='instagram'}
         </div>
         <div class="form-wrapper">
-            <label class="form-control-label" for="{$version}display_style">{l s='Change display style' mod='instagram'}</label>
-            <div class="form-check form-check-radio">
-                <label class="form-check-label">
-                    <input
-                            class="form-check-input"
-                            type="radio"
-                            name="{$version}display_style"
-                            id="{$version}display_style_slider"
-                            value="slider"
-                            {if $settings->display_style == "slider"}
-                                checked
-                            {/if}
-                    />
-                    <i class="form-check-round">{l s='Slider' mod='instagram'}</i>
-                </label>
+            <div class="form-group">
+                <label class="form-control-label"
+                       for="{$version}display_style">{l s='Change display style' mod='instagram'}</label>
+                <div class="form-check form-check-radio">
+                    <label class="form-check-label">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="{$version}display_style"
+                                id="{$version}display_style_slider"
+                                value="slider"
+                                {if $settings->display_style == "slider"}
+                                    checked
+                                {/if}
+                        />
+                        <i class="form-check-round">{l s='Slider' mod='instagram'}</i>
+                    </label>
+                </div>
+
+
+                <div class="form-check form-check-radio">
+                    <label class="form-check-label">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="{$version}display_style"
+                                id="{$version}display_style_grid"
+                                value="grid"
+                                {if $settings->display_style  == "grid"}
+                                    checked
+                                {/if}
+                        />
+                        <i class="form-check-round">Grid</i>
+                    </label>
+                </div>
             </div>
 
-            <div class="form-check form-check-radio">
-                <label class="form-check-label">
-                    <input
-                            class="form-check-input"
-                            type="radio"
-                            name="{$version}display_style"
-                            id="{$version}display_style_grid"
-                            value="grid"
-                            {if $settings->display_style  == "grid"}
-                                checked
-                            {/if}
-                    />
-                    <i class="form-check-round">Grid</i>
-                </label>
+            <div class="form-group">
+                <label class="form-control-label"
+                >{l s='Show title' mod='instagram'} </label
+                >
+                <div class="form-check form-check-radio">
+                    <label class="form-check-label">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="{$version}show_title"
+                                id="{$version}show_title_true"
+                                value="1"
+                                {if $settings->show_title == true}
+                                    checked
+                                {/if}
+                        />
+                        <i class="form-check-round"></i>
+                        {l s='Yes' mod='instagram'}
+                    </label>
+                </div>
+                <div class="form-check form-check-radio">
+                    <label class="form-check-label">
+                        <input
+                                class="form-check-input"
+                                type="radio"
+                                name="{$version}show_title"
+                                id="{$version}show_title_false"
+                                value="0"
+                                {if $settings->show_title == false}
+                                    checked
+                                {/if}
+                        />
+                        <i class="form-check-round"></i>
+                        {l s='No' mod='instagram'}
+                    </label>
+                </div>
             </div>
         </div>
         <div class="panel-footer">
@@ -78,43 +120,6 @@
                     </select>
                 </div>
 
-            </div>
-            <div class="form-group">
-                <label class="form-control-label"
-                >{l s='Show title' mod='instagram'} </label
-                >
-                <div class="form-check form-check-radio">
-                    <label class="form-check-label">
-                        <input
-                                class="form-check-input"
-                                type="radio"
-                                name="{$version}show_title"
-                                id="{$version}show_title_true"
-                                value="1"
-                                {if $settings->show_title == true}
-                                    checked
-                                {/if}
-                        />
-                        <i class="form-check-round"></i>
-                        {l s='Yes' mod='instagram'}
-                    </label>
-                </div>
-                <div class="form-check form-check-radio">
-                    <label class="form-check-label">
-                        <input
-                                class="form-check-input"
-                                type="radio"
-                                name="{$version}show_title"
-                                id="{$version}show_title_false"
-                                value="0"
-                                {if $settings->show_title == false}
-                                    checked
-                                {/if}
-                        />
-                        <i class="form-check-round"></i>
-                        {l s='No' mod='instagram'}
-                    </label>
-                </div>
             </div>
 
             <div
@@ -163,7 +168,8 @@
                 >{l s='Gap between images' mod='instagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="{$settings->gap}" id="{$version}gap" name="{$version}gap"/>
+                    <input class="form-control" type="number" value="{$settings->gap}" id="{$version}gap"
+                           name="{$version}gap"/>
                 </div>
             </div>
 
