@@ -1,9 +1,9 @@
 export function tabs() {
-    let desktop_button = document.querySelector('button[name="desktop_switch"]') as HTMLButtonElement;
-    let mobile_button =  document.querySelector('button[name="mobile_switch"]') as HTMLButtonElement;
+    const desktop_button = document.querySelector('button[name="desktop_switch"]') as HTMLButtonElement;
+    const mobile_button =  document.querySelector('button[name="mobile_switch"]') as HTMLButtonElement;
 
-    let desktop_settings = document.querySelector('#desktop_settings') as HTMLDivElement;
-    let mobile_settings = document.querySelector('#mobile_settings') as HTMLDivElement;
+    const desktop_settings = document.querySelector('#desktop_settings') as HTMLDivElement;
+    const mobile_settings = document.querySelector('#mobile_settings') as HTMLDivElement;
 
     desktop_button.addEventListener('click', () => {
         desktop_settings.classList.add('active');
