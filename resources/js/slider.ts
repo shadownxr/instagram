@@ -57,16 +57,20 @@ export function backSliders() {
     const display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
     const m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
 
-    if (display_style.value == 'slider') {
-        new Slider(Version.desktop);
-    } else {
-        updateGrid(Version.desktop);
+    if(display_style) {
+        if (display_style.value == 'slider') {
+            new Slider(Version.desktop);
+        } else if (display_style.value == 'grid') {
+            updateGrid(Version.desktop);
+        }
     }
 
-    if (m_display_style.value == 'slider') {
-        new Slider(Version.mobile);
-    } else {
-        updateGrid(Version.mobile);
+    if(m_display_style) {
+        if (m_display_style.value == 'slider') {
+            new Slider(Version.mobile);
+        } else if (display_style.value == 'grid') {
+            updateGrid(Version.mobile);
+        }
     }
 }
 
