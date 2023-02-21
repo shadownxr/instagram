@@ -79,6 +79,7 @@
                     </label>
                 </div>
             </div>
+            <div id="settings_notification"></div>
         </div>
         <div class="panel-footer">
             <button type="submit" name="save_desktop_settings"
