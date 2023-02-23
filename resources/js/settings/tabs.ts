@@ -5,23 +5,27 @@ export function tabs() {
     const desktop_settings = document.querySelector('#desktop_settings') as HTMLDivElement;
     const mobile_settings = document.querySelector('#mobile_settings') as HTMLDivElement;
 
-    desktop_button.addEventListener('click', () => {
-        desktop_settings.classList.add('active');
-        desktop_button.classList.remove('btn-secondary');
-        desktop_button.classList.add('btn-primary');
+    if(desktop_button) {
+        desktop_button.addEventListener('click', () => {
+            desktop_settings.classList.add('active');
+            desktop_button.classList.remove('btn-secondary');
+            desktop_button.classList.add('btn-primary');
 
-        mobile_settings.classList.remove('active');
-        mobile_button.classList.remove('btn-primary');
-        mobile_button.classList.add('btn-secondary');
-    });
+            mobile_settings.classList.remove('active');
+            mobile_button.classList.remove('btn-primary');
+            mobile_button.classList.add('btn-secondary');
+        });
+    }
 
-    mobile_button.addEventListener('click', () => {
-        desktop_settings.classList.remove('active');
-        desktop_button.classList.add('btn-secondary');
-        desktop_button.classList.remove('btn-primary');
+    if(mobile_button) {
+        mobile_button.addEventListener('click', () => {
+            desktop_settings.classList.remove('active');
+            desktop_button.classList.add('btn-secondary');
+            desktop_button.classList.remove('btn-primary');
 
-        mobile_settings.classList.add('active');
-        mobile_button.classList.remove('btn-secondary');
-        mobile_button.classList.add('btn-primary');
-    });
+            mobile_settings.classList.add('active');
+            mobile_button.classList.remove('btn-secondary');
+            mobile_button.classList.add('btn-primary');
+        });
+    }
 }
