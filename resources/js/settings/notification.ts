@@ -1,11 +1,28 @@
-export function notification(){
-    const display_style = document.querySelectorAll('input[name="display_style"]') as NodeListOf<HTMLInputElement>;
-    const show_title = document.querySelectorAll('input[name="show_title"]') as NodeListOf<HTMLInputElement>;
+enum Version {
+    desktop = '',
+    mobile = 'm_',
+}
 
-    const notification = document.querySelector('#settings_notification') as HTMLDivElement;
+// #todo notification hides when changing back selection of one input while both where selected
+export function notification() {
+    const notification = document.querySelector('#desktop_settings #settings_notification') as HTMLDivElement;
+    const m_notification = document.querySelector('#mobile_settings #settings_notification') as HTMLDivElement;
 
-    display_style.forEach((item) => {
-        if(item.checked == false) {
+    handleEvents(Version.desktop, notification);
+    handleEvents(Version.mobile, m_notification);
+}
+
+function handleEvents(version: Version, notification: HTMLDivElement) {
+    const display_style = document.querySelectorAll('input[name=' + version + 'display_style]') as NodeListOf<HTMLInputElement>;
+    const show_title = document.querySelectorAll('input[name=' + version + 'show_title]') as NodeListOf<HTMLInputElement>;
+
+    addEvents(display_style, notification);
+    addEvents(show_title, notification);
+}
+
+function addEvents(elements: NodeListOf<HTMLInputElement>, notification: HTMLDivElement) {
+    elements.forEach((item, index) => {
+        if (!item.checked) {
             item.addEventListener('click', () => {
                 notification.innerHTML = '<p>Save to see changes<p>';
             });
@@ -15,17 +32,4 @@ export function notification(){
             });
         }
     });
-
-    show_title.forEach((item) => {
-        if(item.checked == false) {
-            item.addEventListener('click', () => {
-                notification.innerHTML = '<p>Save to see changes<p>';
-            });
-        } else {
-            item.addEventListener('click', () => {
-                notification.innerHTML = '';
-            });
-        }
-    });
-
 }
