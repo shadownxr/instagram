@@ -1,6 +1,6 @@
 {if $is_connected == false}
 <div class="alert alert-warning" role="alert">
-	<p class="alert-text">Your account is not configured, go to module configuration to set your Instagram Account</p>
+	<p class="alert-text">{l s='Your account is not configured, go to module configuration to set your Instagram Account' mod='instagram'}</p>
 </div>
 {else}
 
