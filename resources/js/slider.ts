@@ -13,7 +13,7 @@ enum Version {
 }
 
 async function fetchSettings() {
-    const data = { method: 'test', ajax: true };
+    const data = { ajax: true };
     const response =  await fetch(url, {
         method: "POST",
         mode: "same-origin",
