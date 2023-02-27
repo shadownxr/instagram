@@ -9,6 +9,9 @@
     <button name="mobile_switch" class="btn btn-secondary" style="border-bottom: none; border-radius: unset;">Mobile</button>
 </div>
 
+{assign var=DESKTOP value=''}
+{assign var=MOBILE value='m_'}
+
 {include file='./tabs/settings_desktop.tpl' settings=$settings images_data=$images_data}
 {include file='./tabs/settings_mobile.tpl' settings=$m_settings images_data=$images_data}
 

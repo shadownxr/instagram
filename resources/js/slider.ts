@@ -7,13 +7,18 @@ const DESKTOP = 0;
 const MOBILE = 1;
 let url = 'https://prestashop1788.local/pl/module/instagram/ajax';
 
+enum Version {
+    desktop = '',
+    mobile = 'm_'
+}
+
 function fetchSettings() {
     return $.ajax({
         type: 'POST',
         url: url,
         cache: false,
         data: {
-            method : 'test',
+            method: 'test',
             ajax: true
         },
         success: function () {
@@ -22,180 +27,160 @@ function fetchSettings() {
 }
 
 function getOptions(response: any, type: number) {
-    let options = {
+    return {
         type: 'slide',
         perPage: response[type].images_per_gallery,
         perMove: 1,
-        width: (response[type].images_per_gallery * response[type].image_size) + Number(response[type].gap),
-        gap: Number(response[type].gap),
+        width: (response[type].images_per_gallery * response[type].image_size) + parseInt(response[type].gap),
+        gap: parseInt(response[type].gap),
     };
-
-    return options;
 }
 
-$.when(fetchSettings()).done(function(response){
-    response = JSON.parse(response);
+export function frontSliders() {
+    $.when(fetchSettings()).done(function (response) {
+        response = JSON.parse(response);
 
-    let parser = new UAParser();
-    let device_type = parser.getDevice().type as string;
+        let parser = new UAParser();
+        let device_type = parser.getDevice().type as string;
 
-    if(!(device_type === 'mobile')) {
-        let options = getOptions(response, DESKTOP);
-        new Splide('#desktop_slider', options).mount();
-    } else {
-        let mobile_options = getOptions(response, MOBILE);
-        new Splide('#mobile_slider', mobile_options).mount();
-    }
-});
+        if (!(device_type === 'mobile')) {
+            let options = getOptions(response, DESKTOP);
+            new Splide('#desktop_slider', options).mount();
+        } else {
+            let mobile_options = getOptions(response, MOBILE);
+            new Splide('#mobile_slider', mobile_options).mount();
+        }
+    });
+}
 
-jQuery(() => {
-    let image_size = $('input[name="image_size"]');
-    let images_per_gallery = $('input[name="images_per_gallery"]');
-    let gap_input = $('input[name="gap"]');
+export function backSliders() {
+    const display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
+    const m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
 
-    let grid_display = $('.grid_display');
-    let grid_row_input = $('input[name="grid_row"]');
-    let grid_column_input = $('input[name="grid_column"]');
-
-    let perPage: number = images_per_gallery.val() as number;
-    let size: number = image_size.val() as number;
-    let gap: number = gap_input.val() as number;
-
-    let grid_row = grid_row_input.val() as number;
-    let grid_column = grid_column_input.val() as number;
-
-    let m_image_size = $('input[name="m_image_size"]');
-    let m_images_per_gallery = $('input[name="m_images_per_gallery"]');
-    let m_gap_input = $('input[name="m_gap"]');
-
-    let m_perPage: number = m_images_per_gallery.val() as number;
-    let m_size: number = m_image_size.val() as number;
-    let m_gap: number = m_gap_input.val() as number;
-
-    let m_grid_display = $('.m_grid_display');
-    let m_grid_row_input = $('input[name="m_grid_row"]');
-    let m_grid_column_input = $('input[name="m_grid_column"]');
-
-    console.log(m_grid_row_input.length);
-
-    let m_grid_row = m_grid_row_input.val() as number;
-    let m_grid_column = m_grid_column_input.val() as number;
-
-    let options = {
-        type: 'slide',
-        perPage: perPage,
-        perMove: 1,
-        width: (perPage * size) + (Number(gap) * perPage) - gap,
-        autoWidth: true,
-        gap: Number(gap),
-    };
-
-    let m_options = {
-        type: 'slide',
-        perPage: m_perPage,
-        perMove: 1,
-        width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
-        autoWidth: true,
-        gap: Number(m_gap),
-    };
-
-    //#todo mobile slider
-    if($('#preview_desktop_slider').length) {
-        let desktop_slider = new Splide('#preview_desktop_slider', options);
-        desktop_slider.mount();
-
-        image_size.on('input', () => {
-            size = image_size.val() as number;
-            $('.preview_images').width(size).height(size);
-            desktop_slider.options = {
-                width: (perPage * size) + (Number(gap) * perPage)- gap,
-            }
-        });
-
-        images_per_gallery.on('input', () => {
-            perPage = images_per_gallery.val() as number;
-            desktop_slider.options = {
-                perPage: perPage,
-                width: (perPage * size) + (Number(gap) * perPage)- gap,
-            }
-        });
-
-        gap_input.on('input', () => {
-            gap = gap_input.val() as number;
-            desktop_slider.options = {
-                width: (perPage * size) + (Number(gap) * perPage)- gap,
-                gap: Number(gap),
-            }
-        });
-    } else {
-        image_size.on('input', () => {
-            size = image_size.val() as number;
-            $('.desktop_preview_images').width(size).height(size);
-        });
-
-        gap_input.on('input', () => {
-            gap = gap_input.val() as number;
-            grid_display.css('grid-gap', Number(gap) + 'px');
-        });
-
-        grid_row_input.on('input', () => {
-           grid_row = grid_row_input.val() as number;
-           grid_display.css('grid-template-rows', 'repeat(' + grid_row + ', 1fr)');
-        });
-
-        grid_column_input.on('input', ()=> {
-            grid_column = grid_column_input.val() as number;
-            grid_display.css('grid-template-columns', 'repeat(' + grid_column + ', 1fr)');
-        });
+    if(display_style) {
+        if (display_style.value == 'slider') {
+            new Slider(Version.desktop);
+        } else if (display_style.value == 'grid') {
+            updateGrid(Version.desktop);
+        }
     }
 
-    if($('#preview_mobile_slider').length){
-        let mobile_slider = new Splide('#preview_mobile_slider', m_options);
-        mobile_slider.mount();
+    if(m_display_style) {
+        if (m_display_style.value == 'slider') {
+            new Slider(Version.mobile);
+        } else if (display_style.value == 'grid') {
+            updateGrid(Version.mobile);
+        }
+    }
+}
 
-        m_image_size.on('input', () => {
-            m_size = m_image_size.val() as number;
-            $('.mobile_preview_images').width(m_size).height(m_size);
-            mobile_slider.options = {
-                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
+class Slider {
+    version: Version;
+    slider: Splide;
+    image_size_input: HTMLInputElement;
+    images_per_gallery: HTMLInputElement;
+    gap_input: HTMLInputElement;
+
+    perPage: number;
+    size: number;
+    gap: number;
+
+    constructor(version: Version) {
+        this.version = version;
+        this.image_size_input = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
+        this.images_per_gallery = document.querySelector('input[name=' + this.version + 'images_per_gallery]') as HTMLInputElement;
+        this.gap_input = document.querySelector('input[name=' + this.version + 'gap]') as HTMLInputElement;
+
+        this.perPage = parseInt(this.images_per_gallery.value);
+        this.size = parseInt(this.image_size_input.value);
+        this.gap = parseInt(this.gap_input.value);
+
+        let options = {
+            type: 'slide',
+            perPage: this.perPage,
+            perMove: 1,
+            width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+            gap: this.gap,
+        };
+
+        this.slider = new Splide((this.version == Version.desktop) ? '#preview_desktop_slider' : '#preview_mobile_slider', options);
+        this.slider.mount();
+        this.inputEvents();
+    }
+
+    public inputEvents() {
+        this.image_size_input.addEventListener("input", () => {
+            this.size = parseInt(this.image_size_input.value);
+            const images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            images.forEach(image => {
+                image.width = this.size;
+                image.height = this.size;
+            });
+            this.slider.options = {
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
             }
         });
 
-        m_images_per_gallery.on('input', () => {
-            m_perPage = m_images_per_gallery.val() as number;
-            mobile_slider.options = {
-                perPage: m_perPage,
-                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
-            }
-
-        });
-
-        m_gap_input.on('input', () => {
-            m_gap = m_gap_input.val() as number;
-            mobile_slider.options = {
-                width: (m_perPage * m_size) + (Number(m_gap) * m_perPage) - m_gap,
-                gap: Number(m_gap),
+        this.images_per_gallery.addEventListener("input", () => {
+            this.perPage = parseInt(this.images_per_gallery.value);
+            this.slider.options = {
+                perPage: this.perPage,
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
             }
         });
-    } else {
-        m_image_size.on('input', () => {
-            m_size = m_image_size.val() as number;
-            $('.mobile_preview_images').width(m_size).height(m_size);
-        });
 
-        m_gap_input.on('input', () => {
-            m_gap = m_gap_input.val() as number;
-            m_grid_display.css('grid-gap', Number(m_gap) + 'px');
-        });
-
-        m_grid_row_input.on('input', () => {
-            m_grid_row = m_grid_row_input.val() as number;
-            m_grid_display.css('grid-template-rows', 'repeat(' + m_grid_row + ', 1fr)');
-        });
-
-        m_grid_column_input.on('input', ()=> {
-            m_grid_column = m_grid_column_input.val() as number;
-            m_grid_display.css('grid-template-columns', 'repeat(' + m_grid_column + ', 1fr)');
+        this.gap_input.addEventListener("input", () => {
+            this.gap = parseInt(this.gap_input.value);
+            this.slider.options = {
+                width: (this.perPage * this.size) + (this.gap * this.perPage) - this.gap,
+                gap: this.gap,
+            }
         });
     }
-});
+}
+
+function updateGrid(version: Version) {
+    const image_size_input = document.querySelector('input[name=' + version + 'image_size]') as HTMLInputElement;
+    const gap_input = document.querySelector('input[name=' + version + 'gap]') as HTMLInputElement;
+    const grid_row_input = document.querySelector('input[name=' + version + 'grid_row]') as HTMLInputElement;
+    const grid_column_input = document.querySelector('input[name=' + version + 'grid_column]') as HTMLInputElement;
+
+    const grid_display = document.querySelector('.' + version + 'grid_display') as HTMLDivElement;
+
+    let size: number = parseInt(image_size_input.value);
+    let gap: number = parseInt(gap_input.value);
+
+    let grid_row: number;
+    if (grid_row_input) {
+        grid_row = parseInt(grid_row_input.value);
+    }
+
+    let grid_column: number;
+    if (grid_column_input) {
+        grid_column = parseInt(grid_column_input.value);
+    }
+
+    image_size_input.addEventListener("input", () => {
+        size = parseInt(image_size_input.value);
+        const images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+        images.forEach(image => {
+            image.width = size;
+            image.height = size;
+        });
+    });
+
+    gap_input.addEventListener("input", () => {
+        gap = parseInt(gap_input.value);
+        grid_display.style.gap = gap + 'px';
+    });
+
+    grid_row_input.addEventListener("input", () => {
+        grid_row = parseInt(grid_row_input.value);
+        grid_display.style.gridTemplateRows = 'repeat(' + grid_row + ', 1fr)';
+    });
+
+    grid_column_input.addEventListener("input", () => {
+        grid_column = parseInt(grid_column_input.value);
+        grid_display.style.gridTemplateColumns = 'repeat(' + grid_column + ', 1fr)';
+    });
+}
