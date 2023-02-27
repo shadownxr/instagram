@@ -78,6 +78,7 @@ class Slider {
     image_size_input: HTMLInputElement;
     images_per_gallery: HTMLInputElement;
     gap_input: HTMLInputElement;
+    title_input: HTMLInputElement;
 
     perPage: number;
     size: number;
@@ -88,6 +89,7 @@ class Slider {
         this.image_size_input = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
         this.images_per_gallery = document.querySelector('input[name=' + this.version + 'images_per_gallery]') as HTMLInputElement;
         this.gap_input = document.querySelector('input[name=' + this.version + 'gap]') as HTMLInputElement;
+        this.title_input = document.querySelector('input[name='+ this.version +'title]') as HTMLInputElement;
 
         this.perPage = parseInt(this.images_per_gallery.value);
         this.size = parseInt(this.image_size_input.value);
@@ -134,6 +136,11 @@ class Slider {
                 gap: this.gap,
             }
         });
+
+        this.title_input.addEventListener("input", () => {
+           const title = document.querySelector(((this.version == Version.desktop)?'#desktop_settings':'#mobile_settings') + ' .title h1') as HTMLHeadingElement;
+           title.innerText = this.title_input.value;
+        });
     }
 }
 
@@ -142,6 +149,7 @@ function updateGrid(version: Version) {
     const gap_input = document.querySelector('input[name=' + version + 'gap]') as HTMLInputElement;
     const grid_row_input = document.querySelector('input[name=' + version + 'grid_row]') as HTMLInputElement;
     const grid_column_input = document.querySelector('input[name=' + version + 'grid_column]') as HTMLInputElement;
+    const title_input = document.querySelector('input[name='+ version +'title]') as HTMLInputElement;
 
     const grid_display = document.querySelector('.' + version + 'grid_display') as HTMLDivElement;
 
@@ -180,5 +188,12 @@ function updateGrid(version: Version) {
     grid_column_input.addEventListener("input", () => {
         grid_column = parseInt(grid_column_input.value);
         grid_display.style.gridTemplateColumns = 'repeat(' + grid_column + ', 1fr)';
+    });
+
+    console.log(title_input);
+
+    title_input.addEventListener("input", () => {
+       const title = document.querySelector(((version == Version.desktop)?'#desktop_settings':'#mobile_settings') + ' .title h1') as HTMLHeadingElement;
+       title.innerText = title_input.value;
     });
 }

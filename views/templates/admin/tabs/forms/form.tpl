@@ -82,7 +82,7 @@
             <div id="settings_notification"></div>
         </div>
         <div class="panel-footer">
-            <button type="submit" name="save_desktop_settings"
+            <button type="submit" {if $version == $DESKTOP} name="save_desktop_settings" {else} name="save_mobile_settings" {/if}
                     class="btn btn-default pull-right">{l s='Save' mod='instagram'}</button>
         </div>
     </div>
@@ -94,6 +94,16 @@
         </div>
 
         <div class="form-wrapper">
+            <div class="form-group">
+                <label class="form-control-label" for="{$version}title"
+                >{l s='Gallery title'}</label
+                >
+                <div class="prestashop-number-input-inputs">
+                    <input class="form-control" type="text" value="{$settings->title}" id="{$version}title"
+                           name="{$version}title"/>
+                </div>
+            </div>
+
             <div
                     class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
                     data-max="1920"

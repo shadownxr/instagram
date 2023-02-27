@@ -17,6 +17,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $this->processMobileSettings();
     }
 
+//    #todo refactor this
     private function processDesktopSettings()
     {
         if (Tools::isSubmit('save_desktop_settings')) {
@@ -31,8 +32,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->gap = Tools::getValue('gap');
             $settings->grid_row = Tools::getValue('grid_row');
             $settings->grid_column = Tools::getValue('grid_column');
-
-            $settings->title = 'Next';
+            $settings->title = Tools::getValue('title');
 
             if (!Validate::isLoadedObject($settings)) {
                 if ($settings->add()) {
@@ -53,6 +53,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         return parent::postProcess();
     }
 
+//    #todo refactor this
     private function processMobileSettings()
     {
         if (Tools::isSubmit('save_mobile_settings')) {
@@ -67,8 +68,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->gap = Tools::getValue('m_gap');
             $settings->grid_row = Tools::getValue('m_grid_row');
             $settings->grid_column = Tools::getValue('m_grid_column');
-
-            $settings->title = 'Next';
+            $settings->title = Tools::getValue('m_title');
 
             if (!Validate::isLoadedObject($settings)) {
                 if ($settings->add()) {
