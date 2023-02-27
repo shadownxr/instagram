@@ -267,6 +267,7 @@ class Instagram extends Module
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
     }
 
+    // #todo add custom hook
     public function __call($name, $arguments)
     {
         $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
