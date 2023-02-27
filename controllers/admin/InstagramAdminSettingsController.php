@@ -34,12 +34,15 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->grid_column = Tools::getValue('grid_column');
             $settings->title = Tools::getValue('title');
 
-            if (!Validate::isLoadedObject($settings)) {
-                if ($settings->add()) {
+            $m_settings = new instagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
+            $m_settings->hook = Tools::getValue('display_hook');
+
+            if (!Validate::isLoadedObject($settings) && !Validate::isLoadedObject($m_settings)) {
+                if ($settings->add() && $m_settings->add()) {
                     $this->module->registerHook($settings->hook);
                 }
             } else {
-                if ($settings->update()) {
+                if ($settings->update() && $m_settings->update()) {
                     $this->module->unregisterHook($prev_hook);
                     $this->module->registerHook($settings->hook);
                 }
@@ -70,12 +73,15 @@ class InstagramAdminSettingsController extends ModuleAdminController
             $settings->grid_column = Tools::getValue('m_grid_column');
             $settings->title = Tools::getValue('m_title');
 
-            if (!Validate::isLoadedObject($settings)) {
-                if ($settings->add()) {
+            $d_settings = new instagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+            $d_settings->hook = Tools::getValue('m_display_hook');
+
+            if (!Validate::isLoadedObject($settings) && !Validate::isLoadedObject($d_settings)) {
+                if ($settings->add() && $d_settings->add()) {
                     $this->module->registerHook($settings->hook);
                 }
             } else {
-                if ($settings->update()) {
+                if ($settings->update() && $d_settings->update()) {
                     $this->module->unregisterHook($prev_hook);
                     $this->module->registerHook($settings->hook);
                 }
