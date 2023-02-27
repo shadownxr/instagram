@@ -17,26 +17,6 @@ function handleEvents(version: Version, notification: HTMLDivElement) {
     addEvents(display_settings, notification);
 }
 
-class RadioButton {
-    radio_inputs : NodeListOf<HTMLInputElement>;
-    state: Boolean = false;
-
-    constructor(radio_inputs: NodeListOf<HTMLInputElement>) {
-        this.radio_inputs = radio_inputs;
-    }
-
-    handle(){
-        this.radio_inputs.forEach((item, index) => {
-            item.addEventListener('change', () => {
-                this.setState();
-            });
-        });
-    }
-
-    setState(){
-        this.state = !this.state;
-    }
-}
 function addEvents(elements: NodeListOf<HTMLInputElement>, notification: HTMLDivElement) {
     let change : Boolean[] = [false, false];
     elements.forEach((item, index) => {
