@@ -12,18 +12,18 @@ enum Version {
     mobile = 'm_'
 }
 
-function fetchSettings() {
-    return $.ajax({
-        type: 'POST',
-        url: url,
-        cache: false,
-        data: {
-            method: 'test',
-            ajax: true
+async function fetchSettings() {
+    const data = { method: 'test', ajax: true };
+    const response =  await fetch(url, {
+        method: "POST",
+        mode: "same-origin",
+        cache: "no-cache",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        success: function () {
-        }
+        body: JSON.stringify(data),
     });
+    return response.json();
 }
 
 function getOptions(response: any, type: number) {
@@ -37,9 +37,7 @@ function getOptions(response: any, type: number) {
 }
 
 export function frontSliders() {
-    $.when(fetchSettings()).done(function (response) {
-        response = JSON.parse(response);
-
+    fetchSettings().then((response) => {
         let parser = new UAParser();
         let device_type = parser.getDevice().type as string;
 
