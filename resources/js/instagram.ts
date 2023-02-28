@@ -1,4 +1,4 @@
-import './slider';
+import '@splidejs/splide/css';
 import {frontSliders, backSliders} from "./slider";
 import {tabs} from "./settings/tabs";
 import {notification} from "./settings/notification";

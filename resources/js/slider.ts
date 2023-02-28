@@ -1,5 +1,3 @@
-import '@splidejs/splide/css';
-
 import Splide from '@splidejs/splide';
 import UAParser from "ua-parser-js";
 
