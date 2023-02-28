@@ -6,6 +6,18 @@
         </div>
         <div class="form-wrapper">
             <div class="form-group">
+                <label class="form-control-label">{l s='Select hook which will display gallery (desktop and mobile share this hook):' mod='instagram'}</label>
+                <div class="form-select">
+                    <select class="form-control custom-select" name="{$version}display_hook">
+                        {foreach from=$display_hooks item=display_hook}
+                            <option value="{$display_hook['name']}" {if $settings->hook == $display_hook['name']} selected {/if}>{$display_hook['name']}</option>
+                        {/foreach}
+                        <option value="instagramDisplay" {if $settings->hook == "instagramDisplay"} selected {/if}>instagramDisplay</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="form-control-label"
                        for="{$version}display_style">{l s='Change display style' mod='instagram'}</label>
                 <div class="form-check form-check-radio">
@@ -81,6 +93,7 @@
             </div>
             <div id="settings_notification"></div>
         </div>
+
         <div class="panel-footer">
             <button type="submit" {if $version == $DESKTOP} name="save_desktop_settings" {else} name="save_mobile_settings" {/if}
                     class="btn btn-default pull-right">{l s='Save' mod='instagram'}</button>
@@ -119,18 +132,6 @@
                     <input class="form-control" type="number" value="{$settings->image_size}" id="{$version}image_size"
                            name="{$version}image_size"/>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-control-label">{l s='Select hook to display images:' mod='instagram'}</label>
-                <div class="form-select">
-                    <select class="form-control custom-select" name="{$version}display_hook">
-                        {foreach from=$display_hooks item=display_hook}
-                            <option value="{$display_hook['name']}" {if $settings->hook == $display_hook['name']} selected {/if}>{$display_hook['name']}</option>
-                        {/foreach}
-                    </select>
-                </div>
-
             </div>
 
             <div

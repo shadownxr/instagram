@@ -80,8 +80,7 @@ class Instagram extends Module
         return parent::uninstall()
             && $this->uninstallTab()
             && $this->unregisterHook('actionFrontControllerSetMedia')
-            && $this->unregisterHook('actionAdminControllerSetMedia')
-            && $this->unregisterHook('moduleRoutes');
+            && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
     public function enable($force_all = false)
@@ -269,8 +268,6 @@ class Instagram extends Module
 
     public function __call($name, $arguments)
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
-
         if (!$this->context->isMobile()) {
             $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
