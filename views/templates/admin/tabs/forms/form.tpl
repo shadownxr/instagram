@@ -12,6 +12,7 @@
                         {foreach from=$display_hooks item=display_hook}
                             <option value="{$display_hook['name']}" {if $settings->hook == $display_hook['name']} selected {/if}>{$display_hook['name']}</option>
                         {/foreach}
+                        <option value="instagramDisplay" {if $settings->hook == "instagramDisplay"} selected {/if}>instagramDisplay</option>
                     </select>
                 </div>
             </div>
