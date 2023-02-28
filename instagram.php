@@ -48,7 +48,7 @@ class Instagram extends Module
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
     }
 
-    public function install()
+    public function install() : bool
     {
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
@@ -70,7 +70,7 @@ class Instagram extends Module
         return false;
     }
 
-    public function uninstall()
+    public function uninstall() : bool
     {
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
@@ -83,13 +83,13 @@ class Instagram extends Module
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
-    public function enable($force_all = false)
+    public function enable($force_all = false) : bool
     {
         return parent::enable($force_all)
             && $this->installTab();
     }
 
-    public function disable($force_all = false)
+    public function disable($force_all = false) : bool
     {
         return parent::disable($force_all)
             && $this->uninstallTab();
@@ -180,7 +180,7 @@ class Instagram extends Module
         }
     }
 
-    private function installTab()
+    private function installTab() : bool
     {
         $response = true;
         $tabparent = "InstagramAdminConfig";
@@ -231,7 +231,7 @@ class Instagram extends Module
         return $response;
     }
 
-    private function uninstallTab()
+    private function uninstallTab() : bool
     {
         $list_tab = array('InstagramAdminSettings');
 
@@ -255,7 +255,6 @@ class Instagram extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
         $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
     }
@@ -289,6 +288,10 @@ class Instagram extends Module
         }
     }
 
+    /**
+     * @param string $code
+     * @return array|false
+     */
     private function fetchShortAccessToken(string $code){
         $url = 'https://api.instagram.com/oauth/access_token';
 
@@ -463,6 +466,9 @@ class Instagram extends Module
         }
     }
 
+    /**
+     * @return false|mixed
+     */
     public function getUserInfo()
     {
         $data = $this->db_getUserIdAndAccessToken();
