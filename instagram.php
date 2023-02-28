@@ -256,13 +256,13 @@ class Instagram extends Module
     public function hookActionAdminControllerSetMedia()
     {
         $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/admin.js");
     }
 
     public function hookActionFrontControllerSetMedia()
     {
         $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/front.js");
     }
 
     public function __call($name, $arguments)
