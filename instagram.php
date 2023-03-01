@@ -275,8 +275,6 @@ class Instagram extends Module
                 'settings' => $settings,
                 'version' => 'desktop'
             ));
-
-            return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/desktop.tpl');
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
@@ -285,9 +283,8 @@ class Instagram extends Module
                 'settings' => $settings,
                 'version' => 'mobile'
             ));
-
-            return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/mobile.tpl');
         }
+        return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
     }
 
     /**
