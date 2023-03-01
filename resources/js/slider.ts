@@ -39,10 +39,12 @@ export function frontSliders() {
         let parser = new UAParser();
         let device_type = parser.getDevice().type as string;
 
-        if (!(device_type === 'mobile')) {
+        if(response[DESKTOP].display_style === 'slider' && !(device_type === 'mobile')){
             let options = getOptions(response, DESKTOP);
             new Splide('#desktop_slider', options).mount();
-        } else {
+        }
+
+        if(response[MOBILE].display_style === 'slider' && (device_type === 'mobile')){
             let mobile_options = getOptions(response, MOBILE);
             new Splide('#mobile_slider', mobile_options).mount();
         }

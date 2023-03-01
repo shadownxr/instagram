@@ -14,7 +14,8 @@ class InstagramAjaxModuleFrontController extends ModuleFrontController {
         $array_settings[] = array(
             'image_size' => $settings->image_size,
             'images_per_gallery' => $settings->images_per_gallery,
-            'gap' => $settings->gap
+            'gap' => $settings->gap,
+            'display_style' => $settings->display_style
         );
 
         $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
@@ -22,7 +23,8 @@ class InstagramAjaxModuleFrontController extends ModuleFrontController {
         $array_settings[] = array(
             'image_size' => $settings->image_size,
             'images_per_gallery' => $settings->images_per_gallery,
-            'gap' => $settings->gap
+            'gap' => $settings->gap,
+            'display_style' => $settings->display_style
         );
 
         die(Tools::jsonEncode($array_settings));
