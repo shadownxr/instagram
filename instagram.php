@@ -255,13 +255,13 @@ class Instagram extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
+        $this->context->controller->addCSS($this->_path . '/views/css/admin.css');
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/admin.js");
     }
 
     public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
+        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
         $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/front.js");
     }
 
@@ -273,6 +273,7 @@ class Instagram extends Module
             $this->context->smarty->assign(array(
                 'images_data' => $this->db_getImagesData(),
                 'settings' => $settings,
+                'version' => 'desktop'
             ));
 
             return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/desktop.tpl');
@@ -281,7 +282,8 @@ class Instagram extends Module
 
             $this->context->smarty->assign(array(
                 'images_data' => $this->db_getImagesData(),
-                'settings' => $settings
+                'settings' => $settings,
+                'version' => 'mobile'
             ));
 
             return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/mobile.tpl');

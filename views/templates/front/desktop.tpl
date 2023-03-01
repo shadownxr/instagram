@@ -6,9 +6,9 @@
                 <div class="title"><h1>{$settings->title}</h1></div>
             {/if}
             {if $settings->display_style == 'slider'}
-                {include file='./desktop/desktop_slider.tpl' images_data=$images_data settings=$settings}
+                {include file='./display/slider.tpl' images_data=$images_data settings=$settings version=$version}
             {elseif $settings->display_style == 'grid'}
-                {include file='./desktop/desktop_grid.tpl' images_data=$images_data settings=$settings}
+                {include file='./display/grid.tpl' images_data=$images_data settings=$settings version=$version}
             {/if}
             </div>
         </div>
