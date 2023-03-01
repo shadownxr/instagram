@@ -2,8 +2,8 @@
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
 
 class Version {
-    const DESKTOP = '';
-    const MOBILE = 'm_';
+    const DESKTOP = 'desktop';
+    const MOBILE = 'mobile';
 }
 class InstagramAdminSettingsController extends ModuleAdminController
 {
@@ -34,16 +34,16 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
         if (is_string($version) && is_object($settings)) {
             $prev_hook = $settings->hook;
-            $settings->hook = Tools::getValue($version.'display_hook');
-            $settings->display_style = Tools::getValue($version.'display_style');
-            $settings->image_size = Tools::getValue($version.'image_size');
-            $settings->show_title = Tools::getValue($version.'show_title');
-            $settings->max_images_fetched = Tools::getValue($version.'max_images_fetched');
-            $settings->images_per_gallery = Tools::getValue($version.'images_per_gallery');
-            $settings->gap = Tools::getValue($version.'gap');
-            $settings->grid_row = Tools::getValue($version.'grid_row');
-            $settings->grid_column = Tools::getValue($version.'grid_column');
-            $settings->title = Tools::getValue($version.'title');
+            $settings->hook = Tools::getValue($version.'_display_hook');
+            $settings->display_style = Tools::getValue($version.'_display_style');
+            $settings->image_size = Tools::getValue($version.'_image_size');
+            $settings->show_title = Tools::getValue($version.'_show_title');
+            $settings->max_images_fetched = Tools::getValue($version.'_max_images_fetched');
+            $settings->images_per_gallery = Tools::getValue($version.'_images_per_gallery');
+            $settings->gap = Tools::getValue($version.'_gap');
+            $settings->grid_row = Tools::getValue($version.'_grid_row');
+            $settings->grid_column = Tools::getValue($version.'_grid_column');
+            $settings->title = Tools::getValue($version.'_title');
 
             if (!Validate::isLoadedObject($settings)) {
                 if ($settings->add()) {
@@ -75,7 +75,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
             'images_data' => $this->module->db_getImagesData(),
             'settings' => $settings,
             'm_settings' => $m_settings,
-            'display_hooks' => $display_hooks
+            'display_hooks' => $display_hooks,
         ));
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/admin/settings.tpl');
     }

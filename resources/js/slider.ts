@@ -6,8 +6,8 @@ const MOBILE = 1;
 let url = 'https://prestashop1788.local/pl/module/instagram/ajax';
 
 enum Version {
-    desktop = '',
-    mobile = 'm_'
+    desktop = 'desktop',
+    mobile = 'mobile'
 }
 
 async function fetchSettings() {
@@ -52,8 +52,8 @@ export function frontSliders() {
 }
 
 export function backSliders() {
-    const display_style = document.querySelector('input[name=' + Version.desktop + 'display_style]:checked') as HTMLInputElement;
-    const m_display_style = document.querySelector('input[name=' + Version.mobile + 'display_style]:checked') as HTMLInputElement;
+    const display_style = document.querySelector('input[name=' + Version.desktop + '_display_style]:checked') as HTMLInputElement;
+    const m_display_style = document.querySelector('input[name=' + Version.mobile + '_display_style]:checked') as HTMLInputElement;
 
     if(display_style) {
         if (display_style.value == 'slider') {
@@ -86,10 +86,10 @@ class Slider {
 
     constructor(version: Version) {
         this.version = version;
-        this.image_size_input = document.querySelector('input[name=' + this.version + 'image_size]') as HTMLInputElement;
-        this.images_per_gallery = document.querySelector('input[name=' + this.version + 'images_per_gallery]') as HTMLInputElement;
-        this.gap_input = document.querySelector('input[name=' + this.version + 'gap]') as HTMLInputElement;
-        this.title_input = document.querySelector('input[name='+ this.version +'title]') as HTMLInputElement;
+        this.image_size_input = document.querySelector('input[name=' + this.version + '_image_size]') as HTMLInputElement;
+        this.images_per_gallery = document.querySelector('input[name=' + this.version + '_images_per_gallery]') as HTMLInputElement;
+        this.gap_input = document.querySelector('input[name=' + this.version + '_gap]') as HTMLInputElement;
+        this.title_input = document.querySelector('input[name='+ this.version +'_title]') as HTMLInputElement;
 
         this.perPage = parseInt(this.images_per_gallery.value);
         this.size = parseInt(this.image_size_input.value);
@@ -103,7 +103,7 @@ class Slider {
             gap: this.gap,
         };
 
-        this.slider = new Splide((this.version == Version.desktop) ? '#preview_desktop_slider' : '#preview_mobile_slider', options);
+        this.slider = new Splide('#preview_'+ this.version +'_slider', options);
         this.slider.mount();
         this.inputEvents();
     }
@@ -111,7 +111,7 @@ class Slider {
     public inputEvents() {
         this.image_size_input.addEventListener("input", () => {
             this.size = parseInt(this.image_size_input.value);
-            const images = document.querySelectorAll((this.version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+            const images = document.querySelectorAll('.' + this.version + '_preview_images') as NodeListOf<HTMLImageElement>;
             images.forEach(image => {
                 image.width = this.size;
                 image.height = this.size;
@@ -138,20 +138,20 @@ class Slider {
         });
 
         this.title_input.addEventListener("input", () => {
-           const title = document.querySelector(((this.version == Version.desktop)?'#desktop_settings':'#mobile_settings') + ' .title h1') as HTMLHeadingElement;
+           const title = document.querySelector(('#' + this.version + '_settings') + ' .title h1') as HTMLHeadingElement;
            title.innerText = this.title_input.value;
         });
     }
 }
 
 function updateGrid(version: Version) {
-    const image_size_input = document.querySelector('input[name=' + version + 'image_size]') as HTMLInputElement;
-    const gap_input = document.querySelector('input[name=' + version + 'gap]') as HTMLInputElement;
-    const grid_row_input = document.querySelector('input[name=' + version + 'grid_row]') as HTMLInputElement;
-    const grid_column_input = document.querySelector('input[name=' + version + 'grid_column]') as HTMLInputElement;
-    const title_input = document.querySelector('input[name='+ version +'title]') as HTMLInputElement;
+    const image_size_input = document.querySelector('input[name=' + version + '_image_size]') as HTMLInputElement;
+    const gap_input = document.querySelector('input[name=' + version + '_gap]') as HTMLInputElement;
+    const grid_row_input = document.querySelector('input[name=' + version + '_grid_row]') as HTMLInputElement;
+    const grid_column_input = document.querySelector('input[name=' + version + '_grid_column]') as HTMLInputElement;
+    const title_input = document.querySelector('input[name='+ version +'_title]') as HTMLInputElement;
 
-    const grid_display = document.querySelector('.' + version + 'grid_display') as HTMLDivElement;
+    const grid_display = document.querySelector('.' + version + '_grid_display') as HTMLDivElement;
 
     let size: number = parseInt(image_size_input.value);
     let gap: number = parseInt(gap_input.value);
@@ -168,7 +168,7 @@ function updateGrid(version: Version) {
 
     image_size_input.addEventListener("input", () => {
         size = parseInt(image_size_input.value);
-        const images = document.querySelectorAll((version == Version.desktop) ? '.desktop_preview_images' : '.mobile_preview_images') as NodeListOf<HTMLImageElement>;
+        const images = document.querySelectorAll('.' + version + '_preview_images') as NodeListOf<HTMLImageElement>;
         images.forEach(image => {
             image.width = size;
             image.height = size;
@@ -193,7 +193,7 @@ function updateGrid(version: Version) {
     console.log(title_input);
 
     title_input.addEventListener("input", () => {
-       const title = document.querySelector(((version == Version.desktop)?'#desktop_settings':'#mobile_settings') + ' .title h1') as HTMLHeadingElement;
+       const title = document.querySelector(('#' + version + '_settings') + ' .title h1') as HTMLHeadingElement;
        title.innerText = title_input.value;
     });
 }
