@@ -1,4 +1,4 @@
-<div class="panel" style="max-height:500px;overflow:scroll;">
+<div class="{$version}_settings__panel panel">
     <div class="panel-heading">
         <i class="icon icon-cogs"></i>
         {if $version == $DESKTOP}{l s='Desktop Preview' mod='instagram'}{else}{l s='Mobile Preview' mod='instagram'}{/if}

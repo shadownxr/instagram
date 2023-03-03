@@ -1,0 +1,29 @@
+@mixin tab_button() {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+
+  &.active {
+    opacity: 1;
+    pointer-events: all;
+    display: block;
+  }
+}
+
+.desktop_settings {
+  @include tab_button();
+
+  &__panel {
+    max-height: 500px;
+    overflow: scroll;
+  }
+}
+
+.mobile_settings {
+  @include tab_button();
+
+  &__panel {
+    max-height: 500px;
+    overflow: scroll;
+  }
+}
