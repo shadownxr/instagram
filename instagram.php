@@ -113,6 +113,12 @@ class Instagram extends Module
         $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
         $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
+        $redirect_cookie = false;
+        $cookie = new Cookie('Admin_Link');
+        if($cookie->exists()){
+            $redirect_cookie = true;
+        }
+
         $this->context->smarty->assign(array(
             'username' => $username,
             'instagram_app_id' => $instagram_app_id,
@@ -120,6 +126,7 @@ class Instagram extends Module
             'message' => $this->message,
             'message_type' => $this->message_type,
             'redirect_uri' => $redirect_uri,
+            'redirect_cookie' => $redirect_cookie
         ));
 
         $this->message = '';
