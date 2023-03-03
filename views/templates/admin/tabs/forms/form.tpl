@@ -2,7 +2,7 @@
     <div class="panel">
         <div class="panel-heading">
             <i class="icon icon-cogs"></i>
-            {l s='Display settings' mod='instagram'}
+            {l s='Gallery settings' mod='instagram'}
         </div>
         <div class="form-wrapper">
             <div class="form-group">
@@ -103,11 +103,11 @@
     <div class="panel">
         <div class="panel-heading">
             <i class="icon icon-cogs"></i>
-            {l s='Gallery settings' mod='instagram'}
+            {l s='Image settings' mod='instagram'}
         </div>
 
         <div class="form-wrapper">
-            <div class="form-group">
+            <div class="form-group {if $settings->show_title === false}hide{/if}">
                 <label class="form-control-label" for="{$version}_title"
                 >{l s='Gallery title'}</label
                 >

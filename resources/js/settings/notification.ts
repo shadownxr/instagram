@@ -1,18 +1,18 @@
 enum Version {
-    desktop = '',
-    mobile = 'm_',
+    desktop = 'desktop',
+    mobile = 'mobile',
 }
 
 export function notification() {
-    const notification = document.querySelector('#desktop_settings #settings_notification') as HTMLDivElement;
-    const m_notification = document.querySelector('#mobile_settings #settings_notification') as HTMLDivElement;
+    const notification = document.querySelector('.desktop_settings #settings_notification') as HTMLDivElement;
+    const m_notification = document.querySelector('.mobile_settings #settings_notification') as HTMLDivElement;
 
     handleEvents(Version.desktop, notification);
     handleEvents(Version.mobile, m_notification);
 }
 
 function handleEvents(version: Version, notification: HTMLDivElement) {
-    const display_settings = document.querySelectorAll('input[name=' + version + 'display_style], input[name=' + version + 'show_title]') as NodeListOf<HTMLInputElement>;
+    const display_settings = document.querySelectorAll('input[name=' + version + '_display_style], input[name=' + version + '_show_title]') as NodeListOf<HTMLInputElement>;
 
     addEvents(display_settings, notification);
 }
