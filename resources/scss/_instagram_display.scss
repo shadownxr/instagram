@@ -1,0 +1,19 @@
+.instagram_display {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+
+  .section {
+    display:flex;
+    flex-direction: column;
+
+    &__title {
+      text-align: center;
+    }
+
+    &__images {
+      display: flex;
+      flex-direction: row;
+    }
+  }
+}

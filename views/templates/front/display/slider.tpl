@@ -1,4 +1,4 @@
-<div class="images">
+<div class="section__images">
     <section class="splide" id="{$version}_slider" aria-label="Splide Basic HTML Example">
         <div class="splide__track">
             <ul class="splide__list">

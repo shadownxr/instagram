@@ -10,13 +10,13 @@
 
     <div class="display">
         {if !empty($images_data)}
-            <div class="instagram_image_display">
+            <div class="instagram_display">
                 <div class="section">
                     {if $settings->show_title == true}
-                        <div class="title"><h1>{$settings->title}</h1></div>
+                        <div class="section__title"><h1>{$settings->title}</h1></div>
                     {/if}
 
-                    <div class="images">
+                    <div class="section__images">
                         <div class="{$version}_grid_display"
                              style="grid-template-columns: repeat({$settings->grid_column}, 1fr); grid-template-rows: repeat({$settings->grid_row}, 1fr); grid-gap: {$settings->gap}px;">
                             {foreach from=$images_data item=data}
@@ -35,4 +35,4 @@
     </div>
 </div>
 
-{include file='./forms/form.tpl' settings=$settings version=$version}
+{include file='../forms/form.tpl' settings=$settings version=$version}
