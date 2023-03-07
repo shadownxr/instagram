@@ -71,7 +71,7 @@
         <input type="hidden" name="scope" value="user_profile,user_media" />
         <input type="hidden" name="response_type" value="code" />
         <div class="panel-footer">
-            <button type="submit" name="authorize" class="btn btn-default">Authorize</button>
+            <button type="submit" name="authorize" class="btn btn-default" {if $redirect_cookie === false}disabled{/if}>Authorize</button>
         </div>
     </form>
 </div>

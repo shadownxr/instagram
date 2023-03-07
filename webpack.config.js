@@ -3,7 +3,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 let config = {
     entry: {
-		'instagram': ['./resources/js/instagram.ts', './resources/scss/instagram.scss'],
+		'admin': ['./resources/js/admin.ts', './resources/scss/instagram.scss'],
+        'front': ['./resources/js/front.ts', './resources/scss/instagram.scss'],
     },
     output: {
         path: path.resolve(__dirname, './views'),

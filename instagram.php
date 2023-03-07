@@ -48,7 +48,7 @@ class Instagram extends Module
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
     }
 
-    public function install()
+    public function install() : bool
     {
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
@@ -70,7 +70,7 @@ class Instagram extends Module
         return false;
     }
 
-    public function uninstall()
+    public function uninstall() : bool
     {
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
@@ -83,13 +83,13 @@ class Instagram extends Module
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
-    public function enable($force_all = false)
+    public function enable($force_all = false) : bool
     {
         return parent::enable($force_all)
             && $this->installTab();
     }
 
-    public function disable($force_all = false)
+    public function disable($force_all = false) : bool
     {
         return parent::disable($force_all)
             && $this->uninstallTab();
@@ -113,6 +113,12 @@ class Instagram extends Module
         $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
         $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
+        $redirect_cookie = false;
+        $cookie = new Cookie('Admin_Link');
+        if($cookie->exists()){
+            $redirect_cookie = true;
+        }
+
         $this->context->smarty->assign(array(
             'username' => $username,
             'instagram_app_id' => $instagram_app_id,
@@ -120,6 +126,7 @@ class Instagram extends Module
             'message' => $this->message,
             'message_type' => $this->message_type,
             'redirect_uri' => $redirect_uri,
+            'redirect_cookie' => $redirect_cookie
         ));
 
         $this->message = '';
@@ -180,7 +187,7 @@ class Instagram extends Module
         }
     }
 
-    private function installTab()
+    private function installTab() : bool
     {
         $response = true;
         $tabparent = "InstagramAdminConfig";
@@ -231,7 +238,7 @@ class Instagram extends Module
         return $response;
     }
 
-    private function uninstallTab()
+    private function uninstallTab() : bool
     {
         $list_tab = array('InstagramAdminSettings');
 
@@ -255,15 +262,14 @@ class Instagram extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/controllers/instagramadminsettings.js");
-        $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+        $this->context->controller->addCSS($this->_path . '/views/css/admin.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/admin.js");
     }
 
     public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/instagram.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/instagram.js");
+        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/front.js");
     }
 
     public function __call($name, $arguments)
@@ -274,21 +280,24 @@ class Instagram extends Module
             $this->context->smarty->assign(array(
                 'images_data' => $this->db_getImagesData(),
                 'settings' => $settings,
+                'version' => 'desktop'
             ));
-
-            return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/desktop.tpl');
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
             $this->context->smarty->assign(array(
                 'images_data' => $this->db_getImagesData(),
-                'settings' => $settings
+                'settings' => $settings,
+                'version' => 'mobile'
             ));
-
-            return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/mobile.tpl');
         }
+        return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
     }
 
+    /**
+     * @param string $code
+     * @return array|false
+     */
     private function fetchShortAccessToken(string $code){
         $url = 'https://api.instagram.com/oauth/access_token';
 
@@ -463,6 +472,9 @@ class Instagram extends Module
         }
     }
 
+    /**
+     * @return false|mixed
+     */
     public function getUserInfo()
     {
         $data = $this->db_getUserIdAndAccessToken();
