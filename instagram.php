@@ -19,13 +19,13 @@ if (!defined('_PS_VERSION_')) {
 
 include_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
 include_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/instagramDisplaySettings.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/instagramImages.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
 
 class Instagram extends Module
 {
-    private string $message = '';
-    private string $message_type = '';
+    private $message = '';
+    private $message_type = '';
 
     public function __construct()
     {
@@ -422,7 +422,7 @@ class Instagram extends Module
 
     public function db_getImagesData()
     {
-        return DB::getInstance()->executeS('SELECT image_url, description FROM `' . _DB_PREFIX_ . 'instagramimages`');
+        return DB::getInstance()->executeS('SELECT image_url, permalink FROM `' . _DB_PREFIX_ . 'instagramimages`');
     }
 
     public function fetchImagesFromInstagram(): bool
@@ -438,7 +438,7 @@ class Instagram extends Module
             $url = 'https://graph.instagram.com/' . $data[0]['user_id'] . '/media?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
             $images_id = InstagramCurl::fetch($url);
 
-            $fields = 'media_url,media_type,caption';
+            $fields = 'media_url,media_type,caption,permalink';
             foreach ($images_id['data'] as $image_id) {
                 $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
                 $images_url[] = InstagramCurl::fetch($url);
@@ -449,6 +449,7 @@ class Instagram extends Module
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
+                    $img->permalink = $image['permalink'];
 
                     if (array_key_exists('caption', $image)) {
                         $img->description = $image['caption'];
