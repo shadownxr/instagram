@@ -48,7 +48,7 @@ class Instagram extends Module
         $this->ps_versions_compliancy = ['min' => '1.7', 'max' => _PS_VERSION_];
     }
 
-    public function install() : bool
+    public function install(): bool
     {
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
@@ -70,7 +70,7 @@ class Instagram extends Module
         return false;
     }
 
-    public function uninstall() : bool
+    public function uninstall(): bool
     {
         Configuration::deleteByName('INSTAGRAM_APP_ID');
         Configuration::deleteByName('INSTAGRAM_APP_SECRET');
@@ -83,13 +83,13 @@ class Instagram extends Module
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
 
-    public function enable($force_all = false) : bool
+    public function enable($force_all = false): bool
     {
         return parent::enable($force_all)
             && $this->installTab();
     }
 
-    public function disable($force_all = false) : bool
+    public function disable($force_all = false): bool
     {
         return parent::disable($force_all)
             && $this->uninstallTab();
@@ -115,7 +115,7 @@ class Instagram extends Module
 
         $redirect_cookie = false;
         $cookie = new Cookie('Admin_Link');
-        if($cookie->exists()){
+        if ($cookie->exists()) {
             $redirect_cookie = true;
         }
 
@@ -187,7 +187,7 @@ class Instagram extends Module
         }
     }
 
-    private function installTab() : bool
+    private function installTab(): bool
     {
         $response = true;
         $tabparent = "InstagramAdminConfig";
@@ -238,7 +238,7 @@ class Instagram extends Module
         return $response;
     }
 
-    private function uninstallTab() : bool
+    private function uninstallTab(): bool
     {
         $list_tab = array('InstagramAdminSettings');
 
@@ -298,7 +298,8 @@ class Instagram extends Module
      * @param string $code
      * @return array|false
      */
-    private function fetchShortAccessToken(string $code){
+    private function fetchShortAccessToken(string $code)
+    {
         $url = 'https://api.instagram.com/oauth/access_token';
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
@@ -327,8 +328,8 @@ class Instagram extends Module
         }
 
         return array(
-          'short_access_token' => $short_access_token,
-          'user_id' => $user_id,
+            'short_access_token' => $short_access_token,
+            'user_id' => $user_id,
         );
     }
 
@@ -338,7 +339,7 @@ class Instagram extends Module
      */
     private function fetchLongAccessToken(string $code)
     {
-        if($data = $this->fetchShortAccessToken($code)) {
+        if ($data = $this->fetchShortAccessToken($code)) {
             $short_access_token = $data['short_access_token'];
             $user_id = $data['user_id'];
 
@@ -444,7 +445,13 @@ class Instagram extends Module
                 $images_url[] = InstagramCurl::fetch($url);
             }
 
+//            var_dump($images_url);
+
             foreach ($images_url as $image) {
+                if ($image['media_type'] !== "IMAGE") {
+                    continue;
+                }
+
                 if ($image_fetch_counter < $settings->max_images_fetched) {
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
