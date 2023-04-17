@@ -3,7 +3,7 @@
     <name>instagram</name>
     <displayName><![CDATA[Instagram Feed API]]></displayName>
     <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[Module allows to add custom blocks to every front-office hook]]></description>
+    <description><![CDATA[Module allows to display feed from Instagram on the front page]]></description>
     <author><![CDATA[Arkonsoft]]></author><author_uri><![CDATA[https://arkonsoft.pl/]]></author_uri>
     <tab><![CDATA[social_media]]></tab>
 	<confirmUninstall><![CDATA[Are you sure? All data will be lost!]]></confirmUninstall>

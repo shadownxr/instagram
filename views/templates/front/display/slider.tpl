@@ -4,7 +4,9 @@
             <ul class="splide__list">
                 {foreach from=$images_data item=data}
                     <li class="splide__slide">
-                        <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}"/>
+                        <a href="{$data['permalink']}">
+                            <img src={$data['image_url']} height="{$settings->image_size}" width="{$settings->image_size}"/>
+                        </a>
                     </li>
                 {/foreach}
             </ul>
