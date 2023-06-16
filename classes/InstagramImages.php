@@ -7,7 +7,7 @@ class InstagramImages extends ObjectModel {
     public $description;
 
     public static $definition = array(
-        'table' => 'instagramimages',
+        'table' => 'arkon_instagram_images',
         'primary' => 'id',
         'multishop' => 'false',
         'fields' => array(

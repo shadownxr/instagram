@@ -25,16 +25,7 @@
 */
 $sql = array();
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagram` (
-    `id_instagram` int(1) NOT NULL,
-    `user_id` varchar(255) NOT NULL,
-    `access_token` varchar(255) NOT NULL,
-    `token_expires` int(11) NOT NULL,
-    `creation_date` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY  (`id_instagram`)
-) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
-
-$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysettings` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_displaysettings` (
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
     `hook` varchar(255) NOT NULL,
     `title` varchar(255) NOT NULL,
@@ -49,7 +40,7 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysetting
     PRIMARY KEY (`id`)
     ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'instagramimages` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_images` (
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
     `image_id` varchar(255) NOT NULL,
     `image_url` TEXT NOT NULL,

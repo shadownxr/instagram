@@ -13,7 +13,7 @@ class InstagramDisplaySettings extends ObjectModel {
     public $grid_column;
 
     public static $definition = array(
-        'table' => 'instagramdisplaysettings',
+        'table' => 'arkon_instagram_displaysettings',
         'primary' => 'id',
         'multishop' => false,
         'fields' => array(

@@ -17,10 +17,11 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-include_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
-include_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
 
 class Instagram extends Module
 {
@@ -59,15 +60,11 @@ class Instagram extends Module
 
         include(dirname(__FILE__) . '/sql/install.php');
 
-        if (parent::install()) {
-            $this->installTab();
-            $this->initDefaultDisplaySettings();
-            $this->registerHook('actionFrontControllerSetMedia');
-            $this->registerHook('actionAdminControllerSetMedia');
-            return true;
-        }
-
-        return false;
+        return parent::install()
+            && $this->installTab()
+            && InstagramConfiguration::createTable()
+            && $this->initDefaultDisplaySettings()
+            && $this->registerHook('actionFrontControllerSetMedia');
     }
 
     public function uninstall(): bool
@@ -377,45 +374,43 @@ class Instagram extends Module
 
     public function db_checkIfAccessTokenExists(): bool
     {
+//        #todo Refactor
         return !empty(DB::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'instagram`'));
     }
 
 
     public function db_updateAccessToken($data): bool
     {
-        if (array_key_exists('access_token', $data) && array_key_exists('token_expires', $data) && array_key_exists('user_id', $data)) {
-            if (!$this->db_checkIfAccessTokenExists()) {
-                return DB::getInstance()->execute(
-                    'INSERT INTO `' . _DB_PREFIX_ .
-                    'instagram` (`id_instagram`, `user_id`, `access_token`, `token_expires`) 
-                    VALUES ("' . INSTAGRAM_DESKTOP_CONFIG_ID . '", "' . pSQL($data['user_id']) . '", "' . pSQL($data['access_token']) . '", "' . pSQL($data['token_expires']) . '")'
-                );
-            } else {
-                return DB::getInstance()->update('instagram', array(
-                    'access_token' => $data['access_token'],
-                    'token_expires' => $data['token_expires'],
-                ));
-            }
-        } else {
+        if(empty($data)){
             return false;
         }
+
+        $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+        $instagram_configuration->user_id = (string)$data['user_id'];
+        $instagram_configuration->access_token = $data['access_token'];
+        $instagram_configuration->token_expires = $data['token_expires'];
+
+        return $instagram_configuration->save();
     }
 
     public function db_getUserIdAndAccessToken(): array
     {
-        return DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ . 'instagram` WHERE id_instagram=' . INSTAGRAM_DESKTOP_CONFIG_ID);
+//        #todo Refactor
+        return DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_DESKTOP_CONFIG_ID);
     }
 
     public function db_deleteAccessToken(): bool
     {
-        return DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'instagram` WHERE id_instagram=' . INSTAGRAM_DESKTOP_CONFIG_ID);
+//        #todo Refactor
+        return DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_DESKTOP_CONFIG_ID);
     }
 
     public function db_deleteInstagramImages(): bool
     {
-        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'instagramimages`');
+//        #todo Refactor
+        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
         if ($response) {
-            return DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'instagramimages` AUTO_INCREMENT=1');
+            return DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'arkon_instagram_images` AUTO_INCREMENT=1');
         } else {
             return $response;
         }
@@ -423,7 +418,8 @@ class Instagram extends Module
 
     public function db_getImagesData()
     {
-        return DB::getInstance()->executeS('SELECT image_url, permalink FROM `' . _DB_PREFIX_ . 'instagramimages`');
+//        #todo Refactor
+        return DB::getInstance()->executeS('SELECT image_url, permalink FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
     }
 
     public function fetchImagesFromInstagram(): bool
@@ -489,6 +485,9 @@ class Instagram extends Module
         if (!empty($data)) {
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . $data[0]['user_id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
+//
+//            dump(InstagramCurl::fetch($url));
+//            die();
 
             return InstagramCurl::fetch($url);
         } else {
@@ -513,7 +512,9 @@ class Instagram extends Module
         $m_settings = $settings;
 
         if ($settings->add() && $m_settings->add()) {
-            $this->registerHook($settings->hook);
+            return $this->registerHook($settings->hook);
         }
+
+        return false;
     }
 }

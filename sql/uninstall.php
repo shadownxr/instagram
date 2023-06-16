@@ -31,9 +31,8 @@
  */
 $sql = array();
 
-$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'instagram`';
-$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'instagramdisplaysettings`';
-$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'instagramimages`';
+$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_displaysettings`';
+$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_images`';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
