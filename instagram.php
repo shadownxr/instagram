@@ -107,6 +107,7 @@ class Instagram extends Module
         }
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
+        
         $instagram_app_id = Configuration::get('INSTAGRAM_APP_ID');
         $instagram_app_secret = Configuration::get('INSTAGRAM_APP_SECRET');
 
@@ -140,7 +141,12 @@ class Instagram extends Module
             if (is_array($data)) {
                 $this->db_updateAccessToken($data);
             }
-            $this->fetchImagesFromInstagram();
+
+            if(!$this->fetchImagesFromInstagram()){
+                return;
+            }
+
+            $this->saveImagesLocally();
         }
     }
 
@@ -375,7 +381,7 @@ class Instagram extends Module
     public function db_checkIfAccessTokenExists(): bool
     {
 //        #todo Refactor
-        return !empty(DB::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'instagram`'));
+        return !empty(DB::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration`'));
     }
 
 
@@ -440,8 +446,6 @@ class Instagram extends Module
                 $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
                 $images_url[] = InstagramCurl::fetch($url);
             }
-
-//            var_dump($images_url);
 
             foreach ($images_url as $image) {
                 if ($image['media_type'] !== "IMAGE") {
@@ -516,5 +520,33 @@ class Instagram extends Module
         }
 
         return false;
+    }
+
+    public function saveImagesLocally(){
+        $images = new PrestaShopCollection('InstagramImages');
+
+        dump($images->getResults());
+
+        foreach($images->getResults() as $key => $item){
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $item->image_url);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $resp = curl_exec($ch);
+            if(empty($resp)){
+                return;
+            }
+
+            curl_close($ch);
+
+            if(!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/'. $key .'.jpg', 'c'))){
+                return;
+            }
+            fwrite($fp, $resp);
+            fclose($fp);
+        }
     }
 }

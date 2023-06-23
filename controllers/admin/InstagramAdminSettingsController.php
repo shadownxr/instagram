@@ -58,10 +58,13 @@ class InstagramAdminSettingsController extends ModuleAdminController
         }
 
         if (Tools::isSubmit('refresh')) {
-            $this->module->fetchImagesFromInstagram();
+            if(!$this->module->fetchImagesFromInstagram()){
+                return;
+            }
+            $this->module->saveImagesLocally();
         }
 
-        return parent::postProcess();
+        parent::postProcess();
     }
 
     public function renderList()
