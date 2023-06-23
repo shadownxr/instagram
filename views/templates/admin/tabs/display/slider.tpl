@@ -18,9 +18,9 @@
                     <section class="splide" id="preview_{$version}_slider" aria-label="Splide Basic HTML Example">
                         <div class="splide__track">
                             <ul class="splide__list">
-                                {foreach from=$images_data item=data}
+                                {foreach $images_data as $key => $data}
                                     <li class="splide__slide">
-                                        <img src={$data['image_url']} height="{$settings->image_size}"
+                                        <img src="/img/modules/instagram/{$key}.jpg" height="{$settings->image_size}"
                                              width="{$settings->image_size}" class="{$version}_preview_images"
                                              alt="Instagram image"
                                         />
