@@ -5,6 +5,7 @@ class InstagramImages extends ObjectModel {
     public $image_id;
     public $image_url;
     public $description;
+    public $permalink;
 
     public static $definition = array(
         'table' => 'arkon_instagram_images',
