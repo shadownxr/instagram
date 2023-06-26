@@ -20,6 +20,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         $this->processSettings();
     }
 
+    #todo Refactor
     public function processSettings(){
         $version = false;
         $settings = false;
@@ -55,6 +56,11 @@ class InstagramAdminSettingsController extends ModuleAdminController
                     $this->module->registerHook($settings->hook);
                 }
             }
+
+            if(!$this->module->fetchImagesFromInstagram()){
+                return;
+            }
+            $this->module->saveImagesLocally();
         }
 
         if (Tools::isSubmit('refresh')) {
