@@ -64,7 +64,8 @@ class Instagram extends Module
             && $this->installTab()
             && InstagramConfiguration::createTable()
             && $this->initDefaultDisplaySettings()
-            && $this->registerHook('actionFrontControllerSetMedia');
+            && $this->registerHook('actionFrontControllerSetMedia')
+            && $this->registerHook('actionAdminControllerSetMedia');
     }
 
     public function uninstall(): bool
@@ -76,6 +77,7 @@ class Instagram extends Module
 
         return parent::uninstall()
             && $this->uninstallTab()
+            && InstagramConfiguration::dropTable()
             && $this->unregisterHook('actionFrontControllerSetMedia')
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
@@ -265,14 +267,14 @@ class Instagram extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/admin.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/admin.js");
+        $this->context->controller->addCSS(_PS_MODULE_DIR_ . 'instagram/views/css/admin.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . 'instagram/views/js/admin.js');
     }
 
     public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->addCSS($this->_path . '/views/css/front.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . "instagram/views/js/front.js");
+        $this->context->controller->registerStylesheet('instagram_css','/modules/instagram/views/css/front.css');
+        $this->context->controller->registerJavascript('instagram_js','/modules/instagram/views/js/front.js');
     }
 
     public function __call($name, $arguments)
