@@ -294,6 +294,7 @@ class Instagram extends Module
                 'version' => 'mobile'
             ));
         }
+
         return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
     }
 
@@ -430,6 +431,10 @@ class Instagram extends Module
 
     public function fetchImagesFromInstagram(): bool
     {
+        if(!$this->db_deleteInstagramImages()){
+            return false;
+        }
+
         $data = $this->db_getUserIdAndAccessToken();
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
@@ -452,7 +457,7 @@ class Instagram extends Module
                     continue;
                 }
 
-                if ($image_fetch_counter < $settings->max_images_fetched) {
+                if ($image_fetch_counter <= $settings->max_images_fetched) {
                     $img = new InstagramImages($image_fetch_counter);
                     $img->image_id = $image['id'];
                     $img->image_url = $image['media_url'];
@@ -489,9 +494,6 @@ class Instagram extends Module
         if (!empty($data)) {
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . $data[0]['user_id'] . '?access_token=' . $data[0]['access_token'] . '&fields=' . $fields;
-//
-//            dump(InstagramCurl::fetch($url));
-//            die();
 
             return InstagramCurl::fetch($url);
         } else {
@@ -524,8 +526,6 @@ class Instagram extends Module
 
     public function saveImagesLocally(){
         $images = new PrestaShopCollection('InstagramImages');
-
-        dump($images->getResults());
 
         foreach($images->getResults() as $key => $item){
             $ch = curl_init();
