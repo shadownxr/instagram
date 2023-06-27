@@ -110,7 +110,7 @@ class Instagram extends Module
         }
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
-        
+
         $instagram_app_id = ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_ID'));
         $instagram_app_secret = ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_SECRET'));
 
@@ -395,11 +395,15 @@ class Instagram extends Module
         if(empty($data)){
             return false;
         }
+        $user_id_iv = '';
+        $access_token_iv = '';
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
         $instagram_configuration->force_id = true;
-        $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id']);
-        $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token']);
+        $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
+        $instagram_configuration->user_id_iv = $user_id_iv;
+        $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
+        $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
         return $instagram_configuration->save();
@@ -440,20 +444,20 @@ class Instagram extends Module
             return false;
         }
 
-        $data = $this->db_getUserIdAndAccessToken();
+        $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
-        if (!empty($data)) {
+        if (Validate::isLoadedObject($data)) {
             $images_url = [];
             $image_fetch_counter = 1;
 
             $fields = 'id,timestamp';
-            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data[0]['user_id']) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data[0]['access_token']) . '&fields=' . $fields;
+            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
             $images_id = InstagramCurl::fetch($url);
 
             $fields = 'media_url,media_type,caption,permalink';
             foreach ($images_id['data'] as $image_id) {
-                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data[0]['access_token']) . '&fields=' . $fields;
+                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
                 $images_url[] = InstagramCurl::fetch($url);
             }
 
@@ -495,10 +499,11 @@ class Instagram extends Module
      */
     public function getUserInfo()
     {
-        $data = $this->db_getUserIdAndAccessToken();
-        if (!empty($data)) {
+        $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        if (Validate::isLoadedObject($data)) {
             $fields = 'username,media_count';
-            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data[0]['user_id']) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data[0]['access_token']) . '&fields=' . $fields;
+            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
 
             return InstagramCurl::fetch($url);
         } else {
