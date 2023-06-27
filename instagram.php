@@ -397,12 +397,11 @@ class Instagram extends Module
         }
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+        $instagram_configuration->force_id = true;
         $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id']);
         $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token']);
         $instagram_configuration->token_expires = $data['token_expires'];
 
-//        dump($instagram_configuration);
-//        die();
         return $instagram_configuration->save();
     }
 
