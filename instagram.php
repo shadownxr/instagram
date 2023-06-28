@@ -23,6 +23,7 @@ require_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramApiConfiguration.php');
 
 class Instagram extends Module
 {
@@ -56,14 +57,13 @@ class Instagram extends Module
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        Configuration::updateValue('INSTAGRAM_APP_ID', '1234567890');
-        Configuration::updateValue('INSTAGRAM_APP_SECRET', '1234567890');
-
         include(dirname(__FILE__) . '/sql/install.php');
 
         return parent::install()
             && $this->installTab()
             && InstagramConfiguration::createTable()
+            && InstagramApiConfiguration::createTable()
+            && ArkonInstagram\Encryption::generateKey()
             && $this->initDefaultDisplaySettings()
             && $this->registerHook('actionFrontControllerSetMedia')
             && $this->registerHook('actionAdminControllerSetMedia');
@@ -79,6 +79,7 @@ class Instagram extends Module
         return parent::uninstall()
             && $this->uninstallTab()
             && InstagramConfiguration::dropTable()
+            && InstagramApiConfiguration::dropTable()
             && $this->unregisterHook('actionFrontControllerSetMedia')
             && $this->unregisterHook('actionAdminControllerSetMedia');
     }
@@ -111,8 +112,15 @@ class Instagram extends Module
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
 
-        $instagram_app_id = ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_ID'));
-        $instagram_app_secret = ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_SECRET'));
+        $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
+
+        $instagram_app_id = '';
+        $instagram_app_secret = '';
+
+        if(!empty($app_config->app_id) && !empty($app_config->app_secret)) {
+            $instagram_app_id = ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
+            $instagram_app_secret = ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
+        }
 
         $redirect_cookie = false;
         $cookie = new Cookie('Admin_Link');
@@ -161,8 +169,16 @@ class Instagram extends Module
             $instagram_app_secret = Tools::getValue('instagram_app_secret');
             $this->setAdminRedirectLink();
 
-            Configuration::updateValue('INSTAGRAM_APP_ID', ArkonInstagram\Encryption::encrypt($instagram_app_id));
-            Configuration::updateValue('INSTAGRAM_APP_SECRET', ArkonInstagram\Encryption::encrypt($instagram_app_secret));
+            $app_id_iv = '';
+            $app_secret_iv = '';
+
+            $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
+            $app_config->force_id = true;
+            $app_config->app_id = ArkonInstagram\Encryption::encrypt($instagram_app_id, true, $app_id_iv);
+            $app_config->app_id_iv = $app_id_iv;
+            $app_config->app_secret = ArkonInstagram\Encryption::encrypt($instagram_app_secret, true, $app_secret_iv);
+            $app_config->app_secret_iv = $app_secret_iv;
+            $app_config->save();
         }
     }
 
@@ -312,9 +328,11 @@ class Instagram extends Module
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
 
+        $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
+
         $data = array(
-            'client_id' => ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_ID')),
-            'client_secret' => ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_SECRET')),
+            'client_id' => ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv),
+            'client_secret' => ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv),
             'grant_type' => 'authorization_code',
             'redirect_uri' => $redirect_uri,
             'code' => $code,
@@ -351,7 +369,9 @@ class Instagram extends Module
             $short_access_token = $data['short_access_token'];
             $user_id = $data['user_id'];
 
-            $url = 'https://graph.instagram.com/access_token?client_secret=' . ArkonInstagram\Encryption::decrypt(Configuration::get('INSTAGRAM_APP_SECRET'))
+            $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
+
+            $url = 'https://graph.instagram.com/access_token?client_secret=' . ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv)
                 . '&access_token=' . $short_access_token
                 . '&grant_type=ig_exchange_token';
 
