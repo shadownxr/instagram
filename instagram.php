@@ -112,12 +112,12 @@ class Instagram extends Module
 
         $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
 
-        $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
-
         $instagram_app_id = '';
         $instagram_app_secret = '';
 
-        if(!empty($app_config->app_id) && !empty($app_config->app_secret)) {
+        $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
+
+        if(Validate::isLoadedObject($app_config)) {
             $instagram_app_id = ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
             $instagram_app_secret = ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
         }
