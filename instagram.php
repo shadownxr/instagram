@@ -407,7 +407,6 @@ class Instagram extends Module
 
     public function db_updateAccessToken($data): bool
     {
-//        #todo Reactor
         if (empty($data)) {
             return false;
         }
@@ -416,24 +415,18 @@ class Instagram extends Module
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
 
-        if (Validate::isLoadedObject($instagram_configuration)) {
-            $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
-            $instagram_configuration->user_id_iv = $user_id_iv;
-            $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
-            $instagram_configuration->access_token_iv = $access_token_iv;
-            $instagram_configuration->token_expires = $data['token_expires'];
-
-            return $instagram_configuration->update();
-        }
-
-        $instagram_configuration->id = INSTAGRAM_CONFIG_ID;
-        $instagram_configuration->force_id = true;
         $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
         $instagram_configuration->user_id_iv = $user_id_iv;
         $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
         $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
+        if(Validate::isLoadedObject($instagram_configuration)){
+            return $instagram_configuration->update();
+        }
+
+        $instagram_configuration->id = INSTAGRAM_CONFIG_ID;
+        $instagram_configuration->force_id = true;
         return $instagram_configuration->add();
     }
 
