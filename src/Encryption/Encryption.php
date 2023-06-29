@@ -41,7 +41,10 @@ class Encryption
 
         $ivlen = openssl_cipher_iv_length(self::CIPHER);
         $isCryptoStrong = false;
-        $iv = openssl_random_pseudo_bytes($ivlen, $isCryptoStrong);
+
+        do {
+            $iv = openssl_random_pseudo_bytes($ivlen, $isCryptoStrong);
+        } while(mb_strlen($iv, '8bit') !== $ivlen);
 
         if (!$isCryptoStrong) {
             return false;
