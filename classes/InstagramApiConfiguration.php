@@ -12,9 +12,9 @@ class InstagramApiConfiguration extends ObjectModel {
       'multishop' => 'false',
       'fields' => [
           'app_id' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 255],
-          'app_id_iv' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 255],
+          'app_id_iv' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 32],
           'app_secret' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 255],
-          'app_secret_iv' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 255],
+          'app_secret_iv' => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 32],
       ]
     ];
 
