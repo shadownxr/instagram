@@ -57,10 +57,9 @@ class Instagram extends Module
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        include(dirname(__FILE__) . '/sql/install.php');
-
         return parent::install()
-            && $this->installTab()
+            && InstagramImages::createTable()
+            && InstagramDisplaySettings::createTable()
             && InstagramConfiguration::createTable()
             && InstagramApiConfiguration::createTable()
             && ArkonInstagram\Encryption::generateKey()
@@ -71,13 +70,9 @@ class Instagram extends Module
 
     public function uninstall(): bool
     {
-        Configuration::deleteByName('INSTAGRAM_APP_ID');
-        Configuration::deleteByName('INSTAGRAM_APP_SECRET');
-
-        include(dirname(__FILE__) . '/sql/uninstall.php');
-
         return parent::uninstall()
-            && $this->uninstallTab()
+            && InstagramImages::dropTable()
+            && InstagramDisplaySettings::dropTable()
             && InstagramConfiguration::dropTable()
             && InstagramApiConfiguration::dropTable()
             && $this->unregisterHook('actionFrontControllerSetMedia')
