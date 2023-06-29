@@ -91,7 +91,6 @@ class Instagram extends Module
             && $this->uninstallTab();
     }
 
-
     public function getContent()
     {
         $this->processConfiguration();
@@ -112,7 +111,7 @@ class Instagram extends Module
 
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
-        if(Validate::isLoadedObject($app_config)) {
+        if (Validate::isLoadedObject($app_config)) {
             $instagram_app_id = ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
             $instagram_app_secret = ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
         }
@@ -144,12 +143,12 @@ class Instagram extends Module
         $code = Tools::getValue('code');
         if ($code) {
             $data = $this->fetchLongAccessToken($code);
-            if (!is_array($data)){
+            if (!is_array($data)) {
                 return;
             }
             $this->db_updateAccessToken($data);
 
-            if(!$this->fetchImagesFromInstagram()){
+            if (!$this->fetchImagesFromInstagram()) {
                 return;
             }
 
@@ -213,7 +212,7 @@ class Instagram extends Module
 
         if (!$id_parent) {
             $tab = new Tab();
-            $tab->active = 1;
+            $tab->active = true;
             $tab->class_name = "InstagramAdminConfig";
             $tab->name = array();
             foreach (Language::getLanguages() as $lang) {
@@ -242,7 +241,7 @@ class Instagram extends Module
             $idtab = (int)Tab::getIdFromClassName($subtab['class']);
             if ($idtab <= 0) {
                 $tab = new Tab();
-                $tab->active = 1;
+                $tab->active = true;
                 $tab->class_name = $subtab['class'];
                 $tab->name = array();
                 foreach (Language::getLanguages() as $lang) {
@@ -286,8 +285,8 @@ class Instagram extends Module
 
     public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->registerStylesheet('instagram_css','/modules/instagram/views/css/front.css');
-        $this->context->controller->registerJavascript('instagram_js','/modules/instagram/views/js/front.js');
+        $this->context->controller->registerStylesheet('instagram_css', '/modules/instagram/views/css/front.css');
+        $this->context->controller->registerJavascript('instagram_js', '/modules/instagram/views/js/front.js');
     }
 
     public function __call($name, $arguments)
@@ -400,20 +399,34 @@ class Instagram extends Module
 
     public function db_checkIfAccessTokenExists(): bool
     {
-//        #todo Refactor
-        return !empty(DB::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration`'));
+        $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        return Validate::isLoadedObject($configuration);
     }
 
 
     public function db_updateAccessToken($data): bool
     {
-        if(empty($data)){
+//        #todo Reactor
+        if (empty($data)) {
             return false;
         }
         $user_id_iv = '';
         $access_token_iv = '';
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        if (Validate::isLoadedObject($instagram_configuration)) {
+            $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
+            $instagram_configuration->user_id_iv = $user_id_iv;
+            $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
+            $instagram_configuration->access_token_iv = $access_token_iv;
+            $instagram_configuration->token_expires = $data['token_expires'];
+
+            return $instagram_configuration->update();
+        }
+
+        $instagram_configuration->id = INSTAGRAM_CONFIG_ID;
         $instagram_configuration->force_id = true;
         $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
         $instagram_configuration->user_id_iv = $user_id_iv;
@@ -421,41 +434,51 @@ class Instagram extends Module
         $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
-        return $instagram_configuration->save();
-    }
-
-    public function db_getUserIdAndAccessToken(): array
-    {
-//        #todo Refactor
-        return DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_CONFIG_ID);
+        return $instagram_configuration->add();
     }
 
     public function db_deleteAccessToken(): bool
     {
-//        #todo Refactor
-        return DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_CONFIG_ID);
+        $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        if (!Validate::isLoadedObject($configuration)) {
+            return false;
+        }
+
+        return $configuration->delete();
     }
 
     public function db_deleteInstagramImages(): bool
     {
-//        #todo Refactor
-        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
-        if ($response) {
-            return DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'arkon_instagram_images` AUTO_INCREMENT=1');
-        } else {
-            return $response;
+        $images = new PrestaShopCollection('InstagramImages');
+        $images = $images->getResults();
+
+        if (empty($images)) {
+            return false;
         }
+
+        foreach ($images as $image) {
+            $image->delete();
+        }
+
+        return true;
     }
 
-    public function db_getImagesData()
+    public function db_getImagesData(): array
     {
-//        #todo Refactor
-        return DB::getInstance()->executeS('SELECT image_url, permalink FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
+        $images = new PrestaShopCollection('InstagramImages');
+        $images = $images->getResults();
+
+        if (empty($images)) {
+            return [];
+        }
+
+        return $images;
     }
 
     public function fetchImagesFromInstagram(): bool
     {
-        if(!$this->db_deleteInstagramImages()){
+        if (!$this->db_deleteInstagramImages()) {
             return false;
         }
 
@@ -549,10 +572,11 @@ class Instagram extends Module
         return false;
     }
 
-    public function saveImagesLocally(){
+    public function saveImagesLocally()
+    {
         $images = new PrestaShopCollection('InstagramImages');
 
-        foreach($images->getResults() as $key => $item){
+        foreach ($images->getResults() as $key => $item) {
             $ch = curl_init();
 
             curl_setopt($ch, CURLOPT_URL, $item->image_url);
@@ -561,13 +585,13 @@ class Instagram extends Module
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $resp = curl_exec($ch);
-            if(empty($resp)){
+            if (empty($resp)) {
                 return;
             }
 
             curl_close($ch);
 
-            if(!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/'. $key .'.jpg', 'c'))){
+            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/' . $key . '.jpg', 'c'))) {
                 return;
             }
             fwrite($fp, $resp);
