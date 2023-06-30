@@ -475,7 +475,6 @@ class Instagram extends Module
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
         if (Validate::isLoadedObject($data)) {
-            $images_url = [];
             $image_fetch_counter = 1;
 
             $fields = 'id,timestamp';
@@ -484,41 +483,38 @@ class Instagram extends Module
 
             $fields = 'media_url,media_type,caption,permalink';
             foreach ($images_id['data'] as $image_id) {
-                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-                $images_url[] = InstagramCurl::fetch($url);
-            }
+                if($image_fetch_counter === $settings->max_images_fetched){
+                    break;
+                }
 
-            foreach ($images_url as $image) {
+                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+                $image = InstagramCurl::fetch($url);
+
                 if ($image['media_type'] !== "IMAGE") {
                     continue;
                 }
 
-                if ($image_fetch_counter <= $settings->max_images_fetched) {
-                    $img = new InstagramImages($image_fetch_counter);
-                    $img->image_id = $image['id'];
-                    $img->image_url = $image['media_url'];
-                    $img->permalink = $image['permalink'];
+                $img = new InstagramImages($image_fetch_counter);
+                $img->image_id = $image['id'];
+                $img->image_url = $image['media_url'];
+                $img->permalink = $image['permalink'];
 
-                    if (array_key_exists('caption', $image)) {
-                        $img->description = $image['caption'];
-                    } else {
-                        $img->description = '';
-                    }
-
-                    if (Validate::isLoadedObject($img)) {
-                        $img->update();
-                    } else {
-                        $img->add();
-                    }
-                    ++$image_fetch_counter;
+                if (array_key_exists('caption', $image)) {
+                    $img->description = $image['caption'];
                 } else {
-                    break;
+                    $img->description = '';
                 }
+
+                if (Validate::isLoadedObject($img)) {
+                    $img->update();
+                } else {
+                    $img->add();
+                }
+
+                ++$image_fetch_counter;
             }
-            return true;
-        } else {
-            return false;
         }
+        return true;
     }
 
     /**
