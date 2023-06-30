@@ -446,10 +446,6 @@ class Instagram extends Module
         $images = new PrestaShopCollection('InstagramImages');
         $images = $images->getResults();
 
-        if (empty($images)) {
-            return false;
-        }
-
         foreach ($images as $image) {
             $image->delete();
         }
