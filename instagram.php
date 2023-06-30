@@ -18,8 +18,8 @@ if (!defined('_PS_VERSION_')) {
 }
 
 require_once(_PS_MODULE_DIR_ . 'instagram/src/Encryption/Encryption.php');
+require_once(_PS_MODULE_DIR_ . 'instagram/src/Curl/InstagramCurl.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
@@ -327,7 +327,7 @@ class Instagram extends Module
             'code' => $code,
         );
 
-        $fetch_data = ArkonInstagram\InstagramCurl::fetch($url, $data);
+        $fetch_data = Curl\InstagramCurl::fetch($url, $data);
 
         if (array_key_exists('access_token', $fetch_data) && array_key_exists('user_id', $fetch_data)) {
             $short_access_token = $fetch_data['access_token'];
@@ -364,7 +364,7 @@ class Instagram extends Module
                 . '&access_token=' . $short_access_token
                 . '&grant_type=ig_exchange_token';
 
-            $fetch_data = ArkonInstagram\InstagramCurl::fetch($url);
+            $fetch_data = Curl\InstagramCurl::fetch($url);
 
             if (array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in', $fetch_data)) {
                 $long_access_token = $fetch_data['access_token'];
@@ -483,7 +483,7 @@ class Instagram extends Module
 
         $fields = 'id,timestamp';
         $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-        $images_id = ArkonInstagram\InstagramCurl::fetch($url);
+        $images_id = Curl\InstagramCurl::fetch($url);
 
         $image_fetch_counter = 0;
         $fields = 'media_url,media_type,caption,permalink';
@@ -493,7 +493,7 @@ class Instagram extends Module
             }
 
             $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-            $image = ArkonInstagram\InstagramCurl::fetch($url);
+            $image = Curl\InstagramCurl::fetch($url);
 
             if ($image['media_type'] !== "IMAGE") {
                 continue;
@@ -518,7 +518,7 @@ class Instagram extends Module
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
 
-            return ArkonInstagram\InstagramCurl::fetch($url);
+            return Curl\InstagramCurl::fetch($url);
         } else {
             return false;
         }
