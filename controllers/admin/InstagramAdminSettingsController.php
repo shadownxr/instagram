@@ -22,51 +22,51 @@ class InstagramAdminSettingsController extends ModuleAdminController
 
     #todo Refactor
     public function processSettings(){
-        $version = false;
-        $settings = false;
-
         if (Tools::isSubmit('save_desktop_settings')) {
             $settings = new instagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
             $version = Version::DESKTOP;
         } else if (Tools::isSubmit('save_mobile_settings')){
             $settings = new instagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
             $version = Version::MOBILE;
+        } else {
+            return;
         }
 
-        if (is_string($version) && is_object($settings)) {
-            $prev_hook = $settings->hook;
-            $settings->hook = Tools::getValue($version.'_display_hook');
-            $settings->display_style = Tools::getValue($version.'_display_style');
-            $settings->image_size = Tools::getValue($version.'_image_size');
-            $settings->show_title = Tools::getValue($version.'_show_title');
-            $settings->max_images_fetched = Tools::getValue($version.'_max_images_fetched');
-            $settings->images_per_gallery = Tools::getValue($version.'_images_per_gallery');
-            $settings->gap = Tools::getValue($version.'_gap');
-            $settings->grid_row = Tools::getValue($version.'_grid_row');
-            $settings->grid_column = Tools::getValue($version.'_grid_column');
-            $settings->title = Tools::getValue($version.'_title');
+        $prev_hook = $settings->hook;
+        $settings->hook = Tools::getValue($version.'_display_hook');
+        $settings->display_style = Tools::getValue($version.'_display_style');
+        $settings->image_size = Tools::getValue($version.'_image_size');
+        $settings->show_title = Tools::getValue($version.'_show_title');
+        $settings->max_images_fetched = Tools::getValue($version.'_max_images_fetched');
+        $settings->images_per_gallery = Tools::getValue($version.'_images_per_gallery');
+        $settings->gap = Tools::getValue($version.'_gap');
+        $settings->grid_row = Tools::getValue($version.'_grid_row');
+        $settings->grid_column = Tools::getValue($version.'_grid_column');
+        $settings->title = Tools::getValue($version.'_title');
 
-            if (!Validate::isLoadedObject($settings)) {
-                if ($settings->add()) {
-                    $this->module->registerHook($settings->hook);
-                }
-            } else {
-                if ($settings->update()) {
-                    $this->module->unregisterHook($prev_hook);
-                    $this->module->registerHook($settings->hook);
-                }
+        if (!Validate::isLoadedObject($settings)) {
+            if ($settings->add()) {
+                $this->module->registerHook($settings->hook);
             }
-
-            if(!$this->module->fetchImagesFromInstagram()){
-                return;
+        } else {
+            if ($settings->update()) {
+                $this->module->unregisterHook($prev_hook);
+                $this->module->registerHook($settings->hook);
             }
-            $this->module->saveImagesLocally();
         }
+
+        if(!$this->module->fetchImagesFromInstagram()){
+            return;
+        }
+        $this->module->deleteLocalImages();
+        $this->module->saveImagesLocally();
+
 
         if (Tools::isSubmit('refresh')) {
             if(!$this->module->fetchImagesFromInstagram()){
                 return;
             }
+            $this->module->deleteLocalImages();
             $this->module->saveImagesLocally();
         }
 

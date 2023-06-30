@@ -152,6 +152,7 @@ class Instagram extends Module
                 return;
             }
 
+            $this->deleteLocalImages();
             $this->saveImagesLocally();
         }
     }
@@ -569,7 +570,6 @@ class Instagram extends Module
 
         foreach ($images->getResults() as $image) {
             $ch = curl_init();
-
             curl_setopt($ch, CURLOPT_URL, $image->image_url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -588,5 +588,18 @@ class Instagram extends Module
             fwrite($fp, $resp);
             fclose($fp);
         }
+    }
+
+    public function deleteLocalImages(): bool
+    {
+        $img_folder = scandir(_PS_IMG_DIR_ . '/modules/instagram/');
+        foreach ($img_folder as $file) {
+            if (preg_match('/^([0-9]*).(jpg)/', $file)) {
+                if (!unlink(_PS_IMG_DIR_ . '/modules/instagram/' . $file)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
