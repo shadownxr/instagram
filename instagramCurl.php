@@ -1,4 +1,7 @@
 <?php
+
+namespace ArkonInstagram;
+
 class InstagramCurl{
     public static function fetch(string $url, $data = false){
         $ch = curl_init();
