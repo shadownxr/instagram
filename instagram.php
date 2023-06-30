@@ -43,8 +43,8 @@ class Instagram extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Instagram Feed API');
-        $this->description = $this->l('Module allows to display feed from Instagram on the front page');
+        $this->displayName = $this->l('Instagram Image Gallery');
+        $this->description = $this->l('Module displays gallery of images from Instagram feed on the front office');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
 
