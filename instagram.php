@@ -189,17 +189,12 @@ class Instagram extends Module
     private function processDeletion()
     {
         if (Tools::isSubmit('delete_account')) {
-            $response = $this->deleteAccessToken();
-            if ($response) {
-                $response = $this->deleteInstagramImages();
-
-                if ($response) {
-                    $this->message = "Account deleted successfully";
-                    $this->message_type = CONFIRMATION_MESSAGE;
-                } else {
-                    $this->message = "Unable to delete account";
-                    $this->message_type = ERROR_MESSAGE;
-                }
+            if (!$this->deleteAccessToken() || !$this->deleteInstagramImages()) {
+                $this->message = "Unable to delete account";
+                $this->message_type = ERROR_MESSAGE;
+            } else {
+                $this->message = "Account deleted successfully";
+                $this->message_type = CONFIRMATION_MESSAGE;
             }
         }
     }
@@ -421,7 +416,7 @@ class Instagram extends Module
         $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
-        if(Validate::isLoadedObject($instagram_configuration)){
+        if (Validate::isLoadedObject($instagram_configuration)) {
             return $instagram_configuration->update();
         }
 
@@ -446,11 +441,13 @@ class Instagram extends Module
         $images = new PrestaShopCollection('InstagramImages');
         $images = $images->getResults();
 
+        $result = true;
+
         foreach ($images as $image) {
-            $image->delete();
+            $result &= $image->delete();
         }
 
-        return true;
+        return $result;
     }
 
     public function getImagesData(): array
@@ -467,53 +464,46 @@ class Instagram extends Module
 
     public function fetchImagesFromInstagram(): bool
     {
+        $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+
+        if (!Validate::isLoadedObject($data) || !Validate::isLoadedObject($settings)) {
+            return false;
+        }
+
+        if ($settings->max_images_fetched < 1) {
+            $this->message = 'Invalid number of images to fetch';
+            $this->message_type = ERROR_MESSAGE;
+            return false;
+        }
+
         if (!$this->deleteInstagramImages()) {
             return false;
         }
 
-        $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
-        $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+        $fields = 'id,timestamp';
+        $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+        $images_id = InstagramCurl::fetch($url);
 
-        if (Validate::isLoadedObject($data)) {
-            $image_fetch_counter = 1;
-
-            $fields = 'id,timestamp';
-            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-            $images_id = InstagramCurl::fetch($url);
-
-            $fields = 'media_url,media_type,caption,permalink';
-            foreach ($images_id['data'] as $image_id) {
-                if($image_fetch_counter === $settings->max_images_fetched){
-                    break;
-                }
-
-                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-                $image = InstagramCurl::fetch($url);
-
-                if ($image['media_type'] !== "IMAGE") {
-                    continue;
-                }
-
-                $img = new InstagramImages($image_fetch_counter);
-                $img->image_id = $image['id'];
-                $img->image_url = $image['media_url'];
-                $img->permalink = $image['permalink'];
-
-                if (array_key_exists('caption', $image)) {
-                    $img->description = $image['caption'];
-                } else {
-                    $img->description = '';
-                }
-
-                if (Validate::isLoadedObject($img)) {
-                    $img->update();
-                } else {
-                    $img->add();
-                }
-
-                ++$image_fetch_counter;
+        $image_fetch_counter = 0;
+        $fields = 'media_url,media_type,caption,permalink';
+        foreach ($images_id['data'] as $image_id) {
+            if ($image_fetch_counter >= $settings->max_images_fetched) {
+                break;
             }
+
+            $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+            $image = InstagramCurl::fetch($url);
+
+            if ($image['media_type'] !== "IMAGE") {
+                continue;
+            }
+
+            $this->saveImageData($image);
+
+            ++$image_fetch_counter;
         }
+
         return true;
     }
 
@@ -557,14 +547,30 @@ class Instagram extends Module
         return false;
     }
 
+    public function saveImageData(array $image)
+    {
+        $img = new InstagramImages();
+        $img->image_id = $image['id'];
+        $img->image_url = $image['media_url'];
+        $img->permalink = $image['permalink'];
+
+        if (array_key_exists('caption', $image)) {
+            $img->description = $image['caption'];
+        } else {
+            $img->description = '';
+        }
+
+        $img->save();
+    }
+
     public function saveImagesLocally()
     {
         $images = new PrestaShopCollection('InstagramImages');
 
-        foreach ($images->getResults() as $key => $item) {
+        foreach ($images->getResults() as $image) {
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, $item->image_url);
+            curl_setopt($ch, CURLOPT_URL, $image->image_url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -576,7 +582,7 @@ class Instagram extends Module
 
             curl_close($ch);
 
-            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/' . $key . '.jpg', 'c'))) {
+            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/' . $image->id . '.jpg', 'w'))) {
                 return;
             }
             fwrite($fp, $resp);
