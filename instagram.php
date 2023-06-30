@@ -146,7 +146,7 @@ class Instagram extends Module
             if (!is_array($data)) {
                 return;
             }
-            $this->db_updateAccessToken($data);
+            $this->updateAccessToken($data);
 
             if (!$this->fetchImagesFromInstagram()) {
                 return;
@@ -189,9 +189,9 @@ class Instagram extends Module
     private function processDeletion()
     {
         if (Tools::isSubmit('delete_account')) {
-            $response = $this->db_deleteAccessToken();
+            $response = $this->deleteAccessToken();
             if ($response) {
-                $response = $this->db_deleteInstagramImages();
+                $response = $this->deleteInstagramImages();
 
                 if ($response) {
                     $this->message = "Account deleted successfully";
@@ -295,7 +295,7 @@ class Instagram extends Module
             $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
             $this->context->smarty->assign(array(
-                'images_data' => $this->db_getImagesData(),
+                'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'desktop'
             ));
@@ -303,7 +303,7 @@ class Instagram extends Module
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
             $this->context->smarty->assign(array(
-                'images_data' => $this->db_getImagesData(),
+                'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'mobile'
             ));
@@ -397,7 +397,7 @@ class Instagram extends Module
         }
     }
 
-    public function db_checkIfAccessTokenExists(): bool
+    public function checkIfAccessTokenExists(): bool
     {
         $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
 
@@ -405,7 +405,7 @@ class Instagram extends Module
     }
 
 
-    public function db_updateAccessToken($data): bool
+    public function updateAccessToken($data): bool
     {
         if (empty($data)) {
             return false;
@@ -430,7 +430,7 @@ class Instagram extends Module
         return $instagram_configuration->add();
     }
 
-    public function db_deleteAccessToken(): bool
+    public function deleteAccessToken(): bool
     {
         $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
 
@@ -441,7 +441,7 @@ class Instagram extends Module
         return $configuration->delete();
     }
 
-    public function db_deleteInstagramImages(): bool
+    public function deleteInstagramImages(): bool
     {
         $images = new PrestaShopCollection('InstagramImages');
         $images = $images->getResults();
@@ -453,7 +453,7 @@ class Instagram extends Module
         return true;
     }
 
-    public function db_getImagesData(): array
+    public function getImagesData(): array
     {
         $images = new PrestaShopCollection('InstagramImages');
         $images = $images->getResults();
@@ -467,7 +467,7 @@ class Instagram extends Module
 
     public function fetchImagesFromInstagram(): bool
     {
-        if (!$this->db_deleteInstagramImages()) {
+        if (!$this->deleteInstagramImages()) {
             return false;
         }
 

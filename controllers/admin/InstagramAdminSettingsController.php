@@ -77,11 +77,11 @@ class InstagramAdminSettingsController extends ModuleAdminController
     {
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
         $m_settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
-        $display_hooks = $this->db_getDisplayHooks();
+        $display_hooks = $this->getDisplayHooks();
 
         $this->context->smarty->assign(array(
-            'is_connected' => $this->module->db_checkIfAccessTokenExists(),
-            'images_data' => $this->module->db_getImagesData(),
+            'is_connected' => $this->module->checkIfAccessTokenExists(),
+            'images_data' => $this->module->getImagesData(),
             'settings' => $settings,
             'm_settings' => $m_settings,
             'display_hooks' => $display_hooks,
@@ -89,7 +89,7 @@ class InstagramAdminSettingsController extends ModuleAdminController
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/admin/settings.tpl');
     }
 
-    private function db_getDisplayHooks(): array
+    private function getDisplayHooks(): array
     {
         return DB::getInstance()->executeS('SELECT id_hook, name FROM `' . _DB_PREFIX_ . 'hook` WHERE name LIKE "display%" AND name NOT LIKE "displayAdmin%"');
     }
