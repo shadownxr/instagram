@@ -191,10 +191,10 @@ class Instagram extends Module
     {
         if (Tools::isSubmit('delete_account')) {
             if (!$this->deleteAccessToken() || !$this->deleteInstagramImages()) {
-                $this->message = "Unable to delete account";
+                $this->message = $this->l("Unable to delete account");
                 $this->message_type = ERROR_MESSAGE;
             } else {
-                $this->message = "Account deleted successfully";
+                $this->message = $this->l("Account deleted successfully");
                 $this->message_type = CONFIRMATION_MESSAGE;
             }
         }
@@ -212,7 +212,7 @@ class Instagram extends Module
             $tab->class_name = "InstagramAdminConfig";
             $tab->name = array();
             foreach (Language::getLanguages() as $lang) {
-                $tab->name[$lang["id_lang"]] = "Instagram Settings";
+                $tab->name[$lang["id_lang"]] = $this->l("Instagram Settings");
             }
             $tab->id_parent = 0;
             $tab->module = $this->name;
@@ -253,7 +253,9 @@ class Instagram extends Module
 
     private function uninstallTab(): bool
     {
-        $list_tab = array('InstagramAdminSettings');
+        $list_tab = [
+            'InstagramAdminSettings'
+        ];
 
         foreach ($list_tab as $id_tab) {
             $id_tab = (int)Tab::getIdFromClassName($id_tab);
@@ -290,19 +292,19 @@ class Instagram extends Module
         if (!$this->context->isMobile()) {
             $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
-            $this->context->smarty->assign(array(
+            $this->context->smarty->assign([
                 'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'desktop'
-            ));
+            ]);
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
-            $this->context->smarty->assign(array(
+            $this->context->smarty->assign([
                 'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'mobile'
-            ));
+            ]);
         }
 
         return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
@@ -320,13 +322,13 @@ class Instagram extends Module
 
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
-        $data = array(
+        $data = [
             'client_id' => ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv),
             'client_secret' => ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv),
             'grant_type' => 'authorization_code',
             'redirect_uri' => $redirect_uri,
             'code' => $code,
-        );
+        ];
 
         $fetch_data = Curl\InstagramCurl::fetch($url, $data);
 
@@ -338,15 +340,15 @@ class Instagram extends Module
             $this->message_type = ERROR_MESSAGE;
             return false;
         } else {
-            $this->message = 'Can\'t get Short Access Token';
+            $this->message = $this->l('Can\'t get Short Access Token');
             $this->message_type = ERROR_MESSAGE;
             return false;
         }
 
-        return array(
+        return [
             'short_access_token' => $short_access_token,
             'user_id' => $user_id,
-        );
+        ];
     }
 
     /**
@@ -375,19 +377,19 @@ class Instagram extends Module
                 $this->message_type = ERROR_MESSAGE;
                 return false;
             } else {
-                $this->message = 'Can\'t get Long Access Token';
+                $this->message = $this->l('Can\'t get Long Access Token');
                 $this->message_type = ERROR_MESSAGE;
                 return false;
             }
 
-            $this->message = 'Account successfully added';
+            $this->message = $this->l('Account successfully added');
             $this->message_type = CONFIRMATION_MESSAGE;
 
-            return array(
+            return [
                 'access_token' => $long_access_token,
                 'token_expires' => $token_expire_date,
                 'user_id' => $user_id
-            );
+            ];
         } else {
             return false;
         }
@@ -473,7 +475,7 @@ class Instagram extends Module
         }
 
         if ($settings->max_images_fetched < 1) {
-            $this->message = 'Invalid number of images to fetch';
+            $this->message = $this->l('Invalid number of images to fetch');
             $this->message_type = ERROR_MESSAGE;
             return false;
         }
@@ -518,7 +520,6 @@ class Instagram extends Module
         if (Validate::isLoadedObject($data)) {
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-
             return Curl\InstagramCurl::fetch($url);
         } else {
             return false;

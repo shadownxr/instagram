@@ -8,10 +8,10 @@
 {else}
     <div class="switch_tabs">
         <button name="desktop_switch" class="btn btn-primary" style="border-bottom: none; border-radius: unset;">
-            Desktop
+            {l s='Desktop' mod='instagram'}
         </button>
         <button name="mobile_switch" class="btn btn-secondary" style="border-bottom: none; border-radius: unset;">
-            Mobile
+            {l s='Mobile' mod='instagram'}
         </button>
     </div>
     {include file='./tabs/display.tpl' settings=$settings images_data=$images_data version=$DESKTOP active=true}

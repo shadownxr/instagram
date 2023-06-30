@@ -16,7 +16,6 @@ class InstagramTokenRefreshModuleFrontController extends ModuleFrontController {
                         'status' => 200
                     ]
                 ));
-                break;
             
             case 'Unable to refresh access token':
                 header('Content-Type: application/json');
@@ -28,7 +27,6 @@ class InstagramTokenRefreshModuleFrontController extends ModuleFrontController {
                         'status' => 500
                     ]
                 ));
-                break;
 
             case 'Token not one month old':
                 header('Content-Type: application/json');
@@ -40,10 +38,7 @@ class InstagramTokenRefreshModuleFrontController extends ModuleFrontController {
                         'status' => 500
                     ]
                 ));
-                break;
         }
-
-
     }
 
     private function refreshAccessToken(){
