@@ -4,7 +4,7 @@ import Splide from "@splidejs/splide";
 const DESKTOP = 0;
 const MOBILE = 1;
 
-let url = 'https://prestashop1788.local/pl/module/instagram/ajax';
+let url = 'https://presta1788.local/pl/module/instagram/ajax';
 
 async function fetchSettings() {
     const data = { ajax: true };
