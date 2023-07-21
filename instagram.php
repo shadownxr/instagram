@@ -63,6 +63,7 @@ class Instagram extends Module
             && InstagramConfiguration::createTable()
             && InstagramApiConfiguration::createTable()
             && ArkonInstagram\Encryption::generateKey()
+            && $this->createImageFolder()
             && $this->initDefaultDisplaySettings()
             && $this->registerHook('actionFrontControllerSetMedia')
             && $this->registerHook('actionAdminControllerSetMedia');
@@ -273,6 +274,12 @@ class Instagram extends Module
         }
 
         return true;
+    }
+
+    private function createImageFolder(): bool
+    {
+        $path = _PS_IMG_DIR_ . 'modules/instagram/';
+        return mkdir($path, 0777, true);
     }
 
     public function hookActionAdminControllerSetMedia()
