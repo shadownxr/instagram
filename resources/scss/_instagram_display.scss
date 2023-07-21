@@ -4,11 +4,30 @@
   justify-content: center;
 
   .section {
-    display:flex;
+    display: flex;
     flex-direction: column;
 
-    img:hover {
-      filter: brightness(60%);
+    li {
+      &:hover {
+        a {
+          display: flex;
+
+          img {
+            filter: brightness(60%);
+          }
+
+          &:after {
+            content: "\f16d";
+            font-family: "FontAwesome", serif;
+            font-size: 45px;
+            position: absolute;
+            top: 47%;
+            left: 45%;
+            color: white;
+            z-index: 1;
+          }
+        }
+      }
     }
 
     &__title {
