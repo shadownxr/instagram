@@ -4,11 +4,9 @@ import Splide from "@splidejs/splide";
 const DESKTOP = 0;
 const MOBILE = 1;
 
-let url = 'https://presta1788.local/pl/module/instagram/ajax';
-
 async function fetchSettings() {
     const data = { ajax: true };
-    const response =  await fetch(url, {
+    const response =  await fetch(window.instagram_ajax_url, {
         method: "POST",
         mode: "same-origin",
         cache: "no-cache",

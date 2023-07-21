@@ -283,6 +283,8 @@ class Instagram extends Module
 
     public function hookActionFrontControllerSetMedia()
     {
+        $url = $this->context->link->getModuleLink('instagram', 'ajax');
+        Media::addJsDef(['instagram_ajax_url' => $url]);
         $this->context->controller->requireAssets(['font-awesome']);
         $this->context->controller->registerStylesheet('instagram_css', '/modules/instagram/views/css/front.css');
         $this->context->controller->registerJavascript('instagram_js', '/modules/instagram/views/js/front.js');
