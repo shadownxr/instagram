@@ -292,21 +292,21 @@ class Instagram extends Module
 
     public function __call($name, $arguments)
     {
-        if (!$this->context->isMobile()) {
-            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
-
-            $this->context->smarty->assign([
-                'images_data' => $this->getImagesData(),
-                'settings' => $settings,
-                'version' => 'desktop'
-            ]);
-        } else {
+        if ($this->context->isMobile()) {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
             $this->context->smarty->assign([
                 'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'mobile'
+            ]);
+        } else {
+            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+
+            $this->context->smarty->assign([
+                'images_data' => $this->getImagesData(),
+                'settings' => $settings,
+                'version' => 'desktop'
             ]);
         }
 
