@@ -1,3 +1,7 @@
+:root {
+  --instagram-icon-size: 45px;
+}
+
 .instagram_display {
   padding: 10px;
   display: flex;
@@ -19,10 +23,11 @@
           &:after {
             content: "\f16d";
             font-family: "FontAwesome", serif;
-            font-size: 45px;
+            font-size: var(--instagram-icon-size);
             position: absolute;
-            top: 47%;
-            left: 45%;
+            margin-left: calc(var(--instagram-icon-size)/-2);
+            top: 50%;
+            left: 50%;
             color: white;
             z-index: 1;
           }
