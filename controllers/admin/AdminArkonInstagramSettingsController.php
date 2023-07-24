@@ -86,7 +86,7 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
             'm_settings' => $m_settings,
             'display_hooks' => $display_hooks,
         ));
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/admin/settings.tpl');
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'arkoninstagram/views/templates/admin/settings.tpl');
     }
 
     private function getDisplayHooks(): array

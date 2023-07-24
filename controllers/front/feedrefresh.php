@@ -1,6 +1,6 @@
 <?php
 
-class InstagramFeedRefreshModuleFrontController extends ModuleFrontController
+class ArkonInstagramFeedRefreshModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {

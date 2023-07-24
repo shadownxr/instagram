@@ -5,7 +5,7 @@
                 {foreach $images_data as $data}
                     <li class="splide__slide">
                         <a href="{$data->permalink}">
-                            <img src="/img/modules/instagram/{$data->id}.jpg" height="{$settings->image_size}" width="{$settings->image_size}"/>
+                            <img src="/img/modules/arkoninstagram/{$data->id}.jpg" height="{$settings->image_size}" width="{$settings->image_size}"/>
                         </a>
                     </li>
                 {/foreach}

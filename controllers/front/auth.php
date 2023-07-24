@@ -1,5 +1,5 @@
 <?php
-class InstagramAuthModuleFrontController extends ModuleFrontController {
+class ArkonInstagramAuthModuleFrontController extends ModuleFrontController {
     public function init(){        
         $code = Tools::getValue('code');
         $cookie = new Cookie('ADMIN_LINK');

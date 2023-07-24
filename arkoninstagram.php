@@ -181,7 +181,7 @@ class ArkonInstagram extends Module
     private function setAdminRedirectLink()
     {
         $token = Tools::getAdminTokenLite('AdminModules');
-        $link = $this->context->link->getAdminLink('AdminModules&token=' . $token . '&configure=instagram&tab_module=administration&module_name=instagram', false);
+        $link = $this->context->link->getAdminLink('AdminModules&token=' . $token . '&configure=arkoninstagram&tab_module=administration&module_name=arkoninstagram', false);
 
         $cookie = new Cookie('ADMIN_LINK');
         $cookie->admin_link = $link;
@@ -210,7 +210,7 @@ class ArkonInstagram extends Module
         if (!$id_parent) {
             $tab = new Tab();
             $tab->active = true;
-            $tab->class_name = "ArkonAdminInstagramConfig";
+            $tab->class_name = "AdminArkonInstagramConfig";
             $tab->name = array();
             foreach (Language::getLanguages() as $lang) {
                 $tab->name[$lang["id_lang"]] = $this->l("Instagram Settings");
@@ -223,12 +223,12 @@ class ArkonInstagram extends Module
 
         $subtabs = array(
             array(
-                'class' => 'ArkonAdminInstagramConfigShortcut',
+                'class' => 'AdminArkonInstagramConfigShortcut',
                 'name' => $this->l('Config'),
                 'id_parent' => $id_parent
             ),
             array(
-                'class' => 'ArkonAdminInstagramSettings',
+                'class' => 'AdminArkonInstagramSettings',
                 'name' => $this->l('Settings'),
                 'id_parent' => $id_parent
             ),
@@ -255,7 +255,7 @@ class ArkonInstagram extends Module
     private function uninstallTab(): bool
     {
         $list_tab = [
-            'ArkonAdminInstagramSettings'
+            'AdminArkonInstagramSettings'
         ];
 
         foreach ($list_tab as $id_tab) {
@@ -266,7 +266,7 @@ class ArkonInstagram extends Module
             }
         }
 
-        $id_tabP = (int)Tab::getIdFromClassName('ArkonAdminInstagramConfig');
+        $id_tabP = (int)Tab::getIdFromClassName('AdminArkonInstagramConfig');
 
         if ($id_tabP) {
             $tabP = new Tab($id_tabP);
@@ -296,7 +296,7 @@ class ArkonInstagram extends Module
 
     public function hookActionFrontControllerSetMedia()
     {
-        $url = $this->context->link->getModuleLink('instagram', 'ajax');
+        $url = $this->context->link->getModuleLink('arkoninstagram', 'ajax');
         Media::addJsDef(['instagram_ajax_url' => $url]);
         $this->context->controller->requireAssets(['font-awesome']);
         $this->context->controller->registerStylesheet('instagram_css', '/modules/arkoninstagram/views/css/front.css');
@@ -334,7 +334,7 @@ class ArkonInstagram extends Module
     {
         $url = 'https://api.instagram.com/oauth/access_token';
 
-        $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
+        $redirect_uri = $this->context->link->getModuleLink('arkoninstagram', 'auth');
 
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 

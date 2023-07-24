@@ -1,6 +1,6 @@
 <?php
 
-class InstagramTokenRefreshModuleFrontController extends ModuleFrontController {
+class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontController {
 
     public function initContent(){
         $message = $this->refreshAccessToken();
