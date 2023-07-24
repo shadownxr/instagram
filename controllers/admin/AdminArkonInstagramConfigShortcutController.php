@@ -1,6 +1,6 @@
 <?php
 
-class InstagramAdminConfigShortcutController extends ModuleAdminController {
+class AdminArkonInstagramConfigShortcutController extends ModuleAdminController {
     public function __construct(){
         $token = Tools::getAdminTokenLite('AdminModules');
         parent::__construct();

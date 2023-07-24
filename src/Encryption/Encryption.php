@@ -7,12 +7,12 @@ class Encryption
     const CIPHER = 'AES-256-CBC';
     const IV = 's*74f65A)9#fiS5w';
     const KEY_LENGTH = 32;
-    const KEY_FILEPATH = _PS_MODULE_DIR_ . '/instagram/src/Encryption/key.txt';
+    const KEY_FILEPATH = _PS_MODULE_DIR_ . '/arkoninstagram/src/Encryption/key.txt';
 
     public static function generateKey(): bool
     {
         $passphrase = bin2hex(openssl_random_pseudo_bytes(self::KEY_LENGTH));
-        $fp = fopen(_PS_MODULE_DIR_ . '/instagram/src/Encryption/key.txt', 'w');
+        $fp = fopen(_PS_MODULE_DIR_ . '/arkoninstagram/src/Encryption/key.txt', 'w');
 
         if (!$fp) {
             return false;

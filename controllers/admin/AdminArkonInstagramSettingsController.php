@@ -1,11 +1,11 @@
 <?php
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramDisplaySettings.php');
 
 class Version {
     const DESKTOP = 'desktop';
     const MOBILE = 'mobile';
 }
-class InstagramAdminSettingsController extends ModuleAdminController
+class AdminArkonInstagramSettingsController extends ModuleAdminController
 {
     public function __construct()
     {

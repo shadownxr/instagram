@@ -17,13 +17,13 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once(_PS_MODULE_DIR_ . 'instagram/src/Encryption/Encryption.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/src/Curl/InstagramCurl.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramApiConfiguration.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Encryption/Encryption.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Curl/InstagramCurl.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/defines.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramImages.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramConfiguration.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramApiConfiguration.php');
 
 class ArkonInstagram extends Module
 {
@@ -32,7 +32,7 @@ class ArkonInstagram extends Module
 
     public function __construct()
     {
-        $this->name = 'instagram';
+        $this->name = 'arkoninstagram';
         $this->tab = 'social_media';
         $this->version = '1.0.0';
         $this->author = 'Arkonsoft';
@@ -105,7 +105,7 @@ class ArkonInstagram extends Module
             $username = $user['username'];
         }
 
-        $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
+        $redirect_uri = $this->context->link->getModuleLink('arkoninstagram', 'auth');
 
         $instagram_app_id = '';
         $instagram_app_secret = '';
@@ -204,13 +204,13 @@ class ArkonInstagram extends Module
     private function installTab(): bool
     {
         $response = true;
-        $tabparent = "InstagramAdminConfig";
+        $tabparent = "AdminArkonInstagramConfig";
         $id_parent = Tab::getIdFromClassName($tabparent);
 
         if (!$id_parent) {
             $tab = new Tab();
             $tab->active = true;
-            $tab->class_name = "InstagramAdminConfig";
+            $tab->class_name = "ArkonAdminInstagramConfig";
             $tab->name = array();
             foreach (Language::getLanguages() as $lang) {
                 $tab->name[$lang["id_lang"]] = $this->l("Instagram Settings");
@@ -223,12 +223,12 @@ class ArkonInstagram extends Module
 
         $subtabs = array(
             array(
-                'class' => 'InstagramAdminConfigShortcut',
+                'class' => 'ArkonAdminInstagramConfigShortcut',
                 'name' => $this->l('Config'),
                 'id_parent' => $id_parent
             ),
             array(
-                'class' => 'InstagramAdminSettings',
+                'class' => 'ArkonAdminInstagramSettings',
                 'name' => $this->l('Settings'),
                 'id_parent' => $id_parent
             ),
@@ -255,7 +255,7 @@ class ArkonInstagram extends Module
     private function uninstallTab(): bool
     {
         $list_tab = [
-            'InstagramAdminSettings'
+            'ArkonAdminInstagramSettings'
         ];
 
         foreach ($list_tab as $id_tab) {
@@ -266,7 +266,7 @@ class ArkonInstagram extends Module
             }
         }
 
-        $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
+        $id_tabP = (int)Tab::getIdFromClassName('ArkonAdminInstagramConfig');
 
         if ($id_tabP) {
             $tabP = new Tab($id_tabP);
@@ -278,14 +278,14 @@ class ArkonInstagram extends Module
 
     private function createImageFolder(): bool
     {
-        $path = _PS_IMG_DIR_ . 'modules/instagram/';
+        $path = _PS_IMG_DIR_ . 'modules/arkoninstagram/';
         return mkdir($path, 0777, true);
     }
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addCSS(_PS_MODULE_DIR_ . 'instagram/views/css/admin.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . 'instagram/views/js/admin.js');
+        $this->context->controller->addCSS(_PS_MODULE_DIR_ . 'arkoninstagram/views/css/admin.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . 'arkoninstagram/views/js/admin.js');
     }
 
     public function hookActionFrontControllerSetMedia()
@@ -293,8 +293,8 @@ class ArkonInstagram extends Module
         $url = $this->context->link->getModuleLink('instagram', 'ajax');
         Media::addJsDef(['instagram_ajax_url' => $url]);
         $this->context->controller->requireAssets(['font-awesome']);
-        $this->context->controller->registerStylesheet('instagram_css', '/modules/instagram/views/css/front.css');
-        $this->context->controller->registerJavascript('instagram_js', '/modules/instagram/views/js/front.js');
+        $this->context->controller->registerStylesheet('instagram_css', '/modules/arkoninstagram/views/css/front.css');
+        $this->context->controller->registerJavascript('instagram_js', '/modules/arkoninstagram/views/js/front.js');
     }
 
     public function __call($name, $arguments)
@@ -317,7 +317,7 @@ class ArkonInstagram extends Module
             ]);
         }
 
-        return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
+        return $this->fetch(_PS_MODULE_DIR_ . 'arkoninstagram/views/templates/front/display.tpl');
     }
 
     /**
@@ -593,7 +593,7 @@ class ArkonInstagram extends Module
 
             curl_close($ch);
 
-            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/' . $image->id . '.jpg', 'w'))) {
+            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/arkoninstagram/' . $image->id . '.jpg', 'w'))) {
                 return;
             }
             fwrite($fp, $resp);
@@ -603,10 +603,10 @@ class ArkonInstagram extends Module
 
     public function deleteLocalImages(): bool
     {
-        $img_folder = scandir(_PS_IMG_DIR_ . '/modules/instagram/');
+        $img_folder = scandir(_PS_IMG_DIR_ . '/modules/arkoninstagram/');
         foreach ($img_folder as $file) {
             if (preg_match('/^([0-9]*).(jpg)/', $file)) {
-                if (!unlink(_PS_IMG_DIR_ . '/modules/instagram/' . $file)) {
+                if (!unlink(_PS_IMG_DIR_ . '/modules/arkoninstagram/' . $file)) {
                     return false;
                 }
             }
