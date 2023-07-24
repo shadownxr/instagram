@@ -62,10 +62,12 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
                 . '&grant_type=ig_refresh_token';
 
             $data = InstagramCurl::fetch($url);
+            $iv = '';
 
             if (!empty($data)) {
                 $response = DB::getInstance()->update('arkon_instagram_configuration', array(
-                    'access_token' => Encryption::encrypt($data['access_token']),
+                    'access_token' => Encryption::encrypt($data['access_token'], true, $iv),
+                    'access_token_iv' => $iv,
                     'token_expires' => $data['expires_in'],
                 ));
                 return 'Token refreshed';
@@ -79,6 +81,7 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
     private function getAccessToken(): string
     {
         $response = DB::getInstance()->executeS('SELECT access_token, access_token_iv FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_CONFIG_ID);
+        var_dump($response);
         return Encryption::decrypt($response[0]['access_token'], $response[0]['access_token_iv']);
     }
 }
