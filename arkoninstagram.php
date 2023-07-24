@@ -25,7 +25,7 @@ require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
 require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramApiConfiguration.php');
 
-class Instagram extends Module
+class ArkonInstagram extends Module
 {
     private $message = '';
     private $message_type = '';
