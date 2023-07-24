@@ -279,7 +279,13 @@ class ArkonInstagram extends Module
     private function createImageFolder(): bool
     {
         $path = _PS_IMG_DIR_ . 'modules/arkoninstagram/';
-        return mkdir($path, 0777, true);
+        if(file_exists($path)){
+            return true;
+        }
+        if(mkdir($path, 0777, true)){
+            return true;
+        }
+        return false;
     }
 
     public function hookActionAdminControllerSetMedia()
