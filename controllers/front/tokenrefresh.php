@@ -57,7 +57,7 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
 
         $month_in_seconds = 2629743;
 
-        if (($expiration_time - $today_time) > $month_in_seconds) {
+        if (($expiration_time - $today_time) < $month_in_seconds) {
             $url = 'https://graph.instagram.com/refresh_access_token?access_token=' . $access_token
                 . '&grant_type=ig_refresh_token';
 
