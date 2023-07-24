@@ -1,5 +1,7 @@
 <?php
 
+use Curl\InstagramCurl;
+
 class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontController {
 
     public function initContent(){

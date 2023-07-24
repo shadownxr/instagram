@@ -17,10 +17,11 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
 
     public function postProcess()
     {
+        $this->handleRefresh();
         $this->processSettings();
+        parent::postProcess();
     }
 
-    #todo Refactor
     public function processSettings(){
         if (Tools::isSubmit('save_desktop_settings')) {
             $settings = new instagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
@@ -58,10 +59,12 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
         if(!$this->module->fetchImagesFromInstagram()){
             return;
         }
+
         $this->module->deleteLocalImages();
         $this->module->saveImagesLocally();
+    }
 
-
+    public function handleRefresh(){
         if (Tools::isSubmit('refresh')) {
             if(!$this->module->fetchImagesFromInstagram()){
                 return;
@@ -69,8 +72,6 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
             $this->module->deleteLocalImages();
             $this->module->saveImagesLocally();
         }
-
-        parent::postProcess();
     }
 
     public function renderList()
