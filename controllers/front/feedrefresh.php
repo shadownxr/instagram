@@ -8,6 +8,9 @@ class ArkonInstagramFeedRefreshModuleFrontController extends ModuleFrontControll
 
         header('Content-Type: application/json');
         if ($message) {
+            $this->module->deleteLocalImages();
+            $this->module->saveImagesLocally();
+
             http_response_code(200);
             die(json_encode(
                 [
