@@ -13,7 +13,6 @@ export function notification() {
 
 function handleEvents(version: Version, notification: HTMLDivElement) {
     const display_settings = document.querySelectorAll('input[name=' + version + '_display_style], input[name=' + version + '_show_title]') as NodeListOf<HTMLInputElement>;
-
     addEvents(display_settings, notification);
 }
 

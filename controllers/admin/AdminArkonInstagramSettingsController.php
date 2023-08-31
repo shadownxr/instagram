@@ -47,6 +47,7 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
 
         if (!Validate::isLoadedObject($settings)) {
             if ($settings->add()) {
+                $this->module->unregisterHook($prev_hook);
                 $this->module->registerHook($settings->hook);
             }
         } else {

@@ -90,6 +90,40 @@
                         {l s='No' mod='instagram'}
                     </label>
                 </div>
+
+                <div
+                        class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
+                        data-max="1920"
+                        data-min="1"
+                        data-label-max="Maximum:1920"
+                        data-label-min="Minimum:1"
+                        data-label-nan="Not a number."
+                >
+                    <label class="form-control-label" for="{$version}_max_images_fetched"
+                    >{l s='Maximum number of images fetched from your Instagram gallery' mod='instagram'}</label
+                    >
+                    <div class="prestashop-number-input-inputs">
+                        <input class="form-control" type="number" value="{$settings->max_images_fetched}"
+                               id="{$version}_max_images_fetched" name="{$version}_max_images_fetched"/>
+                    </div>
+                </div>
+
+                <div
+                        class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
+                        data-max="10"
+                        data-min="1"
+                        data-label-max="Maximum:10"
+                        data-label-min="Minimum:1"
+                        data-label-nan="Not a number."
+                >
+                    <label class="form-control-label" for="{$version}_images_per_gallery"
+                    >{l s='Number of images display at one time' mod='instagram'}</label
+                    >
+                    <div class="prestashop-number-input-inputs">
+                        <input class="form-control" type="number" value="{$settings->images_per_gallery}"
+                               id="{$version}_images_per_gallery" name="{$version}_images_per_gallery"/>
+                    </div>
+                </div>
             </div>
             <div id="settings_notification"></div>
         </div>
@@ -131,40 +165,6 @@
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="number" value="{$settings->image_size}" id="{$version}_image_size"
                            name="{$version}_image_size"/>
-                </div>
-            </div>
-
-            <div
-                    class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-                    data-max="1920"
-                    data-min="1"
-                    data-label-max="Maximum:1920"
-                    data-label-min="Minimum:1"
-                    data-label-nan="Not a number."
-            >
-                <label class="form-control-label" for="{$version}_max_images_fetched"
-                >{l s='Maximum number of images fetched from your Instagram gallery' mod='instagram'}</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="{$settings->max_images_fetched}"
-                           id="{$version}_max_images_fetched" name="{$version}_max_images_fetched"/>
-                </div>
-            </div>
-
-            <div
-                    class="form-group prestashop-number-input prestashop-number-input-enable-arrows"
-                    data-max="10"
-                    data-min="1"
-                    data-label-max="Maximum:10"
-                    data-label-min="Minimum:1"
-                    data-label-nan="Not a number."
-            >
-                <label class="form-control-label" for="{$version}_images_per_gallery"
-                >{l s='Number of images display at one time' mod='instagram'}</label
-                >
-                <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="number" value="{$settings->images_per_gallery}"
-                           id="{$version}_images_per_gallery" name="{$version}_images_per_gallery"/>
                 </div>
             </div>
 
