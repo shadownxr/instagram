@@ -255,7 +255,8 @@ class ArkonInstagram extends Module
     private function uninstallTab(): bool
     {
         $list_tab = [
-            'AdminArkonInstagramSettings'
+            'AdminArkonInstagramSettings',
+            'AdminArkonInstagramConfigShortcut'
         ];
 
         foreach ($list_tab as $id_tab) {

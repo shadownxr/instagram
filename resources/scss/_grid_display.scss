@@ -1,7 +1,25 @@
-.desktop_grid_display {
+.desktop_grid_display, .mobile_grid_display {
   display: grid;
-}
 
-.mobile_grid_display {
-  display: grid;
+  a {
+    position: relative;
+
+    &:hover {
+      img {
+        filter: brightness(60%);
+      }
+
+      &:after {
+        content: "\f16d";
+        font-family: "FontAwesome", serif;
+        font-size: var(--instagram-icon-size);
+        position: absolute;
+        margin-left: calc(var(--instagram-icon-size) / -2);
+        top: 50%;
+        left: 50%;
+        color: white;
+        z-index: 1;
+      }
+    }
+  }
 }
