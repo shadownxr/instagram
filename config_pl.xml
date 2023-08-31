@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-    <name>instagram</name>
-    <displayName><![CDATA[Instagram Feed API]]></displayName>
+    <name>arkoninstagram</name>
+    <displayName><![CDATA[Galeria Instagram]]></displayName>
     <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[Module allows to display feed from Instagram on the front page]]></description>
+    <description><![CDATA[Moduł wyświetla galerię zdjęć z profilu Instagram na stronie gł&oacute;wnej]]></description>
     <author><![CDATA[Arkonsoft]]></author><author_uri><![CDATA[https://arkonsoft.pl/]]></author_uri>
     <tab><![CDATA[social_media]]></tab>
 	<confirmUninstall><![CDATA[Are you sure? All data will be lost!]]></confirmUninstall>

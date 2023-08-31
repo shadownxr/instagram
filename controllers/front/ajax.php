@@ -1,6 +1,6 @@
 <?php
 
-class InstagramAjaxModuleFrontController extends ModuleFrontController {
+class ArkonInstagramAjaxModuleFrontController extends ModuleFrontController {
     public function initContent(){
         $this->ajax = true;
         parent::initContent();

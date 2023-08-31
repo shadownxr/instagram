@@ -1,6 +1,7 @@
 <?php
 
-class InstagramImages extends ObjectModel {
+class InstagramImages extends ObjectModel
+{
     public $id;
     public $image_id;
     public $image_url;
@@ -18,4 +19,25 @@ class InstagramImages extends ObjectModel {
             'permalink' => array('type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 65535)
         )
     );
+
+    public static function createTable(): bool
+    {
+        $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_images` (
+            `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
+            `image_id` varchar(255) NOT NULL,
+            `image_url` TEXT NOT NULL,
+            `description` TEXT NOT NULL,
+            `permalink` TEXT NOT NULL,
+            PRIMARY KEY (`id`)
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
+
+        return Db::getInstance()->execute($sql);
+    }
+
+    public static function dropTable(): bool
+    {
+        $sql = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_images`';
+
+        return Db::getInstance()->execute($sql);
+    }
 }

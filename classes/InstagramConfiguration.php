@@ -13,9 +13,9 @@ class InstagramConfiguration extends ObjectModel {
         'multishop' => false,
         'fields' => [
             'user_id' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 255],
-            'user_id_iv' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 16],
+            'user_id_iv' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 32],
             'access_token' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 255],
-            'access_token_iv' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 16],
+            'access_token_iv' => ['type' => self::TYPE_STRING,  'validate' => 'isString', 'required' => true, 'size' => 32],
             'token_expires' => ['type' => self::TYPE_INT,  'validate' => 'isUnsignedInt', 'required' => true, 'size' => 255],
         ]
     ];

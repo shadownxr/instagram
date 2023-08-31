@@ -1,14 +1,38 @@
+:root {
+  --instagram-icon-size: 45px;
+}
+
 .instagram_display {
   padding: 10px;
   display: flex;
   justify-content: center;
 
   .section {
-    display:flex;
+    display: flex;
     flex-direction: column;
 
-    img:hover {
-      filter: brightness(60%);
+    li {
+      &:hover {
+        a {
+          display: flex;
+
+          img {
+            filter: brightness(60%);
+          }
+
+          &:after {
+            content: "\f16d";
+            font-family: "FontAwesome", serif;
+            font-size: var(--instagram-icon-size);
+            position: absolute;
+            margin-left: calc(var(--instagram-icon-size)/-2);
+            top: 50%;
+            left: 50%;
+            color: white;
+            z-index: 1;
+          }
+        }
+      }
     }
 
     &__title {

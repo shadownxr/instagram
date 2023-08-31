@@ -17,22 +17,22 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once(_PS_MODULE_DIR_ . 'instagram/src/Encryption/Encryption.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/defines.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/instagramCurl.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramDisplaySettings.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramImages.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramConfiguration.php');
-require_once(_PS_MODULE_DIR_ . 'instagram/classes/InstagramApiConfiguration.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Encryption/Encryption.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Curl/InstagramCurl.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/defines.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramDisplaySettings.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramImages.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramConfiguration.php');
+require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramApiConfiguration.php');
 
-class Instagram extends Module
+class ArkonInstagram extends Module
 {
     private $message = '';
     private $message_type = '';
 
     public function __construct()
     {
-        $this->name = 'instagram';
+        $this->name = 'arkoninstagram';
         $this->tab = 'social_media';
         $this->version = '1.0.0';
         $this->author = 'Arkonsoft';
@@ -43,8 +43,8 @@ class Instagram extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Instagram Feed API');
-        $this->description = $this->l('Module allows to display feed from Instagram on the front page');
+        $this->displayName = $this->l('Instagram Image Gallery');
+        $this->description = $this->l('Module displays gallery of images from Instagram feed on the front office');
 
         $this->confirmUninstall = $this->l('Are you sure? All data will be lost!');
 
@@ -57,13 +57,13 @@ class Instagram extends Module
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        include(dirname(__FILE__) . '/sql/install.php');
-
         return parent::install()
-            && $this->installTab()
+            && InstagramImages::createTable()
+            && InstagramDisplaySettings::createTable()
             && InstagramConfiguration::createTable()
             && InstagramApiConfiguration::createTable()
             && ArkonInstagram\Encryption::generateKey()
+            && $this->createImageFolder()
             && $this->initDefaultDisplaySettings()
             && $this->registerHook('actionFrontControllerSetMedia')
             && $this->registerHook('actionAdminControllerSetMedia');
@@ -71,13 +71,9 @@ class Instagram extends Module
 
     public function uninstall(): bool
     {
-        Configuration::deleteByName('INSTAGRAM_APP_ID');
-        Configuration::deleteByName('INSTAGRAM_APP_SECRET');
-
-        include(dirname(__FILE__) . '/sql/uninstall.php');
-
         return parent::uninstall()
-            && $this->uninstallTab()
+            && InstagramImages::dropTable()
+            && InstagramDisplaySettings::dropTable()
             && InstagramConfiguration::dropTable()
             && InstagramApiConfiguration::dropTable()
             && $this->unregisterHook('actionFrontControllerSetMedia')
@@ -96,7 +92,6 @@ class Instagram extends Module
             && $this->uninstallTab();
     }
 
-
     public function getContent()
     {
         $this->processConfiguration();
@@ -110,14 +105,14 @@ class Instagram extends Module
             $username = $user['username'];
         }
 
-        $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
+        $redirect_uri = $this->context->link->getModuleLink('arkoninstagram', 'auth');
 
         $instagram_app_id = '';
         $instagram_app_secret = '';
 
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
-        if(Validate::isLoadedObject($app_config)) {
+        if (Validate::isLoadedObject($app_config)) {
             $instagram_app_id = ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
             $instagram_app_secret = ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
         }
@@ -149,15 +144,16 @@ class Instagram extends Module
         $code = Tools::getValue('code');
         if ($code) {
             $data = $this->fetchLongAccessToken($code);
-            if (!is_array($data)){
+            if (!is_array($data)) {
                 return;
             }
-            $this->db_updateAccessToken($data);
+            $this->updateAccessToken($data);
 
-            if(!$this->fetchImagesFromInstagram()){
+            if (!$this->fetchImagesFromInstagram()) {
                 return;
             }
 
+            $this->deleteLocalImages();
             $this->saveImagesLocally();
         }
     }
@@ -185,7 +181,7 @@ class Instagram extends Module
     private function setAdminRedirectLink()
     {
         $token = Tools::getAdminTokenLite('AdminModules');
-        $link = $this->context->link->getAdminLink('AdminModules&token=' . $token . '&configure=instagram&tab_module=administration&module_name=instagram', false);
+        $link = $this->context->link->getAdminLink('AdminModules&token=' . $token . '&configure=arkoninstagram&tab_module=administration&module_name=arkoninstagram', false);
 
         $cookie = new Cookie('ADMIN_LINK');
         $cookie->admin_link = $link;
@@ -195,17 +191,12 @@ class Instagram extends Module
     private function processDeletion()
     {
         if (Tools::isSubmit('delete_account')) {
-            $response = $this->db_deleteAccessToken();
-            if ($response) {
-                $response = $this->db_deleteInstagramImages();
-
-                if ($response) {
-                    $this->message = "Account deleted successfully";
-                    $this->message_type = CONFIRMATION_MESSAGE;
-                } else {
-                    $this->message = "Unable to delete account";
-                    $this->message_type = ERROR_MESSAGE;
-                }
+            if (!$this->deleteAccessToken() || !$this->deleteInstagramImages()) {
+                $this->message = $this->l("Unable to delete account");
+                $this->message_type = ERROR_MESSAGE;
+            } else {
+                $this->message = $this->l("Account deleted successfully");
+                $this->message_type = CONFIRMATION_MESSAGE;
             }
         }
     }
@@ -213,16 +204,16 @@ class Instagram extends Module
     private function installTab(): bool
     {
         $response = true;
-        $tabparent = "InstagramAdminConfig";
+        $tabparent = "AdminArkonInstagramConfig";
         $id_parent = Tab::getIdFromClassName($tabparent);
 
         if (!$id_parent) {
             $tab = new Tab();
-            $tab->active = 1;
-            $tab->class_name = "InstagramAdminConfig";
+            $tab->active = true;
+            $tab->class_name = "AdminArkonInstagramConfig";
             $tab->name = array();
             foreach (Language::getLanguages() as $lang) {
-                $tab->name[$lang["id_lang"]] = "Instagram Settings";
+                $tab->name[$lang["id_lang"]] = $this->l("Instagram Settings");
             }
             $tab->id_parent = 0;
             $tab->module = $this->name;
@@ -232,12 +223,12 @@ class Instagram extends Module
 
         $subtabs = array(
             array(
-                'class' => 'InstagramAdminConfigShortcut',
+                'class' => 'AdminArkonInstagramConfigShortcut',
                 'name' => $this->l('Config'),
                 'id_parent' => $id_parent
             ),
             array(
-                'class' => 'InstagramAdminSettings',
+                'class' => 'AdminArkonInstagramSettings',
                 'name' => $this->l('Settings'),
                 'id_parent' => $id_parent
             ),
@@ -247,7 +238,7 @@ class Instagram extends Module
             $idtab = (int)Tab::getIdFromClassName($subtab['class']);
             if ($idtab <= 0) {
                 $tab = new Tab();
-                $tab->active = 1;
+                $tab->active = true;
                 $tab->class_name = $subtab['class'];
                 $tab->name = array();
                 foreach (Language::getLanguages() as $lang) {
@@ -263,7 +254,10 @@ class Instagram extends Module
 
     private function uninstallTab(): bool
     {
-        $list_tab = array('InstagramAdminSettings');
+        $list_tab = [
+            'AdminArkonInstagramSettings',
+            'AdminArkonInstagramConfigShortcut'
+        ];
 
         foreach ($list_tab as $id_tab) {
             $id_tab = (int)Tab::getIdFromClassName($id_tab);
@@ -273,7 +267,7 @@ class Instagram extends Module
             }
         }
 
-        $id_tabP = (int)Tab::getIdFromClassName('InstagramAdminConfig');
+        $id_tabP = (int)Tab::getIdFromClassName('AdminArkonInstagramConfig');
 
         if ($id_tabP) {
             $tabP = new Tab($id_tabP);
@@ -283,39 +277,54 @@ class Instagram extends Module
         return true;
     }
 
+    private function createImageFolder(): bool
+    {
+        $path = _PS_IMG_DIR_ . 'modules/arkoninstagram/';
+        if(file_exists($path)){
+            return true;
+        }
+        if(mkdir($path, 0777, true)){
+            return true;
+        }
+        return false;
+    }
+
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addCSS(_PS_MODULE_DIR_ . 'instagram/views/css/admin.css');
-        $this->context->controller->addJS(_PS_MODULE_DIR_ . 'instagram/views/js/admin.js');
+        $this->context->controller->addCSS(_PS_MODULE_DIR_ . 'arkoninstagram/views/css/admin.css');
+        $this->context->controller->addJS(_PS_MODULE_DIR_ . 'arkoninstagram/views/js/admin.js');
     }
 
     public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->registerStylesheet('instagram_css','/modules/instagram/views/css/front.css');
-        $this->context->controller->registerJavascript('instagram_js','/modules/instagram/views/js/front.js');
+        $url = $this->context->link->getModuleLink('arkoninstagram', 'ajax');
+        Media::addJsDef(['instagram_ajax_url' => $url]);
+        $this->context->controller->requireAssets(['font-awesome']);
+        $this->context->controller->registerStylesheet('instagram_css', '/modules/arkoninstagram/views/css/front.css');
+        $this->context->controller->registerJavascript('instagram_js', '/modules/arkoninstagram/views/js/front.js');
     }
 
     public function __call($name, $arguments)
     {
-        if (!$this->context->isMobile()) {
-            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
-
-            $this->context->smarty->assign(array(
-                'images_data' => $this->db_getImagesData(),
-                'settings' => $settings,
-                'version' => 'desktop'
-            ));
-        } else {
+        if ($this->context->isMobile()) {
             $settings = new InstagramDisplaySettings(INSTAGRAM_MOBILE_CONFIG_ID);
 
-            $this->context->smarty->assign(array(
-                'images_data' => $this->db_getImagesData(),
+            $this->context->smarty->assign([
+                'images_data' => $this->getImagesData(),
                 'settings' => $settings,
                 'version' => 'mobile'
-            ));
+            ]);
+        } else {
+            $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
+
+            $this->context->smarty->assign([
+                'images_data' => $this->getImagesData(),
+                'settings' => $settings,
+                'version' => 'desktop'
+            ]);
         }
 
-        return $this->fetch(_PS_MODULE_DIR_ . 'instagram/views/templates/front/display.tpl');
+        return $this->fetch(_PS_MODULE_DIR_ . 'arkoninstagram/views/templates/front/display.tpl');
     }
 
     /**
@@ -326,19 +335,19 @@ class Instagram extends Module
     {
         $url = 'https://api.instagram.com/oauth/access_token';
 
-        $redirect_uri = $this->context->link->getModuleLink('instagram', 'auth');
+        $redirect_uri = $this->context->link->getModuleLink('arkoninstagram', 'auth');
 
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
-        $data = array(
+        $data = [
             'client_id' => ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv),
             'client_secret' => ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv),
             'grant_type' => 'authorization_code',
             'redirect_uri' => $redirect_uri,
             'code' => $code,
-        );
+        ];
 
-        $fetch_data = InstagramCurl::fetch($url, $data);
+        $fetch_data = Curl\InstagramCurl::fetch($url, $data);
 
         if (array_key_exists('access_token', $fetch_data) && array_key_exists('user_id', $fetch_data)) {
             $short_access_token = $fetch_data['access_token'];
@@ -348,15 +357,15 @@ class Instagram extends Module
             $this->message_type = ERROR_MESSAGE;
             return false;
         } else {
-            $this->message = 'Can\'t get Short Access Token';
+            $this->message = $this->l('Can\'t get Short Access Token');
             $this->message_type = ERROR_MESSAGE;
             return false;
         }
 
-        return array(
+        return [
             'short_access_token' => $short_access_token,
             'user_id' => $user_id,
-        );
+        ];
     }
 
     /**
@@ -375,7 +384,7 @@ class Instagram extends Module
                 . '&access_token=' . $short_access_token
                 . '&grant_type=ig_exchange_token';
 
-            $fetch_data = InstagramCurl::fetch($url);
+            $fetch_data = Curl\InstagramCurl::fetch($url);
 
             if (array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in', $fetch_data)) {
                 $long_access_token = $fetch_data['access_token'];
@@ -385,133 +394,137 @@ class Instagram extends Module
                 $this->message_type = ERROR_MESSAGE;
                 return false;
             } else {
-                $this->message = 'Can\'t get Long Access Token';
+                $this->message = $this->l('Can\'t get Long Access Token');
                 $this->message_type = ERROR_MESSAGE;
                 return false;
             }
 
-            $this->message = 'Account successfully added';
+            $this->message = $this->l('Account successfully added');
             $this->message_type = CONFIRMATION_MESSAGE;
 
-            return array(
+            return [
                 'access_token' => $long_access_token,
                 'token_expires' => $token_expire_date,
                 'user_id' => $user_id
-            );
+            ];
         } else {
             return false;
         }
     }
 
-    public function db_checkIfAccessTokenExists(): bool
+    public function checkIfAccessTokenExists(): bool
     {
-//        #todo Refactor
-        return !empty(DB::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration`'));
+        $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        return Validate::isLoadedObject($configuration);
     }
 
 
-    public function db_updateAccessToken($data): bool
+    public function updateAccessToken($data): bool
     {
-        if(empty($data)){
+        if (empty($data)) {
             return false;
         }
         $user_id_iv = '';
         $access_token_iv = '';
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
-        $instagram_configuration->force_id = true;
+
         $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
         $instagram_configuration->user_id_iv = $user_id_iv;
         $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
         $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
-        return $instagram_configuration->save();
-    }
-
-    public function db_getUserIdAndAccessToken(): array
-    {
-//        #todo Refactor
-        return DB::getInstance()->executeS('SELECT user_id, access_token FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_CONFIG_ID);
-    }
-
-    public function db_deleteAccessToken(): bool
-    {
-//        #todo Refactor
-        return DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_configuration` WHERE id_instagram=' . INSTAGRAM_CONFIG_ID);
-    }
-
-    public function db_deleteInstagramImages(): bool
-    {
-//        #todo Refactor
-        $response = DB::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
-        if ($response) {
-            return DB::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'arkon_instagram_images` AUTO_INCREMENT=1');
-        } else {
-            return $response;
+        if (Validate::isLoadedObject($instagram_configuration)) {
+            return $instagram_configuration->update();
         }
+
+        $instagram_configuration->id = INSTAGRAM_CONFIG_ID;
+        $instagram_configuration->force_id = true;
+        return $instagram_configuration->add();
     }
 
-    public function db_getImagesData()
+    public function deleteAccessToken(): bool
     {
-//        #todo Refactor
-        return DB::getInstance()->executeS('SELECT image_url, permalink FROM `' . _DB_PREFIX_ . 'arkon_instagram_images`');
+        $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+
+        if (!Validate::isLoadedObject($configuration)) {
+            return false;
+        }
+
+        return $configuration->delete();
+    }
+
+    public function deleteInstagramImages(): bool
+    {
+        $images = new PrestaShopCollection('InstagramImages');
+        $images = $images->getResults();
+
+        $result = true;
+
+        foreach ($images as $image) {
+            $result &= $image->delete();
+        }
+
+        return $result;
+    }
+
+    public function getImagesData(): array
+    {
+        $images = new PrestaShopCollection('InstagramImages');
+        $images = $images->getResults();
+
+        if (empty($images)) {
+            return [];
+        }
+
+        return $images;
     }
 
     public function fetchImagesFromInstagram(): bool
     {
-        if(!$this->db_deleteInstagramImages()){
-            return false;
-        }
-
         $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
         $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
 
-        if (Validate::isLoadedObject($data)) {
-            $images_url = [];
-            $image_fetch_counter = 1;
-
-            $fields = 'id,timestamp';
-            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-            $images_id = InstagramCurl::fetch($url);
-
-            $fields = 'media_url,media_type,caption,permalink';
-            foreach ($images_id['data'] as $image_id) {
-                $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-                $images_url[] = InstagramCurl::fetch($url);
-            }
-
-            foreach ($images_url as $image) {
-                if ($image['media_type'] !== "IMAGE") {
-                    continue;
-                }
-
-                if ($image_fetch_counter <= $settings->max_images_fetched) {
-                    $img = new InstagramImages($image_fetch_counter);
-                    $img->image_id = $image['id'];
-                    $img->image_url = $image['media_url'];
-                    $img->permalink = $image['permalink'];
-
-                    if (array_key_exists('caption', $image)) {
-                        $img->description = $image['caption'];
-                    } else {
-                        $img->description = '';
-                    }
-
-                    if (Validate::isLoadedObject($img)) {
-                        $img->update();
-                    } else {
-                        $img->add();
-                    }
-                    ++$image_fetch_counter;
-                } else {
-                    break;
-                }
-            }
-            return true;
-        } else {
+        if (!Validate::isLoadedObject($data) || !Validate::isLoadedObject($settings)) {
             return false;
         }
+
+        if ($settings->max_images_fetched < 1) {
+            $this->message = $this->l('Invalid number of images to fetch');
+            $this->message_type = ERROR_MESSAGE;
+            return false;
+        }
+
+        if (!$this->deleteInstagramImages()) {
+            return false;
+        }
+
+        $fields = 'id,timestamp';
+        $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+        $images_id = Curl\InstagramCurl::fetch($url);
+
+        $image_fetch_counter = 0;
+        $fields = 'media_url,media_type,caption,permalink';
+        foreach ($images_id['data'] as $image_id) {
+            if ($image_fetch_counter >= $settings->max_images_fetched) {
+                break;
+            }
+
+            $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+            $image = Curl\InstagramCurl::fetch($url);
+
+            if ($image['media_type'] !== "IMAGE") {
+                continue;
+            }
+
+            $this->saveImageData($image);
+
+            ++$image_fetch_counter;
+        }
+
+        return true;
     }
 
     /**
@@ -524,8 +537,7 @@ class Instagram extends Module
         if (Validate::isLoadedObject($data)) {
             $fields = 'username,media_count';
             $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-
-            return InstagramCurl::fetch($url);
+            return Curl\InstagramCurl::fetch($url);
         } else {
             return false;
         }
@@ -554,29 +566,58 @@ class Instagram extends Module
         return false;
     }
 
-    public function saveImagesLocally(){
+    public function saveImageData(array $image)
+    {
+        $img = new InstagramImages();
+        $img->image_id = $image['id'];
+        $img->image_url = $image['media_url'];
+        $img->permalink = $image['permalink'];
+
+        if (array_key_exists('caption', $image)) {
+            $img->description = $image['caption'];
+        } else {
+            $img->description = '';
+        }
+
+        $img->save();
+    }
+
+    public function saveImagesLocally()
+    {
         $images = new PrestaShopCollection('InstagramImages');
 
-        foreach($images->getResults() as $key => $item){
+        foreach ($images->getResults() as $image) {
             $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, $item->image_url);
+            curl_setopt($ch, CURLOPT_URL, $image->image_url);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $resp = curl_exec($ch);
-            if(empty($resp)){
+            if (empty($resp)) {
                 return;
             }
 
             curl_close($ch);
 
-            if(!($fp = fopen(_PS_IMG_DIR_ . '/modules/instagram/'. $key .'.jpg', 'c'))){
+            if (!($fp = fopen(_PS_IMG_DIR_ . '/modules/arkoninstagram/' . $image->id . '.jpg', 'w'))) {
                 return;
             }
             fwrite($fp, $resp);
             fclose($fp);
         }
+    }
+
+    public function deleteLocalImages(): bool
+    {
+        $img_folder = scandir(_PS_IMG_DIR_ . '/modules/arkoninstagram/');
+        foreach ($img_folder as $file) {
+            if (preg_match('/^([0-9]*).(jpg)/', $file)) {
+                if (!unlink(_PS_IMG_DIR_ . '/modules/arkoninstagram/' . $file)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

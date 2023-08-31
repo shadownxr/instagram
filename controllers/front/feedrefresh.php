@@ -1,6 +1,6 @@
 <?php
 
-class InstagramFeedRefreshModuleFrontController extends ModuleFrontController
+class ArkonInstagramFeedRefreshModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
@@ -8,6 +8,9 @@ class InstagramFeedRefreshModuleFrontController extends ModuleFrontController
 
         header('Content-Type: application/json');
         if ($message) {
+            $this->module->deleteLocalImages();
+            $this->module->saveImagesLocally();
+
             http_response_code(200);
             die(json_encode(
                 [

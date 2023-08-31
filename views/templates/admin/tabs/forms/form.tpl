@@ -12,7 +12,7 @@
                         {foreach from=$display_hooks item=display_hook}
                             <option value="{$display_hook['name']}" {if $settings->hook == $display_hook['name']} selected {/if}>{$display_hook['name']}</option>
                         {/foreach}
-                        <option value="instagramDisplay" {if $settings->hook == "instagramDisplay"} selected {/if}>instagramDisplay</option>
+                        <option value="instagramDisplay" {if $settings->hook == "instagramDisplay"} selected {/if}>{l s='instagramDisplay'}</option>
                     </select>
                 </div>
             </div>
@@ -109,7 +109,7 @@
         <div class="form-wrapper">
             <div class="form-group {if $settings->show_title === false}hide{/if}">
                 <label class="form-control-label" for="{$version}_title"
-                >{l s='Gallery title'}</label
+                >{l s='Gallery title' mod='instagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="text" value="{$settings->title}" id="{$version}_title"
@@ -126,7 +126,7 @@
                     data-label-nan="Not a number."
             >
                 <label class="form-control-label" for="{$version}_image_size"
-                >{l s='Size of image'}</label
+                >{l s='Size of image' mod='instagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="number" value="{$settings->image_size}" id="{$version}_image_size"
