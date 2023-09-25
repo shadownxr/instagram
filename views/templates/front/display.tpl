@@ -2,7 +2,14 @@
     <div class="instagram_display">
         <div class="section">
             {if $settings->show_title == true}
-                <div class="section__title"><h1>{$settings->title}</h1></div>
+                <div class="section__header">
+                    <div class="section__header--title">
+                        <h2>{$settings->title}</h2>
+                    </div>
+                    <div class="section__header--link">
+                        <a href="https://instagram.com/{$username}/" class="btn btn-default btn-primary">{l s='Follow Us @' mod='arkoninstagram'}{$username}</a>
+                    </div>
+                </div>
             {/if}
             {if $settings->display_style == 'slider'}
                 {include file='./display/slider.tpl' images_data=$images_data settings=$settings version=$version}

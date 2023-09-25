@@ -19,12 +19,15 @@ async function fetchSettings() {
 }
 
 function getOptions(response: any, type: number) {
+    const images_per_gallery = parseInt(response[type].images_per_gallery);
+    const gap = parseInt(response[type].gap);
+    const image_size = parseFloat(response[type].image_size);
     return {
         type: 'slide',
-        perPage: response[type].images_per_gallery,
+        perPage: images_per_gallery,
         perMove: 1,
-        width: (response[type].images_per_gallery * response[type].image_size) + parseInt(response[type].gap),
-        gap: parseInt(response[type].gap),
+        width: (images_per_gallery * image_size) + (gap * images_per_gallery) - gap,
+        gap: gap,
     };
 }
 
@@ -35,12 +38,12 @@ export function frontSliders() {
 
         if(response[DESKTOP].display_style === 'slider' && !(device_type === 'mobile')){
             let options = getOptions(response, DESKTOP);
-            new Splide('#desktop_slider', options).mount();
+            new Splide('#arkon_instagram_desktop_slider', options).mount();
         }
 
         if(response[MOBILE].display_style === 'slider' && (device_type === 'mobile')){
             let mobile_options = getOptions(response, MOBILE);
-            new Splide('#mobile_slider', mobile_options).mount();
+            new Splide('#arkon_instagram_mobile_slider', mobile_options).mount();
         }
     });
 }

@@ -3,7 +3,7 @@
 }
 
 .instagram_display {
-  padding: 10px;
+  padding: 10px 10px 100px 10px;
   display: flex;
   justify-content: center;
 
@@ -35,13 +35,39 @@
       }
     }
 
-    &__title {
-      text-align: center;
+    &__header {
+      margin-bottom: 2.5rem;
+      display: flex;
+      flex-direction: column;
+
+      &--title {
+        align-self: center;
+        text-align: center;
+      }
+
+      &--link {
+        margin-top: 1rem;
+        align-self: center;
+
+        a {
+
+        }
+      }
     }
 
     &__images {
       display: flex;
       flex-direction: row;
+
+      .splide {
+        &__list {
+          width: initial;
+        }
+      }
+
+      img {
+        aspect-ratio: 1/1;
+      }
     }
   }
 }
