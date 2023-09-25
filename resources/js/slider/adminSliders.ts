@@ -20,6 +20,10 @@ export class AdminSliders {
         this.gap_input = document.querySelector('input[name=' + this.version + '_gap]') as HTMLInputElement;
         this.title_input = document.querySelector('input[name='+ this.version +'_title]') as HTMLInputElement;
 
+        if(!this.images_per_gallery || !this.image_size_input || !this.gap_input || !this.title_input){
+            return;
+        }
+
         this.perPage = parseInt(this.images_per_gallery.value);
         this.size = parseInt(this.image_size_input.value);
         this.gap = parseInt(this.gap_input.value);

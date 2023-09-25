@@ -519,6 +519,10 @@ class ArkonInstagram extends Module
             $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
             $image = InstagramCurl::fetch($url);
 
+            if(empty($image['media_type'])){
+                continue;
+            }
+
             if ($image['media_type'] !== "IMAGE") {
                 continue;
             }
