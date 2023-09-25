@@ -1,6 +1,6 @@
 <?php
 
-namespace ArkonInstagram;
+namespace ArkonInstagram\Encryption;
 
 class Encryption
 {
