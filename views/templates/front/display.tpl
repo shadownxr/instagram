@@ -4,7 +4,7 @@
             {if $settings->show_title == true}
                 <div class="section__header">
                     <div class="section__header--title">
-                        <h2>{$settings->title}</h2>
+                        {$settings->title nofilter}
                     </div>
                     <div class="section__header--link">
                         <a href="https://instagram.com/{$username}/" class="btn btn-default btn-primary">{l s='Follow Us @' mod='arkoninstagram'}{$username}</a>
