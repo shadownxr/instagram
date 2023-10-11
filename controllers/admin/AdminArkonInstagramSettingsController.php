@@ -110,19 +110,16 @@ class AdminArkonInstagramSettingsController extends ModuleAdminController
     public function form()
     {
         $number_options = [];
-
         for($i = 1; $i <= 50; ++$i){
             $number_options[] = ['number' => $i, 'name' => $i];
         }
 
-        $size_options = [];
-
+        $size_options = [['size' => 0, 'name' => 'Auto']];
         for($i = 10; $i <= 40; ++$i){
             $size_options[] = ['size' => $i * 10, 'name' => $i * 10];
         }
 
         $gap_options = [];
-
         for($i = 0; $i <= 30; ++$i){
             $gap_options[] = ['gap' => $i, 'name' => $i];
         }

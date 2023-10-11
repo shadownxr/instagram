@@ -22,13 +22,23 @@ function getOptions(response: any, type: number) {
     const images_per_gallery = parseInt(response[type].images_per_gallery);
     const gap = parseInt(response[type].gap);
     const image_size = parseFloat(response[type].image_size);
-    return {
-        type: 'slide',
-        perPage: images_per_gallery,
-        perMove: 1,
-        width: (images_per_gallery * image_size) + (gap * images_per_gallery) - gap,
-        gap: gap,
-    };
+
+    if(image_size === 0){
+        return {
+            type: 'slide',
+            perPage: images_per_gallery,
+            perMove: 1,
+            gap: gap,
+        }
+    } else {
+        return {
+            type: 'slide',
+            perPage: images_per_gallery,
+            perMove: 1,
+            width: (images_per_gallery * image_size) + (gap * images_per_gallery) - gap,
+            gap: gap,
+        };
+    }
 }
 
 export function frontSliders() {

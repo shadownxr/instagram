@@ -5,7 +5,10 @@
                 {foreach $images_data as $data}
                     <li class="splide__slide">
                         <a href="{$data->permalink}">
-                            <img loading="lazy" src="/img/modules/arkoninstagram/{$data->id}.jpg" height="{$settings->image_size}" width="{$settings->image_size}"/>
+                            <img loading="lazy" src="/img/modules/arkoninstagram/{$data->id}.jpg" alt="Instagram Gallery Photo"
+                                 {if $settings->image_size === 0}height="{$settings->image_size}" width="{$settings->image_size}"
+                                 {else} style="max-width: 100%"{/if}
+                            "/>
                         </a>
                     </li>
                 {/foreach}
