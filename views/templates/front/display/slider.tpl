@@ -1,5 +1,5 @@
 <div class="section__images">
-    <section class="splide" id="arkon_instagram_{$version}_slider" aria-label="Splide Basic HTML Example">
+    <section class="splide" id="arkon_instagram_slider" aria-label="Splide Basic HTML Example">
         <div class="splide__track">
             <ul class="splide__list">
                 {foreach $images_data as $data}
