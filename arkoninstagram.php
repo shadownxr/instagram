@@ -17,13 +17,15 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Encryption/Encryption.php');
-require_once(_PS_MODULE_DIR_ . 'arkoninstagram/src/Curl/InstagramCurl.php');
 require_once(_PS_MODULE_DIR_ . 'arkoninstagram/defines.php');
 require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramDisplaySettings.php');
 require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramImages.php');
 require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramConfiguration.php');
 require_once(_PS_MODULE_DIR_ . 'arkoninstagram/classes/InstagramApiConfiguration.php');
+require_once __DIR__ . '/vendor/autoload.php';
+
+use ArkonInstagram\Curl\InstagramCurl;
+use ArkonInstagram\Encryption\Encryption;
 
 class ArkonInstagram extends Module
 {
@@ -62,7 +64,7 @@ class ArkonInstagram extends Module
             && InstagramDisplaySettings::createTable()
             && InstagramConfiguration::createTable()
             && InstagramApiConfiguration::createTable()
-            && ArkonInstagram\Encryption::generateKey()
+            && Encryption::generateKey()
             && $this->createImageFolder()
             && $this->initDefaultDisplaySettings()
             && $this->registerHook('actionFrontControllerSetMedia')
@@ -98,8 +100,7 @@ class ArkonInstagram extends Module
         $this->processAuthorization();
         $this->processDeletion();
 
-        $user = $this->getUserInfo();
-        $username = '';
+        $username = Configuration::get('ARKON_INSTAGRAM_USERNAME');
 
         if (!empty($user)) {
             $username = $user['username'];
@@ -113,8 +114,8 @@ class ArkonInstagram extends Module
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
         if (Validate::isLoadedObject($app_config)) {
-            $instagram_app_id = ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
-            $instagram_app_secret = ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
+            $instagram_app_id = Encryption::decrypt($app_config->app_id, $app_config->app_id_iv);
+            $instagram_app_secret = Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv);
         }
 
         $redirect_cookie = false;
@@ -155,6 +156,7 @@ class ArkonInstagram extends Module
 
             $this->deleteLocalImages();
             $this->saveImagesLocally();
+            $this->getUserInfo();
         }
     }
 
@@ -170,9 +172,9 @@ class ArkonInstagram extends Module
 
             $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
             $app_config->force_id = true;
-            $app_config->app_id = ArkonInstagram\Encryption::encrypt($instagram_app_id, true, $app_id_iv);
+            $app_config->app_id = Encryption::encrypt($instagram_app_id, true, $app_id_iv);
             $app_config->app_id_iv = $app_id_iv;
-            $app_config->app_secret = ArkonInstagram\Encryption::encrypt($instagram_app_secret, true, $app_secret_iv);
+            $app_config->app_secret = Encryption::encrypt($instagram_app_secret, true, $app_secret_iv);
             $app_config->app_secret_iv = $app_secret_iv;
             $app_config->save();
         }
@@ -312,7 +314,8 @@ class ArkonInstagram extends Module
             $this->context->smarty->assign([
                 'images_data' => $this->getImagesData(),
                 'settings' => $settings,
-                'version' => 'mobile'
+                'version' => 'mobile',
+                'username' => Configuration::get('ARKON_INSTAGRAM_USERNAME')
             ]);
         } else {
             $settings = new InstagramDisplaySettings(INSTAGRAM_DESKTOP_CONFIG_ID);
@@ -320,7 +323,8 @@ class ArkonInstagram extends Module
             $this->context->smarty->assign([
                 'images_data' => $this->getImagesData(),
                 'settings' => $settings,
-                'version' => 'desktop'
+                'version' => 'desktop',
+                'username' => Configuration::get('ARKON_INSTAGRAM_USERNAME')
             ]);
         }
 
@@ -340,14 +344,14 @@ class ArkonInstagram extends Module
         $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
         $data = [
-            'client_id' => ArkonInstagram\Encryption::decrypt($app_config->app_id, $app_config->app_id_iv),
-            'client_secret' => ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv),
+            'client_id' => Encryption::decrypt($app_config->app_id, $app_config->app_id_iv),
+            'client_secret' => Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv),
             'grant_type' => 'authorization_code',
             'redirect_uri' => $redirect_uri,
             'code' => $code,
         ];
 
-        $fetch_data = Curl\InstagramCurl::fetch($url, $data);
+        $fetch_data = InstagramCurl::fetch($url, $data);
 
         if (array_key_exists('access_token', $fetch_data) && array_key_exists('user_id', $fetch_data)) {
             $short_access_token = $fetch_data['access_token'];
@@ -380,11 +384,11 @@ class ArkonInstagram extends Module
 
             $app_config = new InstagramApiConfiguration(INSTAGRAM_CONFIG_ID);
 
-            $url = 'https://graph.instagram.com/access_token?client_secret=' . ArkonInstagram\Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv)
+            $url = 'https://graph.instagram.com/access_token?client_secret=' . Encryption::decrypt($app_config->app_secret, $app_config->app_secret_iv)
                 . '&access_token=' . $short_access_token
                 . '&grant_type=ig_exchange_token';
 
-            $fetch_data = Curl\InstagramCurl::fetch($url);
+            $fetch_data = InstagramCurl::fetch($url);
 
             if (array_key_exists('access_token', $fetch_data) && array_key_exists('expires_in', $fetch_data)) {
                 $long_access_token = $fetch_data['access_token'];
@@ -430,9 +434,9 @@ class ArkonInstagram extends Module
 
         $instagram_configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
 
-        $instagram_configuration->user_id = ArkonInstagram\Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
+        $instagram_configuration->user_id = Encryption::encrypt((string)$data['user_id'], true, $user_id_iv);
         $instagram_configuration->user_id_iv = $user_id_iv;
-        $instagram_configuration->access_token = ArkonInstagram\Encryption::encrypt($data['access_token'], true, $access_token_iv);
+        $instagram_configuration->access_token = Encryption::encrypt($data['access_token'], true, $access_token_iv);
         $instagram_configuration->access_token_iv = $access_token_iv;
         $instagram_configuration->token_expires = $data['token_expires'];
 
@@ -502,8 +506,8 @@ class ArkonInstagram extends Module
         }
 
         $fields = 'id,timestamp';
-        $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-        $images_id = Curl\InstagramCurl::fetch($url);
+        $url = 'https://graph.instagram.com/' . Encryption::decrypt($data->user_id, $data->user_id_iv) . '/media?access_token=' . Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+        $images_id = InstagramCurl::fetch($url);
 
         $image_fetch_counter = 0;
         $fields = 'media_url,media_type,caption,permalink';
@@ -512,8 +516,12 @@ class ArkonInstagram extends Module
                 break;
             }
 
-            $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-            $image = Curl\InstagramCurl::fetch($url);
+            $url = 'https://graph.instagram.com/' . $image_id['id'] . '?access_token=' . Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+            $image = InstagramCurl::fetch($url);
+
+            if(empty($image['media_type'])){
+                continue;
+            }
 
             if ($image['media_type'] !== "IMAGE") {
                 continue;
@@ -528,16 +536,20 @@ class ArkonInstagram extends Module
     }
 
     /**
-     * @return false|mixed
+     * @return false
      */
-    public function getUserInfo()
+    public function getUserInfo() : bool
     {
         $data = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
 
         if (Validate::isLoadedObject($data)) {
             $fields = 'username,media_count';
-            $url = 'https://graph.instagram.com/' . ArkonInstagram\Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . ArkonInstagram\Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
-            return Curl\InstagramCurl::fetch($url);
+            $url = 'https://graph.instagram.com/' . Encryption::decrypt($data->user_id, $data->user_id_iv) . '?access_token=' . Encryption::decrypt($data->access_token, $data->access_token_iv) . '&fields=' . $fields;
+            $response = InstagramCurl::fetch($url);
+            if(!empty($response) && !empty($response['username'])){
+                Configuration::updateValue('ARKON_INSTAGRAM_USERNAME', $response['username']);
+                return true;
+            }
         } else {
             return false;
         }

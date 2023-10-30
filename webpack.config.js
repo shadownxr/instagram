@@ -1,6 +1,8 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const isProduction = process.env.npm_lifecycle_script.includes("--mode production");
+
 let config = {
     entry: {
 		'admin': ['./resources/js/admin.ts', './resources/scss/instagram.scss'],
@@ -63,7 +65,7 @@ let config = {
             filename: 'css/[name].css',
         }),
     ],
-    devtool: 'inline-source-map',
+    devtool: isProduction ? false : "inline-source-map",
     watchOptions: {
         ignored: /node_modules/,
     },

@@ -4,7 +4,7 @@
             {if $key < $settings->images_per_gallery}
             <div class="item">
                 <a href="{$data->permalink}">
-                    <img src="/img/modules/arkoninstagram/{$data->id}.jpg" height="{$settings->image_size}" width="{$settings->image_size}" class="{$version}_preview_images">
+                    <img loading="lazy" src="/img/modules/arkoninstagram/{$data->id}.jpg" height="{$settings->image_size}" width="{$settings->image_size}" class="{$version}_preview_images">
                 </a>
             </div>
             {/if}

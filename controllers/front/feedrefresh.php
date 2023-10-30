@@ -4,6 +4,16 @@ class ArkonInstagramFeedRefreshModuleFrontController extends ModuleFrontControll
 {
     public function initContent()
     {
+        if(Tools::getValue('token') !== '90234gb8qf2gmi0ga2FGA'){
+            http_response_code(500);
+            die(json_encode(
+                [
+                    'message' => 'Invalid token',
+                    'status' => 400
+                ]
+            ));
+        }
+
         $message = $this->module->fetchImagesFromInstagram();
 
         header('Content-Type: application/json');
@@ -19,7 +29,7 @@ class ArkonInstagramFeedRefreshModuleFrontController extends ModuleFrontControll
                 ]
             ));
         } else {
-            http_response_code(400);
+            http_response_code(500);
             die(json_encode(
                 [
                     'message' => 'Unable to refresh images',

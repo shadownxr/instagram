@@ -4,7 +4,7 @@
         {if $version == $DESKTOP}{l s='Desktop Preview' mod='instagram'}{else}{l s='Mobile Preview' mod='instagram'}{/if}
         <form action="" method="POST" class="btn-default pull-right">
             <button type="submit" name="refresh"
-                    class="btn btn-default pull-right">{l s='Refresh Images' mod='instagram'}</button>
+                    class="btn btn-default pull-right">{l s='Refresh Images' mod='arkoninstagram'}</button>
         </form>
     </div>
 

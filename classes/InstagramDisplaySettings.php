@@ -20,7 +20,7 @@ class InstagramDisplaySettings extends ObjectModel
         'multishop' => false,
         'fields' => array(
             'hook' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 255),
-            'title' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 255),
+            'title' => array('type' => self::TYPE_HTML, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 65535),
             'display_style' => array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 255),
             'image_size' => array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true, 'size' => 11),
             'show_title' => array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true),
@@ -37,7 +37,7 @@ class InstagramDisplaySettings extends ObjectModel
         $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'arkon_instagram_displaysettings` (
             `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
             `hook` varchar(255) NOT NULL,
-            `title` varchar(255) NOT NULL,
+            `title` TEXT NOT NULL,
             `display_style` varchar(255) NOT NULL,
             `image_size` int(11) unsigned NOT NULL,
             `show_title` BOOLEAN NOT NULL,

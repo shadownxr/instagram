@@ -1,6 +1,6 @@
 <?php
 
-namespace Curl;
+namespace ArkonInstagram\Curl;
 
 class InstagramCurl
 {

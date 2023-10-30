@@ -1,4 +1,3 @@
-import UAParser from "ua-parser-js";
 import Splide from "@splidejs/splide";
 
 const DESKTOP = 0;
@@ -18,29 +17,45 @@ async function fetchSettings() {
     return response.json();
 }
 
-function getOptions(response: any, type: number) {
-    return {
+function getOptions(response: any) {
+    const desktop_images_per_gallery = parseInt(response[DESKTOP].images_per_gallery);
+    const desktop_gap = parseInt(response[DESKTOP].gap);
+    const desktop_image_size = parseFloat(response[DESKTOP].image_size);
+
+    const mobile_images_per_gallery = parseInt(response[MOBILE].images_per_gallery);
+    const mobile_gap = parseInt(response[MOBILE].gap);
+    const mobile_image_size = parseFloat(response[MOBILE].image_size);
+
+    let options = {
         type: 'slide',
-        perPage: response[type].images_per_gallery,
+        perPage: desktop_images_per_gallery,
         perMove: 1,
-        width: (response[type].images_per_gallery * response[type].image_size) + parseInt(response[type].gap),
-        gap: parseInt(response[type].gap),
-    };
+        gap: desktop_gap,
+        width: undefined as number,
+        breakpoints: {
+            992: {
+                perPage: mobile_images_per_gallery,
+                gap: mobile_gap,
+                width: undefined as number,
+
+            }
+        },
+    }
+
+    if(desktop_image_size !== 0){
+        options.width = (desktop_images_per_gallery * desktop_image_size) + (desktop_gap * desktop_images_per_gallery) - desktop_gap;
+    }
+
+    if(mobile_image_size !== 0){
+        options.breakpoints['992'].width = (mobile_images_per_gallery * mobile_image_size) + (mobile_gap * mobile_images_per_gallery) - mobile_gap;
+    }
+
+    return options;
 }
 
 export function frontSliders() {
     fetchSettings().then((response) => {
-        let parser = new UAParser();
-        let device_type = parser.getDevice().type as string;
-
-        if(response[DESKTOP].display_style === 'slider' && !(device_type === 'mobile')){
-            let options = getOptions(response, DESKTOP);
-            new Splide('#desktop_slider', options).mount();
-        }
-
-        if(response[MOBILE].display_style === 'slider' && (device_type === 'mobile')){
-            let mobile_options = getOptions(response, MOBILE);
-            new Splide('#mobile_slider', mobile_options).mount();
-        }
+        const options =  getOptions(response);
+        new Splide('#arkon_instagram_slider', options).mount();
     });
 }

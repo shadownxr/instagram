@@ -49,14 +49,14 @@
                                     checked
                                 {/if}
                         />
-                        <i class="form-check-round">Grid</i>
+                        <i class="form-check-round">{l s='Grid' mod='arkoninstagram'}</i>
                     </label>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-control-label"
-                >{l s='Show title' mod='instagram'} </label
+                >{l s='Show title' mod='arkoninstagram'} </label
                 >
                 <div class="form-check form-check-radio">
                     <label class="form-check-label">
@@ -71,7 +71,7 @@
                                 {/if}
                         />
                         <i class="form-check-round"></i>
-                        {l s='Yes' mod='instagram'}
+                        {l s='Yes' mod='arkoninstagram'}
                     </label>
                 </div>
                 <div class="form-check form-check-radio">
@@ -87,7 +87,7 @@
                                 {/if}
                         />
                         <i class="form-check-round"></i>
-                        {l s='No' mod='instagram'}
+                        {l s='No' mod='arkoninstagram'}
                     </label>
                 </div>
 
@@ -117,7 +117,7 @@
                         data-label-nan="Not a number."
                 >
                     <label class="form-control-label" for="{$version}_images_per_gallery"
-                    >{l s='Number of images display at one time' mod='instagram'}</label
+                    >{l s='Number of images display at one time' mod='arkoninstagram'}</label
                     >
                     <div class="prestashop-number-input-inputs">
                         <input class="form-control" type="number" value="{$settings->images_per_gallery}"
@@ -130,24 +130,24 @@
 
         <div class="panel-footer">
             <button type="submit" name="save_{$version}_settings"
-                    class="btn btn-default pull-right">{l s='Save' mod='instagram'}</button>
+                    class="btn btn-default pull-right">{l s='Save' mod='arkoninstagram'}</button>
         </div>
     </div>
 
     <div class="panel">
         <div class="panel-heading">
             <i class="icon icon-cogs"></i>
-            {l s='Image settings' mod='instagram'}
+            {l s='Image settings' mod='arkoninstagram'}
         </div>
 
         <div class="form-wrapper">
             <div class="form-group {if $settings->show_title === false}hide{/if}">
                 <label class="form-control-label" for="{$version}_title"
-                >{l s='Gallery title' mod='instagram'}</label
+                >{l s='Gallery title' mod='arkoninstagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
-                    <input class="form-control" type="text" value="{$settings->title}" id="{$version}_title"
-                           name="{$version}_title"/>
+                    <textarea class="form-control autoload_rte rte" type="text" value="{$settings->title}" id="{$version}_title"
+                           name="{$version}_title">{$settings->title}</textarea>
                 </div>
             </div>
 
@@ -160,7 +160,7 @@
                     data-label-nan="Not a number."
             >
                 <label class="form-control-label" for="{$version}_image_size"
-                >{l s='Size of image' mod='instagram'}</label
+                >{l s='Size of image' mod='arkoninstagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="number" value="{$settings->image_size}" id="{$version}_image_size"
@@ -177,7 +177,7 @@
                     data-label-nan="Not a number."
             >
                 <label class="form-control-label" for="{$version}_gap"
-                >{l s='Gap between images' mod='instagram'}</label
+                >{l s='Gap between images' mod='arkoninstagram'}</label
                 >
                 <div class="prestashop-number-input-inputs">
                     <input class="form-control" type="number" value="{$settings->gap}" id="{$version}_gap"
@@ -191,7 +191,21 @@
         </div>
         <div class="panel-footer">
             <button type="submit" name="save_{$version}_settings"
-                    class="btn btn-default pull-right">{l s='Save' mod='instagram'}</button>
+                    class="btn btn-default pull-right">{l s='Save' mod='arkoninstagram'}</button>
         </div>
     </div>
 </form>
+
+<script type="text/javascript">
+  var iso = '{$iso|addslashes}';
+  var pathCSS = '{$smarty.const._THEME_CSS_DIR_|addslashes}';
+  {*var ad = '{$ad|addslashes}';*}
+
+  $(document).ready(function(){
+      {block name="autoload_tinyMCE"}
+    tinySetup({
+      editor_selector :"autoload_rte"
+    });
+      {/block}
+  });
+</script>
