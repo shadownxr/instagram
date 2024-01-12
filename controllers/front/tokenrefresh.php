@@ -1,6 +1,7 @@
 <?php
 
 use ArkonInstagram\Curl\InstagramCurl;
+use ArkonInstagram\Encryption\Encryption;
 
 class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontController {
 
@@ -59,7 +60,8 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
         $expiration_time = (int)$response[0]['token_expires'] + idate('U', strtotime($response[0]['creation_date']));
         $today_time = date("U");
 
-        $access_token = $this->db_getAccessToken();
+        $configuration = new InstagramConfiguration(INSTAGRAM_CONFIG_ID);
+        $access_token = Encryption::decrypt($configuration->access_token, $configuration->access_token_iv);
 
         $month_in_seconds = 2629743;
 
@@ -69,8 +71,12 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
 
             $data = InstagramCurl::fetch($url);
             if(!empty($data)){
-                DB::getInstance()->update('instagram', array(
-                    'access_token' => $data['access_token'],
+                $iv = '';
+                $access_token = Encryption::encrypt($data['access_token'], true, $iv);
+
+                DB::getInstance()->update('arkon_instagram_configuration', array(
+                    'access_token' => $access_token,
+                    'access_token_iv' => $iv,
                     'token_expires' => $data['expires_in'],
                 ));
                 return 'Token refreshed';
@@ -81,8 +87,8 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
         return 'Token not one month old';
     }
 
-    private function db_getAccessToken(): string{
-        $response = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'arkon_instagram_configuration` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
-        return $response[0]['access_token'];
-    }
+//    private function db_getAccessToken(): string{
+//        $response = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'arkon_instagram_configuration` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
+//        return $response[0]['access_token'];
+//    }
 }
