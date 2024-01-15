@@ -86,9 +86,4 @@ class ArkonInstagramTokenRefreshModuleFrontController extends ModuleFrontControl
         }
         return 'Token not one month old';
     }
-
-//    private function db_getAccessToken(): string{
-//        $response = DB::getInstance()->executeS('SELECT access_token FROM `' . _DB_PREFIX_ .'arkon_instagram_configuration` WHERE id_instagram='.INSTAGRAM_CONFIG_ID);
-//        return $response[0]['access_token'];
-//    }
 }
